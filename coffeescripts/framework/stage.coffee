@@ -1,20 +1,20 @@
 class Stage
   ###
-   * @param  {Game} game
+   * @param  [Game] game
   ###
   constructor: (@game) ->
     @actors = []
 
   ###
    * Adds a new actor to the list
-   * @param {Actor} actor
+   * @param [Actor] actor
   ###
   addActor: (actor) ->
     @actors.push actor
 
   ###
    * Removes an actor from the list
-   * @param  {Actor} actor
+   * @param  [Actor] actor
   ###
   removeActor: (actor) ->
     index = @actors.indexOf actor
@@ -25,7 +25,7 @@ class Stage
   ###
    * Called at the beginning of every tick, update properties and do
    * calculations in here
-   * @param  {Number} delta
+   * @param  [Number] delta
   ###
   update: (delta) ->
     for actor in @actors
@@ -33,7 +33,7 @@ class Stage
 
   ###
    * Called after update, draw stuff here
-   * @param  {CanvasRenderingContext2D} context
+   * @param  [CanvasRenderingContext2D] context
   ###
   draw: (context) ->
     for actor in @actors

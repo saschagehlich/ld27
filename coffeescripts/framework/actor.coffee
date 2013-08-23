@@ -2,7 +2,7 @@ Node = require "./node.coffee"
 
 class Actor extends Node
   ###
-   * @param  {Game} game
+   * @param  [Game] game
   ###
   constructor: (@game) ->
     super
@@ -10,14 +10,14 @@ class Actor extends Node
   ###
    * Called at the beginning of every tick, update properties and do
    * calculations in here
-   * @param  {Number} delta
+   * @param  [Number] delta
   ###
   update: (delta) ->
     return
 
   ###
    * Called after update, draw stuff here
-   * @param  {CanvasRenderingContext2D} context
+   * @param  [CanvasRenderingContext2D] context
   ###
   draw: (context) ->
     return

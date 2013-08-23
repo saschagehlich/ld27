@@ -5,8 +5,8 @@ class TextureAtlas
 
   ###
    * Creates a new Sprite object from the given filename
-   * @param  {String} filename
-   * @return {Sprite}
+   * @param  [String] filename
+   * @return [Sprite]
   ###
   createSprite: (filename) ->
     unless @frames[filename]?

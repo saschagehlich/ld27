@@ -4,7 +4,7 @@ Node    = require "../node.coffee"
 class Sprite extends Node
   ###
    * A Sprite represents a drawable image
-   * @param  {TextureAtlas} @TextureAtlas
+   * @param  [TextureAtlas] @TextureAtlas
   ###
   constructor: (@textureAtlas, @frame) ->
     super
@@ -19,7 +19,7 @@ class Sprite extends Node
 
   ###
    * Draws the sprite on the given context
-   * @param  {CanvasRenderingContext2D} context
+   * @param  [CanvasRenderingContext2D] context
   ###
   draw: (context) ->
     image = @textureAtlas.getAtlasImage()

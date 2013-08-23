@@ -11,8 +11,8 @@ class Rectangle
 
   ###
    * Sets the size values
-   * @param {Number} width
-   * @param {Number} height
+   * @param [Number] width
+   * @param [Number] height
   ###
   setSize: (width, height) ->
     @width = width

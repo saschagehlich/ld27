@@ -3,8 +3,8 @@ class Vector2
 
   ###
    * Sets the new position of the Vector2
-   * @param {Number} x
-   * @param {Number} y
+   * @param [Number] x
+   * @param [Number] y
   ###
   set: (x, y) ->
     if x instanceof Vector2
@@ -18,25 +18,25 @@ class Vector2
 
   ###
    * Returns the x value
-   * @return {Number}
+   * @return [Number]
   ###
   getX: -> @x
 
   ###
    * Returns the y value
-   * @return {Number}
+   * @return [Number]
   ###
   getY: -> @y
 
   ###
    * Sets the x value
-   * @param {Number} x
+   * @param [Number] x
   ###
   setX: (x) -> @x = x
 
   ###
    * Sets the y value
-   * @param {Number} y
+   * @param [Number] y
   ###
   setY: (y) -> @y = y
 
