@@ -8,17 +8,20 @@ class Ball extends LDFW.Actor
     @speedX = 4
     @speedY = 4
 
+    @sprite.setOrigin @sprite.getWidth() / 2, @sprite.getHeight() / 2
+
   update: (delta) ->
     @setPosition(
       @getX() + @speedX,
       @getY() + @speedY
     )
     @sprite.setPosition @getPosition()
+    @sprite.setRotation @sprite.getRotation() + 45 * delta
 
     gameWidth = @game.getWidth()
     gameHeight = @game.getHeight()
-    if @getX() >= gameWidth - @sprite.getWidth() or
-      @getX() <= 0
+    if @getX() >= gameWidth - @sprite.getWidth() + @sprite.getOriginX() or
+      @getX() <= @sprite.getOriginX()
         @speedX *= -1
 
     if @getY() >= gameHeight - @sprite.getHeight() or

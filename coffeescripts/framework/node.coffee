@@ -3,6 +3,7 @@ Rectangle = require "./math/rectangle.coffee"
 
 class Node
   constructor: (@game) ->
+    @origin   = new Vector2()
     @position = new Vector2()
     @scale    = new Vector2(1, 1)
     @rect     = new Rectangle()
@@ -30,6 +31,18 @@ class Node
 
   getScaleY: -> @scale.getY()
   setScaleY: (y) -> @scale.setY y
+
+  ###
+    Origin
+  ###
+  getOrigin: -> @origin
+  setOrigin: (x, y) -> @origin.set x, y
+
+  getOriginX: -> @scale.getX()
+  setOriginX: (x) -> @origin.setX x
+
+  getOriginY: -> @origin.getY()
+  setOriginY: (y) -> @origin.setY y
 
   ###
     Size

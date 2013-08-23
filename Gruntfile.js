@@ -47,6 +47,13 @@ module.exports = function(grunt) {
           livereload: true
         }
       },
+      framework: {
+        files: ['build/javascripts/ldfw.js'],
+        tasks: ['notify:done'],
+        options: {
+          livereload: true
+        }
+      },
       styles: {
         files: ['**/*.sass'],
         tasks: ['compass:dev'],
