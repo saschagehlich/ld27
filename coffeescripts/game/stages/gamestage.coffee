@@ -21,8 +21,6 @@ class GameStage extends LDFW.Stage
     @players.push player
     @addActor player
 
-    console.log player.getWidth()
-
     player = new Player @game
     player.setPosition(
       @game.getWidth() - player.getWidth() - distanceToBoundaries,
