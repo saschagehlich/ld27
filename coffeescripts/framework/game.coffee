@@ -1,9 +1,19 @@
 class Game
   constructor: (@wrapper) ->
-    @context = @wrapper.find("canvas").get(0).getContext "2d"
+    @canvas  = @wrapper.find("canvas").get(0)
+    @setSize @wrapper.width(), @wrapper.height()
+
+    @context = @canvas.getContext "2d"
     @running = false
 
     @setupStats()
+
+  ###
+   * Sets the canvas size
+  ###
+  setSize: (width, height) ->
+    @canvas.width  = width
+    @canvas.height = height
 
   ###
    * Sets up mrdoob's stats library
