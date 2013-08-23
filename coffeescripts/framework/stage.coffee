@@ -1,4 +1,4 @@
-class Actor
+class Stage
   ###
    * @param  {Game} game
   ###
@@ -20,4 +20,4 @@ class Actor
   draw: (context) ->
     return
 
-module.exports = Actor
+module.exports = Stage
