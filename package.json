@@ -1,0 +1,22 @@
+{
+  "name": "ld27",
+  "version": "0.0.1",
+  "description": "",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD",
+  "dependencies": {
+    "grunt-contrib-compass": "~0.5.0",
+    "grunt-contrib-connect": "~0.3.0",
+    "grunt": "~0.4.1",
+    "grunt-notify": "~0.2.11",
+    "grunt-contrib-watch": "~0.5.2",
+    "grunt-watchify": "~0.1.0",
+    "grunt-sass": "~0.6.1",
+    "coffeeify": "~0.5.1",
+    "grunt-contrib-concat": "~0.3.0"
+  }
+}

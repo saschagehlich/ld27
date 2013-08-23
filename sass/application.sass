@@ -1,0 +1,32 @@
+@import "compass/reset"
+
++global-reset()
+
+$gameWidth: 640px
+$gameHeight: 480px
+
+body
+  background: black
+
+.canvas-wrapper
+  position: absolute
+
+  top: 50%
+  left: 50%
+
+  margin-top: -$gameHeight / 2
+  margin-left: -$gameWidth / 2
+
+  width: $gameWidth
+  height: $gameHeight
+
+  canvas
+    position: absolute
+
+    top: 0
+    left: 0
+
+    width: 100%
+    height: 100%
+
+    background: white
