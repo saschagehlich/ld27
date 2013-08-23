@@ -23,6 +23,7 @@ class Game
   ###
   run: ->
     @running = true
+    @lastTick = new Date()
     requestAnimFrame @tick
 
   ###
@@ -37,10 +38,16 @@ class Game
   tick: =>
     @stats.begin()
 
+    delta = (new Date() - @lastTick) / 1000
+
     # If we have a screen, make it tick!
-    @screen?.tick()
+    @screen?.update delta
+    @screen?.draw @context
 
     @stats.end()
+
+    @lastTick = new Date()
+
     if @running
       requestAnimFrame @tick
 

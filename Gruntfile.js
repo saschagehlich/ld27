@@ -79,15 +79,19 @@ module.exports = function(grunt) {
 
     watchify: {
       options: {
-        insertGlobals: true,
+        debug: true,
         callback: function (b) {
           b.transform(require("coffeeify"));
 
           return b;
         }
       },
+      ldfw: {
+        src: ['./coffeescripts/framework/ldfw.coffee'],
+        dest: 'build/javascripts/ldfw.js'
+      },
       ld27: {
-        src: ['./coffeescripts/ld27.coffee'],
+        src: ['./coffeescripts/game/application.coffee'],
         dest: 'build/javascripts/ld27.js'
       }
     }

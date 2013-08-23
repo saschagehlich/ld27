@@ -1,4 +1,4 @@
-Game = require "./game.coffee"
+LD27 = require "./ld27.coffee"
 
 window.requestAnimFrame = (->
   return  window.requestAnimationFrame       ||
@@ -11,5 +11,4 @@ window.requestAnimFrame = (->
 $ ->
   wrapper = $(".canvas-wrapper")
 
-  window.game = new Game(wrapper)
-  window.game.run()
+  game = new LD27(wrapper)
