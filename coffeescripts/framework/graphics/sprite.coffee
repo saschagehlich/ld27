@@ -1,14 +1,19 @@
 Vector2 = require "../math/vector2.coffee"
+Node    = require "../node.coffee"
 
-class Sprite
+class Sprite extends Node
   ###
    * A Sprite represents a drawable image
    * @param  {TextureAtlas} @TextureAtlas
   ###
   constructor: (@textureAtlas, @frame) ->
+    super
+
     @position = new Vector2()
     @scale = new Vector2(1, 1)
-    return
+
+  getWidth: -> @frame.frame.w * @scale.x
+  getHeight: -> @frame.frame.h * @scale.y
 
   ###
    * Draws the sprite on the given context
@@ -27,17 +32,5 @@ class Sprite
     dh = @frame.frame.h * @scale.y
 
     context.drawImage image, sx, sy, sw, sh, dx, dy, dw, dh
-
-  ###
-   * Getters and setters
-  ###
-  getPosition: -> @position
-  setPosition: (x, y) -> @position.set x, y
-  getX: -> @position.x
-  getY: -> @position.y
-
-  setScaleX: (scale) -> @scale.setX scale
-  setScaleY: (scale) -> @scale.setY scale
-  setScale: (scaleX, scaleY) -> @scale.set scaleX, scaleY
 
 module.exports = Sprite

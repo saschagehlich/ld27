@@ -17,6 +17,18 @@ class Vector2
       @y = y
 
   ###
+   * Returns the x value
+   * @return {Number}
+  ###
+  getX: -> @x
+
+  ###
+   * Returns the y value
+   * @return {Number}
+  ###
+  getY: -> @y
+
+  ###
    * Sets the x value
    * @param {Number} x
   ###

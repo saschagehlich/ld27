@@ -1,9 +1,11 @@
-class Actor
+Node = require "./node.coffee"
+
+class Actor extends Node
   ###
    * @param  {Game} game
   ###
   constructor: (@game) ->
-    return
+    super
 
   ###
    * Called at the beginning of every tick, update properties and do

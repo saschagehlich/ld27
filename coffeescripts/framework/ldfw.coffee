@@ -3,6 +3,7 @@ window.LDFW =
   Screen: require "./screen.coffee"
   Actor: require "./actor.coffee"
   Stage: require "./stage.coffee"
+  Node: require "./node.coffee"
 
   # Graphics
   TextureAtlas: require "./graphics/textureatlas.coffee"

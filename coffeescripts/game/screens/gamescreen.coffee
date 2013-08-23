@@ -1,16 +1,16 @@
-ExampleStage = require "../stages/examplestage.coffee"
+GameStage = require "../stages/gamestage.coffee"
 
 class GameScreen extends LDFW.Screen
   constructor: (@game) ->
     @spriteAtlas = @game.getSpritesAtlas()
-    @exampleStage = new ExampleStage @game
+    @gameStage = new GameStage @game
     super
 
   update: (delta) ->
-    @exampleStage.update delta
+    @gameStage.update delta
 
   draw: (context) ->
-    @exampleStage.draw context
+    @gameStage.draw context
     return
 
 module.exports = GameScreen

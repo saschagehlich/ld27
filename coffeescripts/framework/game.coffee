@@ -18,6 +18,9 @@ class Game
     @canvas.width  = width
     @canvas.height = height
 
+  getWidth: -> @canvas.width
+  getHeight: -> @canvas.height
+
   ###
    * Sets up mrdoob's stats library
   ###
