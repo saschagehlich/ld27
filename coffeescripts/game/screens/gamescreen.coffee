@@ -1,15 +1,16 @@
+ExampleActor = require "../actors/exampleactor.coffee"
+
 class GameScreen extends LDFW.Screen
   constructor: (@game) ->
     @spriteAtlas = @game.getSpritesAtlas()
-
-    @exampleSprite = @spriteAtlas.createSprite("example.png")
+    @exampleActor = new ExampleActor @game
     super
 
   update: (delta) ->
-    return
+    @exampleActor.update delta
 
   draw: (context) ->
-    @exampleSprite.draw context
+    @exampleActor.draw context
     return
 
 module.exports = GameScreen

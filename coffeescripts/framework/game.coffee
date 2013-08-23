@@ -8,6 +8,9 @@ class Game
 
     @setupStats()
 
+  clearScreen: ->
+    @context.clearRect 0, 0, @canvas.width, @canvas.height
+
   ###
    * Sets the canvas size
   ###
@@ -49,6 +52,7 @@ class Game
     @stats.begin()
 
     delta = (new Date() - @lastTick) / 1000
+    @clearScreen()
 
     # If we have a screen, make it tick!
     @screen?.update delta

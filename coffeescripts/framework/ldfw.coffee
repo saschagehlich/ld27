@@ -1,6 +1,7 @@
 window.LDFW =
   Game: require "./game.coffee"
   Screen: require "./screen.coffee"
+  Actor: require "./actor.coffee"
 
   # Graphics
   TextureAtlas: require "./graphics/textureatlas.coffee"

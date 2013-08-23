@@ -33,6 +33,9 @@ class Sprite
   ###
   getPosition: -> @position
   setPosition: (x, y) -> @position.set x, y
+  getX: -> @position.x
+  getY: -> @position.y
+
   setScaleX: (scale) -> @scale.setX scale
   setScaleY: (scale) -> @scale.setY scale
   setScale: (scaleX, scaleY) -> @scale.set scaleX, scaleY
