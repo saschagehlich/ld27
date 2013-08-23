@@ -14,6 +14,11 @@ Installation
 * Install the grunt command line interface: `npm install grunt grunt-cli -g`
 * Run the watcher using `grunt`
 
+Behind the scenes
+-----------------
+
+* Sprite sets are generated using TexturePacker (http://www.codeandweb.com/texturepacker)
+
 License
 -------
 
