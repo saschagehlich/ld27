@@ -23,12 +23,13 @@ LevelActor = (function(_super) {
     this.blockSprites = {};
     for (style = _i = 0, _ref = Config.block_styles; 0 <= _ref ? _i < _ref : _i > _ref; style = 0 <= _ref ? ++_i : --_i) {
       if ((_base = this.blockSprites)[style] == null) {
-        _base[style] = [];
+        _base[style] = {};
       }
       for (spriteIndex = _j = 0, _ref1 = Config.sprites_per_block_style; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; spriteIndex = 0 <= _ref1 ? ++_j : --_j) {
         sprite = this.spritesAtlas.createSprite("blocks/" + style + "-" + spriteIndex + ".png");
-        this.blockSprites[style].push(sprite);
+        this.blockSprites[style][spriteIndex] = sprite;
       }
+      this.blockSprites[style]["unbuildable"] = this.spritesAtlas.createSprite("blocks/" + style + "-unbuildable.png");
     }
     this.grassSprites = {};
     for (spriteIndex = _k = 0, _ref2 = Config.sprites_per_block_style; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; spriteIndex = 0 <= _ref2 ? ++_k : --_k) {
@@ -69,7 +70,7 @@ LevelActor = (function(_super) {
     }
     scroll = this.level.getScroll();
     blocks = this.level.getBlocks();
-    return this.drawBlock(this.level.getBuildBlock(), context);
+    return this.drawBlock(this.level.getBuildBlock(), context, true);
   };
 
   LevelActor.prototype.drawBlocks = function(context) {
@@ -84,8 +85,11 @@ LevelActor = (function(_super) {
     return _results;
   };
 
-  LevelActor.prototype.drawBlock = function(block, context) {
+  LevelActor.prototype.drawBlock = function(block, context, isBuildBlock) {
     var blockStyles, drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, style, x, y, _i, _len, _results;
+    if (isBuildBlock == null) {
+      isBuildBlock = false;
+    }
     scroll = this.level.getScroll();
     map = block.getMap();
     style = block.getStyle();
@@ -104,6 +108,9 @@ LevelActor = (function(_super) {
           }
           spriteIndex = blockStyles[y][x];
           sprite = this.blockSprites[style][spriteIndex];
+          if (!this.level.isBuildBlockBuildable() && isBuildBlock) {
+            sprite = this.blockSprites[style].unbuildable;
+          }
           sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
           drawGrass = true;
           if (y !== 0) {

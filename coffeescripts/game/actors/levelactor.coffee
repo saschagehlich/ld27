@@ -14,11 +14,13 @@ class LevelActor extends LDFW.Actor
   prepareSprites: ->
     @blockSprites = {}
     for style in [0...Config.block_styles]
-      @blockSprites[style] ?= []
+      @blockSprites[style] ?= {}
       for spriteIndex in [0...Config.sprites_per_block_style]
         sprite = @spritesAtlas.createSprite "blocks/#{style}-#{spriteIndex}.png"
 
-        @blockSprites[style].push sprite
+        @blockSprites[style][spriteIndex] = sprite
+
+      @blockSprites[style]["unbuildable"] = @spritesAtlas.createSprite "blocks/#{style}-unbuildable.png"
 
     @grassSprites = {}
     for spriteIndex in [0...Config.sprites_per_block_style]
@@ -58,7 +60,7 @@ class LevelActor extends LDFW.Actor
 
     scroll   = @level.getScroll()
     blocks   = @level.getBlocks()
-    @drawBlock @level.getBuildBlock(), context
+    @drawBlock @level.getBuildBlock(), context, true
 
   drawBlocks: (context) ->
     scroll   = @level.getScroll()
@@ -66,7 +68,7 @@ class LevelActor extends LDFW.Actor
     for block in blocks
       @drawBlock block, context
 
-  drawBlock: (block, context) ->
+  drawBlock: (block, context, isBuildBlock=false) ->
     scroll   = @level.getScroll()
     map      = block.getMap()
     style    = block.getStyle()
@@ -84,6 +86,9 @@ class LevelActor extends LDFW.Actor
 
         spriteIndex = blockStyles[y][x]
         sprite = @blockSprites[style][spriteIndex]
+
+        if not @level.isBuildBlockBuildable() and isBuildBlock
+          sprite = @blockSprites[style].unbuildable
 
         sprite.draw context,
           position.x + x * @level.GRID_SIZE,
