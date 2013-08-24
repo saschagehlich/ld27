@@ -21,6 +21,8 @@ class Game
   getWidth: -> @canvas.width
   getHeight: -> @canvas.height
 
+  getWrapper: -> @wrapper
+
   ###
    * Sets up mrdoob's stats library
   ###

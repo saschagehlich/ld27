@@ -1,6 +1,8 @@
 class Block
   availableBlocks: require "../config/available_blocks.json"
-  constructor: (@app, @game) ->
+  constructor: (@app, @game, @options={}) ->
+    @buildMode = @options.buildMode | false
+
     # Represents the block's structure
     @map = null
     @rotation = 0

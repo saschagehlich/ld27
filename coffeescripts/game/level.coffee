@@ -3,6 +3,10 @@ Block = require "./entities/block.coffee"
 class Level
   GRID_SIZE: 32
   constructor: (@app, @game) ->
+    @buildMode = true
+    @buildBlock = new Block @app, @game, buildMode: true
+
+    @mouse = @app.getMouse()
     @scroll = new LDFW.Vector2()
     @gravity = new LDFW.Vector2(0, 1800)
     @platforms = [
@@ -23,8 +27,19 @@ class Level
     @blocks = [ block ]
 
   update: (delta) ->
-    # @scroll.setX @scroll.getX() + delta * 20
-    return
+    mousePosition = @mouse.getPosition()
+
+    blockMap = @buildBlock.getMap()
+    gridPosition = mousePosition.clone()
+      .add(@scroll)
+      .substract(
+        blockMap[0].length * @GRID_SIZE / 2,
+        blockMap.length * @GRID_SIZE / 2
+      )
+      .divideBy(@GRID_SIZE)
+      .round()
+
+    @buildBlock.setGridPosition gridPosition
 
   getBoundariesForPlayer: (player) ->
     playerWidth = 32
@@ -99,5 +114,7 @@ class Level
   getPlatforms: -> @platforms
   getBlocks: -> @blocks
   getGravity: -> @gravity
+  inBuildMode: -> @buildMode
+  getBuildBlock: -> @buildBlock
 
 module.exports = Level

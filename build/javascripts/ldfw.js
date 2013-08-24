@@ -79,6 +79,10 @@ Game = (function() {
     return this.canvas.height;
   };
 
+  Game.prototype.getWrapper = function() {
+    return this.wrapper;
+  };
+
   /*
    * Sets up mrdoob's stats library
   */
@@ -365,6 +369,17 @@ Vector2 = (function() {
   };
 
   /*
+   * Rounds the values of this Vector
+  */
+
+
+  Vector2.prototype.round = function() {
+    this.x = Math.round(this.x);
+    this.y = Math.round(this.y);
+    return this;
+  };
+
+  /*
    * Substracts the given values from this Vector
    * @param [Number] x
    * @param [Number] y
@@ -403,6 +418,27 @@ Vector2 = (function() {
     }
     this.x = this.x + x;
     this.y = this.y + y;
+    return this;
+  };
+
+  /*
+   * Divides this Vector by the given values
+   * @param [Number] x
+   * @param [Number] y
+  */
+
+
+  Vector2.prototype.divideBy = function(x, y) {
+    var v2;
+    if (x instanceof Vector2) {
+      v2 = x;
+      x = v2.getX();
+      y = v2.getY();
+    } else if ((x != null) && (y == null)) {
+      y = x;
+    }
+    this.x = this.x / x;
+    this.y = this.y / y;
     return this;
   };
 

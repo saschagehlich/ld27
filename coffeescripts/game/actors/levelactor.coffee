@@ -6,8 +6,9 @@ class LevelActor extends LDFW.Actor
   draw: (context) ->
     context.save()
 
-    @drawPlatforms context
-    @drawBlocks    context
+    @drawPlatforms  context
+    @drawBlocks     context
+    @drawBuildBlock context
 
     context.restore()
 
@@ -22,6 +23,13 @@ class LevelActor extends LDFW.Actor
         platform.position.y - @level.getScroll().y,
         platform.width, platform.height
       )
+
+  drawBuildBlock: (context) ->
+    return unless @level.inBuildMode()
+
+    scroll   = @level.getScroll()
+    blocks   = @level.getBlocks()
+    @drawBlock @level.getBuildBlock(), context
 
   drawBlocks: (context) ->
     scroll   = @level.getScroll()

@@ -1,8 +1,10 @@
 GameScreen   = require "./screens/gamescreen.coffee"
+Mouse        = require "./utilities/mouse.coffee"
 
 class LD27 extends LDFW.Game
   constructor: ->
     super
+    @mouse = new Mouse this
 
     @preloader = new LDFW.Preloader [
       "assets/sprites.json",
@@ -21,5 +23,6 @@ class LD27 extends LDFW.Game
    * Getters / setters
   ###
   getSpritesAtlas: -> return @spritesAtlas
+  getMouse: -> return @mouse
 
 module.exports = LD27

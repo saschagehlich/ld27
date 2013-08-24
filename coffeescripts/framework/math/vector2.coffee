@@ -25,6 +25,15 @@ class Vector2
   clone: -> new Vector2(@x, @y)
 
   ###
+   * Rounds the values of this Vector
+  ###
+  round: ->
+    @x = Math.round @x
+    @y = Math.round @y
+
+    return this
+
+  ###
    * Substracts the given values from this Vector
    * @param [Number] x
    * @param [Number] y
@@ -57,6 +66,24 @@ class Vector2
 
     @x = @x + x
     @y = @y + y
+
+    return this
+
+  ###
+   * Divides this Vector by the given values
+   * @param [Number] x
+   * @param [Number] y
+  ###
+  divideBy: (x, y) ->
+    if x instanceof Vector2
+      v2 = x
+      x = v2.getX()
+      y = v2.getY()
+    else if x? and not y?
+      y = x
+
+    @x = @x / x
+    @y = @y / y
 
     return this
 

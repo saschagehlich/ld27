@@ -17,6 +17,7 @@ LevelActor = (function(_super) {
     context.save();
     this.drawPlatforms(context);
     this.drawBlocks(context);
+    this.drawBuildBlock(context);
     return context.restore();
   };
 
@@ -31,6 +32,16 @@ LevelActor = (function(_super) {
       _results.push(context.fillRect(platform.position.x - this.level.getScroll().x, platform.position.y - this.level.getScroll().y, platform.width, platform.height));
     }
     return _results;
+  };
+
+  LevelActor.prototype.drawBuildBlock = function(context) {
+    var blocks, scroll;
+    if (!this.level.inBuildMode()) {
+      return;
+    }
+    scroll = this.level.getScroll();
+    blocks = this.level.getBlocks();
+    return this.drawBlock(this.level.getBuildBlock(), context);
   };
 
   LevelActor.prototype.drawBlocks = function(context) {
@@ -171,9 +182,11 @@ var Block;
 Block = (function() {
   Block.prototype.availableBlocks = require("../config/available_blocks.json");
 
-  function Block(app, game) {
+  function Block(app, game, options) {
     this.app = app;
     this.game = game;
+    this.options = options != null ? options : {};
+    this.buildMode = this.options.buildMode | false;
     this.map = null;
     this.rotation = 0;
     this.gridPosition = new LDFW.Vector2();
@@ -254,11 +267,13 @@ module.exports = Game;
 
 
 },{"./level.coffee":8,"./player.coffee":9,"./utilities/keyboard.coffee":12}],7:[function(require,module,exports){
-var GameScreen, LD27,
+var GameScreen, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 GameScreen = require("./screens/gamescreen.coffee");
+
+Mouse = require("./utilities/mouse.coffee");
 
 LD27 = (function(_super) {
   __extends(LD27, _super);
@@ -266,6 +281,7 @@ LD27 = (function(_super) {
   function LD27() {
     var _this = this;
     LD27.__super__.constructor.apply(this, arguments);
+    this.mouse = new Mouse(this);
     this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png"]);
     this.preloader.on("done", function() {
       var spritesImage, spritesJSON;
@@ -287,6 +303,10 @@ LD27 = (function(_super) {
     return this.spritesAtlas;
   };
 
+  LD27.prototype.getMouse = function() {
+    return this.mouse;
+  };
+
   return LD27;
 
 })(LDFW.Game);
@@ -294,7 +314,7 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":10}],8:[function(require,module,exports){
+},{"./screens/gamescreen.coffee":10,"./utilities/mouse.coffee":13}],8:[function(require,module,exports){
 var Block, Level;
 
 Block = require("./entities/block.coffee");
@@ -306,6 +326,11 @@ Level = (function() {
     var block;
     this.app = app;
     this.game = game;
+    this.buildMode = true;
+    this.buildBlock = new Block(this.app, this.game, {
+      buildMode: true
+    });
+    this.mouse = this.app.getMouse();
     this.scroll = new LDFW.Vector2();
     this.gravity = new LDFW.Vector2(0, 1800);
     this.platforms = [
@@ -324,7 +349,13 @@ Level = (function() {
     this.blocks = [block];
   }
 
-  Level.prototype.update = function(delta) {};
+  Level.prototype.update = function(delta) {
+    var blockMap, gridPosition, mousePosition;
+    mousePosition = this.mouse.getPosition();
+    blockMap = this.buildBlock.getMap();
+    gridPosition = mousePosition.clone().add(this.scroll).substract(blockMap[0].length * this.GRID_SIZE / 2, blockMap.length * this.GRID_SIZE / 2).divideBy(this.GRID_SIZE).round();
+    return this.buildBlock.setGridPosition(gridPosition);
+  };
 
   Level.prototype.getBoundariesForPlayer = function(player) {
     var block, boundaries, map, platform, playerHeight, playerWidth, position, row, segment, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
@@ -414,6 +445,14 @@ Level = (function() {
 
   Level.prototype.getGravity = function() {
     return this.gravity;
+  };
+
+  Level.prototype.inBuildMode = function() {
+    return this.buildMode;
+  };
+
+  Level.prototype.getBuildBlock = function() {
+    return this.buildBlock;
   };
 
   return Level;
@@ -641,6 +680,33 @@ Keyboard = (function() {
 })();
 
 module.exports = Keyboard;
+
+
+},{}],13:[function(require,module,exports){
+var Mouse,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+Mouse = (function() {
+  function Mouse(app) {
+    this.app = app;
+    this.onMouseMove = __bind(this.onMouseMove, this);
+    this.position = new LDFW.Vector2();
+    this.app.getWrapper().mousemove(this.onMouseMove);
+  }
+
+  Mouse.prototype.onMouseMove = function(e) {
+    return this.position.set(e.offsetX, e.offsetY);
+  };
+
+  Mouse.prototype.getPosition = function() {
+    return this.position;
+  };
+
+  return Mouse;
+
+})();
+
+module.exports = Mouse;
 
 
 },{}]},{},[3])
