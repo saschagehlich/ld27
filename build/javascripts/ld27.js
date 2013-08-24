@@ -85,10 +85,11 @@ LevelActor = (function(_super) {
   };
 
   LevelActor.prototype.drawBlock = function(block, context) {
-    var drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, style, x, y, _i, _len, _results;
+    var blockStyles, drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, style, x, y, _i, _len, _results;
     scroll = this.level.getScroll();
     map = block.getMap();
     style = block.getStyle();
+    blockStyles = block.getBlockStyles();
     position = block.getGridPosition().clone().multiply(this.level.GRID_SIZE).substract(scroll);
     _results = [];
     for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
@@ -101,7 +102,7 @@ LevelActor = (function(_super) {
           if (segment === 0) {
             continue;
           }
-          spriteIndex = 0;
+          spriteIndex = blockStyles[y][x];
           sprite = this.blockSprites[style][spriteIndex];
           sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
           drawGrass = true;
@@ -247,12 +248,30 @@ Block = (function() {
     this.game = game;
     this.options = options != null ? options : {};
     this.buildMode = this.options.buildMode | false;
-    this.style = Math.floor(Math.random() * Config.block_styles);
     this.map = null;
     this.rotation = Math.round(Math.random() * 3);
     this.gridPosition = new LDFW.Vector2();
     this.randomize();
+    this.style = Math.floor(Math.random() * Config.block_styles);
+    this.randomizeBlockStyles();
   }
+
+  Block.prototype.randomizeBlockStyles = function() {
+    var col, r, row, _i, _j, _len, _len1, _ref, _results;
+    this.blockStyles = [];
+    _ref = this.map;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      row = _ref[_i];
+      r = [];
+      for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
+        col = row[_j];
+        r.push(Math.floor(Math.random() * Config.sprites_per_block_style));
+      }
+      _results.push(this.blockStyles.push(r));
+    }
+    return _results;
+  };
 
   Block.prototype.randomize = function() {
     var index;
@@ -289,6 +308,24 @@ Block = (function() {
       map = newData;
     }
     return map;
+  };
+
+  Block.prototype.getBlockStyles = function() {
+    var i, j, newData, styles, _i, _j, _k, _ref, _ref1, _ref2;
+    styles = this.blockStyles;
+    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      newData = [];
+      for (i = _j = _ref1 = styles.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
+        for (j = _k = 0, _ref2 = styles[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
+          if (!newData.hasOwnProperty(j)) {
+            newData[j] = [];
+          }
+          newData[j].push(styles[i][j]);
+        }
+      }
+      styles = newData;
+    }
+    return styles;
   };
 
   Block.prototype.getRotation = function() {

@@ -5,8 +5,6 @@ class Block
   constructor: (@app, @game, @options={}) ->
     @buildMode = @options.buildMode | false
 
-    @style = Math.floor(Math.random() * Config.block_styles)
-
     # Represents the block's structure
     @map = null
     @rotation = Math.round(Math.random() * 3)
@@ -14,6 +12,17 @@ class Block
     @gridPosition = new LDFW.Vector2()
 
     @randomize()
+    @style = Math.floor(Math.random() * Config.block_styles)
+    @randomizeBlockStyles()
+
+  randomizeBlockStyles: ->
+    @blockStyles = []
+    for row in @map
+      r = []
+      for col in row
+        r.push Math.floor(Math.random() * Config.sprites_per_block_style)
+
+      @blockStyles.push r
 
   randomize: ->
     index = Math.floor(Math.random() * @availableBlocks.length)
@@ -38,6 +47,20 @@ class Block
       map = newData
 
     return map
+
+  getBlockStyles: ->
+    styles = @blockStyles
+
+    for i in [0...@rotation]
+      newData = []
+      for i in [styles.length-1..0]
+        for j in [0...styles[i].length]
+          unless newData.hasOwnProperty(j)
+            newData[j] = []
+          newData[j].push styles[i][j]
+      styles = newData
+
+    return styles
 
 
   getRotation: -> @rotation

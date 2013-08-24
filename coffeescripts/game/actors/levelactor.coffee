@@ -70,6 +70,8 @@ class LevelActor extends LDFW.Actor
     scroll   = @level.getScroll()
     map      = block.getMap()
     style    = block.getStyle()
+    blockStyles = block.getBlockStyles()
+
     position = block
       .getGridPosition()
       .clone()
@@ -80,7 +82,7 @@ class LevelActor extends LDFW.Actor
       for segment, x in row
         continue if segment is 0
 
-        spriteIndex = 0
+        spriteIndex = blockStyles[y][x]
         sprite = @blockSprites[style][spriteIndex]
 
         sprite.draw context,
