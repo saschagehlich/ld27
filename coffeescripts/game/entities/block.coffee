@@ -21,4 +21,7 @@ class Block
   getMap: -> @map
   getRotation: -> @rotation
 
+  inBuildMode: -> @buildMode
+  setBuildMode: (buildMode) -> @buildMode = buildMode
+
 module.exports = Block

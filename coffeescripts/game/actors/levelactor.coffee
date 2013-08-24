@@ -50,7 +50,11 @@ class LevelActor extends LDFW.Actor
       for segment, x in row
         continue if segment is 0
 
-        context.fillStyle = "blue"
+        if block.inBuildMode()
+          context.fillStyle = "rgba(0, 0, 255, 0.5)"
+        else
+          context.fillStyle = "blue"
+
         context.fillRect(
           position.x + x * @level.GRID_SIZE,
           position.y + y * @level.GRID_SIZE,

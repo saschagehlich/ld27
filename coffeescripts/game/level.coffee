@@ -7,6 +7,8 @@ class Level
     @buildBlock = new Block @app, @game, buildMode: true
 
     @mouse = @app.getMouse()
+    @mouse.on "click", @onClick
+
     @scroll = new LDFW.Vector2()
     @gravity = new LDFW.Vector2(0, 1800)
     @platforms = [
@@ -26,20 +28,31 @@ class Level
     block.setGridPosition 5, 10
     @blocks = [ block ]
 
+  onClick: (position) =>
+    return unless @buildMode
+
+    @buildBlock.setBuildMode false
+    @buildMode = false
+
+    @blocks.push @buildBlock
+    @buildBlock = null
+
+
   update: (delta) ->
     mousePosition = @mouse.getPosition()
 
-    blockMap = @buildBlock.getMap()
-    gridPosition = mousePosition.clone()
-      .add(@scroll)
-      .substract(
-        blockMap[0].length * @GRID_SIZE / 2,
-        blockMap.length * @GRID_SIZE / 2
-      )
-      .divideBy(@GRID_SIZE)
-      .round()
+    if @buildMode
+      blockMap = @buildBlock.getMap()
+      gridPosition = mousePosition.clone()
+        .add(@scroll)
+        .substract(
+          blockMap[0].length * @GRID_SIZE / 2,
+          blockMap.length * @GRID_SIZE / 2
+        )
+        .divideBy(@GRID_SIZE)
+        .round()
 
-    @buildBlock.setGridPosition gridPosition
+      @buildBlock.setGridPosition gridPosition
 
   getBoundariesForPlayer: (player) ->
     playerWidth = 32
