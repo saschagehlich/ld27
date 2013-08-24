@@ -1,4 +1,5 @@
 Sprite = require "./sprite.coffee"
+TextureRegion = require "./textureregion.coffee"
 
 class TextureAtlas
   constructor: (@frames, @image) -> return
@@ -14,6 +15,13 @@ class TextureAtlas
 
     sprite = new Sprite(this, @frames[filename])
     return sprite
+
+  findRegion: (filename) ->
+    unless @frames[filename]?
+      throw new Error("The region #{filename} could not be found.")
+
+    region = new TextureRegion(this, @frames[filename])
+    return region
 
   getAtlasImage: -> @image
 

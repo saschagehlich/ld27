@@ -30,7 +30,7 @@ class Level
 
     @platforms = [
       new Platform(@app, @game,
-        position: new LDFW.Vector2(2, 10)
+        position: new LDFW.Vector2(10, 10)
         width: 10,
         height: 10
       )

@@ -12,13 +12,21 @@ class LD27 extends LDFW.Game
 
     @preloader = new LDFW.Preloader [
       "assets/sprites.json",
-      "assets/sprites.png"
+      "assets/sprites.png",
+      "assets/fonts.json",
+      "assets/fonts.png",
+      "assets/fonts/museo-8-white.fnt",
+      "assets/fonts/museo-8-red.fnt"
     ]
     @preloader.on "done", =>
       spritesJSON = @preloader.get "assets/sprites.json"
       spritesImage = @preloader.get "assets/sprites.png"
-
       @spritesAtlas = new LDFW.TextureAtlas spritesJSON.frames, spritesImage
+
+      fontsJSON = @preloader.get "assets/fonts.json"
+      fontsImage = @preloader.get "assets/fonts.png"
+      @fontsAtlas   = new LDFW.TextureAtlas fontsJSON.frames, fontsImage
+
       @gameScreen   = new GameScreen this
       @screen       = @gameScreen
 
@@ -29,6 +37,8 @@ class LD27 extends LDFW.Game
    * Getters / setters
   ###
   getSpritesAtlas: -> return @spritesAtlas
+  getFontsAtlas: -> return @fontsAtlas
+  getPreloader: -> return @preloader
 
   setDebugText: (text) ->
     @debugDiv.text text

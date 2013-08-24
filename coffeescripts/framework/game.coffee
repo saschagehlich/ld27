@@ -27,16 +27,37 @@ class Game
    * Sets up mrdoob's stats library
   ###
   setupStats: ->
-    @stats = new Stats()
-    @stats.setMode 0
+    @fpsStats = new Stats()
+    @fpsStats.setMode 0
 
-    dom = $(@stats.domElement)
+    dom = $(@fpsStats.domElement)
     dom.css
       position: "absolute"
       left: -dom.width()
       top: 0
 
-    @wrapper.append @stats.domElement
+    @wrapper.append @fpsStats.domElement
+
+    @fpsMsStats = new Stats()
+    @fpsMsStats.setMode 1
+    dom = $(@fpsMsStats.domElement)
+    dom.css
+      position: "absolute"
+      left: -dom.width()
+      top: 50
+
+    @wrapper.append @fpsMsStats.domElement
+
+    @tickStats = new Stats()
+    @tickStats.setMode 1
+
+    dom = $(@tickStats.domElement)
+    dom.css
+      position: "absolute"
+      left: -dom.width()
+      top: 100
+
+    @wrapper.append @tickStats.domElement
 
   ###
    * Stats the game's run loop
@@ -56,16 +77,19 @@ class Game
    * Our main game loop
   ###
   tick: =>
-    @stats.begin()
-
     delta = (new Date() - @lastTick) / 1000
-    @clearScreen()
 
     # If we have a screen, make it tick!
+    @tickStats.begin()
     @screen?.update delta
-    @screen?.draw @context
+    @tickStats.end()
 
-    @stats.end()
+    @fpsStats.begin()
+    @fpsMsStats.begin()
+    @clearScreen()
+    @screen?.draw @context
+    @fpsStats.end()
+    @fpsMsStats.end()
 
     @lastTick = new Date()
 

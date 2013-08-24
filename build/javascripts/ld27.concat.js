@@ -10932,7 +10932,43 @@ FuckingPiranhasActor = (function(_super) {
 module.exports = FuckingPiranhasActor;
 
 
-},{"../config/config.json":6}],2:[function(require,module,exports){
+},{"../config/config.json":8}],2:[function(require,module,exports){
+var HeadlineActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+HeadlineActor = (function(_super) {
+  __extends(HeadlineActor, _super);
+
+  function HeadlineActor(app, game) {
+    this.app = app;
+    this.game = game;
+    HeadlineActor.__super__.constructor.call(this, this.game);
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.fontsAtlas = this.app.getFontsAtlas();
+    this.background = this.spritesAtlas.createSprite("ui/headline.png");
+    this.font = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/museo-8-white.fnt"), this.fontsAtlas.findRegion("museo-8-white.png"));
+    this.redFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/museo-8-red.fnt"), this.fontsAtlas.findRegion("museo-8-red.png"));
+  }
+
+  HeadlineActor.prototype.draw = function(context) {
+    var powerupBounds, powerupText, powerupTextPosition;
+    this.background.draw(context);
+    powerupText = "NEXT POWERUP IN ";
+    powerupTextPosition = new LDFW.Vector2(16, 12);
+    powerupBounds = this.font.getBounds(powerupText);
+    this.font.drawText(context, powerupText, powerupTextPosition.getX(), powerupTextPosition.getY());
+    return this.redFont.drawText(context, "0:10", powerupTextPosition.getX() + powerupBounds.width, powerupTextPosition.getY());
+  };
+
+  return HeadlineActor;
+
+})(LDFW.Actor);
+
+module.exports = HeadlineActor;
+
+
+},{}],3:[function(require,module,exports){
 var Config, LevelActor, Powerups,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11153,7 +11189,37 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{"../config/config.json":6,"../powerups.coffee":13}],3:[function(require,module,exports){
+},{"../config/config.json":8,"../powerups.coffee":15}],4:[function(require,module,exports){
+var MinimapActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+MinimapActor = (function(_super) {
+  __extends(MinimapActor, _super);
+
+  function MinimapActor(app, game) {
+    this.app = app;
+    this.game = game;
+    MinimapActor.__super__.constructor.call(this, this.game);
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.background = this.spritesAtlas.createSprite("ui/minimap.png");
+    this.background.setPosition(0, this.app.getHeight() - this.background.getHeight());
+  }
+
+  MinimapActor.prototype.update = function(delta) {};
+
+  MinimapActor.prototype.draw = function(context) {
+    return this.background.draw(context);
+  };
+
+  return MinimapActor;
+
+})(LDFW.Actor);
+
+module.exports = MinimapActor;
+
+
+},{}],5:[function(require,module,exports){
 var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11192,7 +11258,7 @@ PlayerActor = (function(_super) {
 module.exports = PlayerActor;
 
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var LD27;
 
 LD27 = require("./ld27.coffee");
@@ -11210,7 +11276,7 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":10}],5:[function(require,module,exports){
+},{"./ld27.coffee":12}],7:[function(require,module,exports){
 module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
@@ -11241,7 +11307,7 @@ module.exports=module.exports=[
   ],
 ]
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports=module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
@@ -11249,7 +11315,7 @@ module.exports=module.exports={
   "ui_minimap_height": 74
 }
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var Block, Config;
 
 Config = require("../config/config.json");
@@ -11374,7 +11440,7 @@ Block = (function() {
 module.exports = Block;
 
 
-},{"../config/available_blocks.json":5,"../config/config.json":6}],8:[function(require,module,exports){
+},{"../config/available_blocks.json":7,"../config/config.json":8}],10:[function(require,module,exports){
 var Config, Platform;
 
 Config = require("../config/config.json");
@@ -11420,7 +11486,7 @@ Platform = (function() {
 module.exports = Platform;
 
 
-},{"../config/config.json":6}],9:[function(require,module,exports){
+},{"../config/config.json":8}],11:[function(require,module,exports){
 var Game, Keyboard, Level, Mouse, Player, Powerups;
 
 Level = require("./level.coffee");
@@ -11446,7 +11512,7 @@ Game = (function() {
     this.activePowerup = Powerups.BROKEN_BLOCKS;
     this.powerupStart = +new Date();
     firstPlatform = this.level.getPlatforms()[0];
-    this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);
+    this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE + firstPlatform.getWidth() * this.level.GRID_SIZE / 2, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);
   }
 
   Game.prototype.update = function(delta) {
@@ -11496,7 +11562,7 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":11,"./player.coffee":12,"./powerups.coffee":13,"./utilities/keyboard.coffee":17,"./utilities/mouse.coffee":19}],10:[function(require,module,exports){
+},{"./level.coffee":13,"./player.coffee":14,"./powerups.coffee":15,"./utilities/keyboard.coffee":19,"./utilities/mouse.coffee":21}],12:[function(require,module,exports){
 var GameScreen, Keyboard, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11515,12 +11581,15 @@ LD27 = (function(_super) {
     LD27.__super__.constructor.apply(this, arguments);
     this.debugDiv = $("<div>").addClass("debug");
     this.debugDiv.appendTo(this.getWrapper());
-    this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png"]);
+    this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png", "assets/fonts.json", "assets/fonts.png", "assets/fonts/museo-8-white.fnt", "assets/fonts/museo-8-red.fnt"]);
     this.preloader.on("done", function() {
-      var spritesImage, spritesJSON;
+      var fontsImage, fontsJSON, spritesImage, spritesJSON;
       spritesJSON = _this.preloader.get("assets/sprites.json");
       spritesImage = _this.preloader.get("assets/sprites.png");
       _this.spritesAtlas = new LDFW.TextureAtlas(spritesJSON.frames, spritesImage);
+      fontsJSON = _this.preloader.get("assets/fonts.json");
+      fontsImage = _this.preloader.get("assets/fonts.png");
+      _this.fontsAtlas = new LDFW.TextureAtlas(fontsJSON.frames, fontsImage);
       _this.gameScreen = new GameScreen(_this);
       _this.screen = _this.gameScreen;
       return _this.run();
@@ -11537,6 +11606,14 @@ LD27 = (function(_super) {
     return this.spritesAtlas;
   };
 
+  LD27.prototype.getFontsAtlas = function() {
+    return this.fontsAtlas;
+  };
+
+  LD27.prototype.getPreloader = function() {
+    return this.preloader;
+  };
+
   LD27.prototype.setDebugText = function(text) {
     return this.debugDiv.text(text);
   };
@@ -11548,7 +11625,7 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":14,"./utilities/keyboard.coffee":17,"./utilities/mouse.coffee":19}],11:[function(require,module,exports){
+},{"./screens/gamescreen.coffee":16,"./utilities/keyboard.coffee":19,"./utilities/mouse.coffee":21}],13:[function(require,module,exports){
 var Block, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform, Powerups,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -11591,7 +11668,7 @@ Level = (function() {
     this.generator = new LevelGenerator(this.app, this.game, this);
     this.platforms = [
       new Platform(this.app, this.game, {
-        position: new LDFW.Vector2(2, 10),
+        position: new LDFW.Vector2(10, 10),
         width: 10,
         height: 10
       })
@@ -11832,7 +11909,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./actors/fuckingpiranhasactor.coffee":1,"./config/config.json":6,"./entities/block.coffee":7,"./entities/platform.coffee":8,"./powerups.coffee":13,"./utilities/levelgenerator.coffee":18}],12:[function(require,module,exports){
+},{"./actors/fuckingpiranhasactor.coffee":1,"./config/config.json":8,"./entities/block.coffee":9,"./entities/platform.coffee":10,"./powerups.coffee":15,"./utilities/levelgenerator.coffee":20}],14:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -11948,7 +12025,7 @@ Player = (function() {
 module.exports = Player;
 
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var Powerups;
 
 Powerups = {
@@ -11977,7 +12054,7 @@ Powerups = {
 module.exports = Powerups;
 
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var Game, GameScreen, GameStage, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -12017,7 +12094,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":9,"../stages/gamestage.coffee":15,"../stages/uistage.coffee":16}],15:[function(require,module,exports){
+},{"../game.coffee":11,"../stages/gamestage.coffee":17,"../stages/uistage.coffee":18}],17:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -12046,10 +12123,14 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":2,"../actors/playeractor.coffee":3}],16:[function(require,module,exports){
-var UIStage,
+},{"../actors/levelactor.coffee":3,"../actors/playeractor.coffee":5}],18:[function(require,module,exports){
+var HeadlineActor, MinimapActor, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+MinimapActor = require("../actors/minimapactor.coffee");
+
+HeadlineActor = require("../actors/headlineactor.coffee");
 
 UIStage = (function(_super) {
   __extends(UIStage, _super);
@@ -12058,6 +12139,10 @@ UIStage = (function(_super) {
     this.app = app;
     this.game = game;
     UIStage.__super__.constructor.call(this, this.game);
+    this.minimapActor = new MinimapActor(this.app, this.game);
+    this.addActor(this.minimapActor);
+    this.headlineActor = new HeadlineActor(this.app, this.game);
+    this.addActor(this.headlineActor);
   }
 
   return UIStage;
@@ -12067,7 +12152,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{}],17:[function(require,module,exports){
+},{"../actors/headlineactor.coffee":2,"../actors/minimapactor.coffee":4}],19:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -12139,7 +12224,7 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":20}],18:[function(require,module,exports){
+},{"events":22}],20:[function(require,module,exports){
 var FuckingPiranhas, LevelGenerator, Platform;
 
 Platform = require("../entities/platform.coffee");
@@ -12211,7 +12296,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../actors/fuckingpiranhasactor.coffee":1,"../entities/platform.coffee":8}],19:[function(require,module,exports){
+},{"../actors/fuckingpiranhasactor.coffee":1,"../entities/platform.coffee":10}],21:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -12262,7 +12347,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":20}],20:[function(require,module,exports){
+},{"events":22}],22:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -12458,7 +12543,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":21}],21:[function(require,module,exports){
+},{"__browserify_process":23}],23:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -12512,5 +12597,5 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[4])
+},{}]},{},[6])
 ;

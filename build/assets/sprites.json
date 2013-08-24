@@ -10,7 +10,7 @@
 },
 "blocks/0-0.png":
 {
-	"frame": {"x":940,"y":138,"w":32,"h":32},
+	"frame": {"x":780,"y":308,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -18,7 +18,7 @@
 },
 "blocks/0-1.png":
 {
-	"frame": {"x":906,"y":118,"w":32,"h":32},
+	"frame": {"x":746,"y":444,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -26,7 +26,7 @@
 },
 "blocks/0-2.png":
 {
-	"frame": {"x":872,"y":118,"w":32,"h":32},
+	"frame": {"x":746,"y":410,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -34,7 +34,7 @@
 },
 "blocks/0-unbuildable.png":
 {
-	"frame": {"x":838,"y":118,"w":32,"h":32},
+	"frame": {"x":746,"y":376,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -42,7 +42,7 @@
 },
 "blocks/1-0.png":
 {
-	"frame": {"x":974,"y":104,"w":32,"h":32},
+	"frame": {"x":746,"y":342,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -50,7 +50,7 @@
 },
 "blocks/1-1.png":
 {
-	"frame": {"x":940,"y":104,"w":32,"h":32},
+	"frame": {"x":746,"y":308,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -58,7 +58,7 @@
 },
 "blocks/1-2.png":
 {
-	"frame": {"x":906,"y":84,"w":32,"h":32},
+	"frame": {"x":712,"y":444,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -66,7 +66,7 @@
 },
 "blocks/1-unbuildable.png":
 {
-	"frame": {"x":872,"y":84,"w":32,"h":32},
+	"frame": {"x":712,"y":410,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -74,7 +74,7 @@
 },
 "blocks/2-0.png":
 {
-	"frame": {"x":838,"y":84,"w":32,"h":32},
+	"frame": {"x":712,"y":376,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -82,7 +82,7 @@
 },
 "blocks/2-1.png":
 {
-	"frame": {"x":974,"y":70,"w":32,"h":32},
+	"frame": {"x":712,"y":342,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -90,7 +90,7 @@
 },
 "blocks/2-2.png":
 {
-	"frame": {"x":940,"y":70,"w":32,"h":32},
+	"frame": {"x":712,"y":308,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -98,7 +98,7 @@
 },
 "blocks/2-unbuildable.png":
 {
-	"frame": {"x":906,"y":50,"w":32,"h":32},
+	"frame": {"x":678,"y":444,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -106,7 +106,7 @@
 },
 "blocks/broken-0.png":
 {
-	"frame": {"x":872,"y":50,"w":32,"h":32},
+	"frame": {"x":678,"y":410,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -114,7 +114,7 @@
 },
 "blocks/broken-1.png":
 {
-	"frame": {"x":838,"y":50,"w":32,"h":32},
+	"frame": {"x":678,"y":376,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -122,7 +122,7 @@
 },
 "blocks/broken-2.png":
 {
-	"frame": {"x":974,"y":36,"w":32,"h":32},
+	"frame": {"x":678,"y":342,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -130,7 +130,7 @@
 },
 "blocks/broken-unbuildable.png":
 {
-	"frame": {"x":940,"y":36,"w":32,"h":32},
+	"frame": {"x":678,"y":308,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -138,7 +138,7 @@
 },
 "grass/grass-0.png":
 {
-	"frame": {"x":974,"y":166,"w":32,"h":12},
+	"frame": {"x":780,"y":384,"w":32,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":12},
@@ -146,7 +146,7 @@
 },
 "grass/grass-1.png":
 {
-	"frame": {"x":974,"y":152,"w":32,"h":12},
+	"frame": {"x":780,"y":370,"w":32,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":12},
@@ -154,7 +154,7 @@
 },
 "grass/grass-2.png":
 {
-	"frame": {"x":974,"y":138,"w":32,"h":12},
+	"frame": {"x":780,"y":356,"w":32,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":12},
@@ -162,7 +162,7 @@
 },
 "grass/grass-end.png":
 {
-	"frame": {"x":912,"y":2,"w":34,"h":12},
+	"frame": {"x":814,"y":322,"w":34,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":12},
@@ -170,7 +170,7 @@
 },
 "grass/grass-single.png":
 {
-	"frame": {"x":838,"y":2,"w":36,"h":12},
+	"frame": {"x":780,"y":342,"w":36,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":36,"h":12},
@@ -178,7 +178,7 @@
 },
 "grass/grass-start.png":
 {
-	"frame": {"x":876,"y":2,"w":34,"h":12},
+	"frame": {"x":814,"y":308,"w":34,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":12},
@@ -186,7 +186,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-background.png":
 {
-	"frame": {"x":644,"y":196,"w":192,"h":192},
+	"frame": {"x":838,"y":114,"w":192,"h":192},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":192,"h":192},
@@ -194,7 +194,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-bubble.png":
 {
-	"frame": {"x":1008,"y":46,"w":8,"h":8},
+	"frame": {"x":780,"y":408,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -202,7 +202,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-glass.png":
 {
-	"frame": {"x":644,"y":2,"w":192,"h":192},
+	"frame": {"x":644,"y":114,"w":192,"h":192},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":192,"h":192},
@@ -210,7 +210,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-plopp.png":
 {
-	"frame": {"x":1008,"y":36,"w":10,"h":8},
+	"frame": {"x":780,"y":398,"w":10,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":10,"h":8},
@@ -218,7 +218,7 @@
 },
 "platform/platform-0.png":
 {
-	"frame": {"x":906,"y":16,"w":32,"h":32},
+	"frame": {"x":644,"y":444,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -226,7 +226,7 @@
 },
 "platform/platform-1.png":
 {
-	"frame": {"x":872,"y":16,"w":32,"h":32},
+	"frame": {"x":644,"y":410,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -234,7 +234,7 @@
 },
 "platform/platform-2.png":
 {
-	"frame": {"x":838,"y":16,"w":32,"h":32},
+	"frame": {"x":644,"y":376,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -242,7 +242,7 @@
 },
 "platform/platform-3.png":
 {
-	"frame": {"x":838,"y":16,"w":32,"h":32},
+	"frame": {"x":644,"y":376,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -250,7 +250,7 @@
 },
 "platform/platform-end.png":
 {
-	"frame": {"x":982,"y":2,"w":32,"h":32},
+	"frame": {"x":644,"y":342,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
@@ -258,15 +258,23 @@
 },
 "platform/platform-start.png":
 {
-	"frame": {"x":948,"y":2,"w":32,"h":32},
+	"frame": {"x":644,"y":308,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
 	"sourceSize": {"w":32,"h":32}
 },
+"ui/headline.png":
+{
+	"frame": {"x":644,"y":78,"w":640,"h":34},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":640,"h":34},
+	"sourceSize": {"w":640,"h":34}
+},
 "ui/minimap.png":
 {
-	"frame": {"x":2,"y":484,"w":640,"h":74},
+	"frame": {"x":644,"y":2,"w":640,"h":74},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":640,"h":74},
@@ -277,8 +285,8 @@
 	"version": "1.0",
 	"image": "sprites.png",
 	"format": "RGBA8888",
-	"size": {"w":1024,"h":1024},
+	"size": {"w":1286,"h":484},
 	"scale": "2",
-	"smartupdate": "$TexturePacker:SmartUpdate:3972a9d60f13cbbc63f5727fff739976:1/1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:490383a93573fd9024ac9a121117781c:1/1$"
 }
 }

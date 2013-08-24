@@ -18,7 +18,7 @@ class Game
 
     firstPlatform = @level.getPlatforms()[0]
     @player.setPosition(
-      firstPlatform.getPosition().x * @level.GRID_SIZE,
+      firstPlatform.getPosition().x * @level.GRID_SIZE + firstPlatform.getWidth() * @level.GRID_SIZE / 2,
       firstPlatform.getPosition().y * @level.GRID_SIZE - 100
     )
 

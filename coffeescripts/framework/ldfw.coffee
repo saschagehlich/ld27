@@ -7,7 +7,9 @@ window.LDFW =
 
   # Graphics
   TextureAtlas: require "./graphics/textureatlas.coffee"
+  TextureRegion: require "./graphics/textureregion.coffee"
   Sprite: require "./graphics/sprite.coffee"
+  BitmapFont: require "./graphics/bitmapfont.coffee"
 
   # Math
   Vector2: require "./math/vector2.coffee"

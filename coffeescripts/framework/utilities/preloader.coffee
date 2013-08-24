@@ -53,6 +53,18 @@ class Preloader extends EventEmitter
       }
 
   ###
+   * Loads a FNT file via AJAX
+   * @param  [String]   filename
+   * @param  [Function] callback
+  ###
+  loadFNT: (filename, callback) ->
+    $.get filename, (data) ->
+      callback null, {
+        filename: filename,
+        item: data
+      }
+
+  ###
    * Loads an image item
    * @param  [String] filename
    * @param  [Function] callback

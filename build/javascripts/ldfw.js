@@ -42,7 +42,7 @@ Actor = (function(_super) {
 module.exports = Actor;
 
 
-},{"./node.coffee":8}],2:[function(require,module,exports){
+},{"./node.coffee":10}],2:[function(require,module,exports){
 var Game,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -90,15 +90,33 @@ Game = (function() {
 
   Game.prototype.setupStats = function() {
     var dom;
-    this.stats = new Stats();
-    this.stats.setMode(0);
-    dom = $(this.stats.domElement);
+    this.fpsStats = new Stats();
+    this.fpsStats.setMode(0);
+    dom = $(this.fpsStats.domElement);
     dom.css({
       position: "absolute",
       left: -dom.width(),
       top: 0
     });
-    return this.wrapper.append(this.stats.domElement);
+    this.wrapper.append(this.fpsStats.domElement);
+    this.fpsMsStats = new Stats();
+    this.fpsMsStats.setMode(1);
+    dom = $(this.fpsMsStats.domElement);
+    dom.css({
+      position: "absolute",
+      left: -dom.width(),
+      top: 50
+    });
+    this.wrapper.append(this.fpsMsStats.domElement);
+    this.tickStats = new Stats();
+    this.tickStats.setMode(1);
+    dom = $(this.tickStats.domElement);
+    dom.css({
+      position: "absolute",
+      left: -dom.width(),
+      top: 100
+    });
+    return this.wrapper.append(this.tickStats.domElement);
   };
 
   /*
@@ -128,16 +146,20 @@ Game = (function() {
 
   Game.prototype.tick = function() {
     var delta, _ref, _ref1;
-    this.stats.begin();
     delta = (new Date() - this.lastTick) / 1000;
-    this.clearScreen();
+    this.tickStats.begin();
     if ((_ref = this.screen) != null) {
       _ref.update(delta);
     }
+    this.tickStats.end();
+    this.fpsStats.begin();
+    this.fpsMsStats.begin();
+    this.clearScreen();
     if ((_ref1 = this.screen) != null) {
       _ref1.draw(this.context);
     }
-    this.stats.end();
+    this.fpsStats.end();
+    this.fpsMsStats.end();
     this.lastTick = new Date();
     if (this.running) {
       return requestAnimFrame(this.tick);
@@ -152,6 +174,98 @@ module.exports = Game;
 
 
 },{}],3:[function(require,module,exports){
+var BitmapFont, Rectangle;
+
+Rectangle = require("../math/rectangle.coffee");
+
+BitmapFont = (function() {
+  function BitmapFont(fontFile, textureRegion) {
+    this.fontFile = fontFile;
+    this.textureRegion = textureRegion;
+    this.chars = {};
+    this.parseFontFile();
+  }
+
+  /*
+   * Parses the font file and stores the character information
+   * in the chars instance variable
+  */
+
+
+  BitmapFont.prototype.parseFontFile = function() {
+    var char, key, line, parameter, split, val, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
+    _ref = this.fontFile.split("\n");
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      line = _ref[_i];
+      split = line.split(" ");
+      if (split[0] === "char") {
+        char = {};
+        _ref1 = split.slice(1, -1);
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          parameter = _ref1[_j];
+          _ref2 = parameter.split("="), key = _ref2[0], val = _ref2[1];
+          char[key] = parseInt(val);
+        }
+        _results.push(this.chars[char.id] = char);
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
+
+  BitmapFont.prototype.getBounds = function(text) {
+    var char, charCode, character, height, i, width, _i, _ref;
+    width = 0;
+    height = 0;
+    for (i = _i = 0, _ref = text.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      character = text.substr(i, 1);
+      charCode = character.charCodeAt(0);
+      if (this.chars[charCode] == null) {
+        continue;
+      }
+      char = this.chars[charCode];
+      width += char.xadvance;
+      height = char.height;
+    }
+    return new Rectangle(0, 0, width, height);
+  };
+
+  /*
+   * Draws the text on the given canvas
+   * @param  {CanvasRenderingContext2D} context
+   * @param  {String} text
+   * @param  {Number} x
+   * @param  {Number} y
+  */
+
+
+  BitmapFont.prototype.drawText = function(context, text, x, y) {
+    var char, charCode, character, i, xOffset, _i, _ref, _results;
+    xOffset = 0;
+    _results = [];
+    for (i = _i = 0, _ref = text.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      character = text.substr(i, 1);
+      charCode = character.charCodeAt(0);
+      if (this.chars[charCode] == null) {
+        continue;
+      }
+      char = this.chars[charCode];
+      this.textureRegion.draw(context, char.x, char.y, char.width, char.height, x + xOffset, y);
+      _results.push(xOffset += char.xadvance);
+    }
+    return _results;
+  };
+
+  return BitmapFont;
+
+})();
+
+module.exports = BitmapFont;
+
+
+},{"../math/rectangle.coffee":8}],4:[function(require,module,exports){
 var Node, Sprite, Vector2,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -223,10 +337,12 @@ Sprite = (function(_super) {
 module.exports = Sprite;
 
 
-},{"../math/vector2.coffee":7,"../node.coffee":8}],4:[function(require,module,exports){
-var Sprite, TextureAtlas;
+},{"../math/vector2.coffee":9,"../node.coffee":10}],5:[function(require,module,exports){
+var Sprite, TextureAtlas, TextureRegion;
 
 Sprite = require("./sprite.coffee");
+
+TextureRegion = require("./textureregion.coffee");
 
 TextureAtlas = (function() {
   function TextureAtlas(frames, image) {
@@ -251,6 +367,15 @@ TextureAtlas = (function() {
     return sprite;
   };
 
+  TextureAtlas.prototype.findRegion = function(filename) {
+    var region;
+    if (this.frames[filename] == null) {
+      throw new Error("The region " + filename + " could not be found.");
+    }
+    region = new TextureRegion(this, this.frames[filename]);
+    return region;
+  };
+
   TextureAtlas.prototype.getAtlasImage = function() {
     return this.image;
   };
@@ -262,7 +387,42 @@ TextureAtlas = (function() {
 module.exports = TextureAtlas;
 
 
-},{"./sprite.coffee":3}],5:[function(require,module,exports){
+},{"./sprite.coffee":4,"./textureregion.coffee":6}],6:[function(require,module,exports){
+var TextureRegion, Vector2;
+
+Vector2 = require("../math/vector2.coffee");
+
+TextureRegion = (function() {
+  function TextureRegion(atlas, frame) {
+    this.atlas = atlas;
+    this.frame = frame;
+    this.image = this.atlas.getAtlasImage();
+  }
+
+  /*
+   * Draws the given rectangle of the region to the given location
+   * @param  {CanvasRenderingContext2d} context
+   * @param  {Number} sx
+   * @param  {Number} sy
+   * @param  {Number} sw
+   * @param  {Number} sh
+   * @param  {Number} dx
+   * @param  {Number} dy
+  */
+
+
+  TextureRegion.prototype.draw = function(context, sx, sy, sw, sh, dx, dy) {
+    return context.drawImage(this.image, this.frame.frame.x + sx, this.frame.frame.y + sy, Math.min(sw, (this.frame.spriteSourceSize.w + this.frame.frame.x) - sx), Math.min(sh, (this.frame.spriteSourceSize.h + this.frame.frame.y) - sy), dx, dy, Math.min(sw, (this.frame.spriteSourceSize.w + this.frame.frame.x) - sx), Math.min(sh, (this.frame.spriteSourceSize.h + this.frame.frame.y) - sy));
+  };
+
+  return TextureRegion;
+
+})();
+
+module.exports = TextureRegion;
+
+
+},{"../math/vector2.coffee":9}],7:[function(require,module,exports){
 window.LDFW = {
   Game: require("./game.coffee"),
   Screen: require("./screen.coffee"),
@@ -270,13 +430,15 @@ window.LDFW = {
   Stage: require("./stage.coffee"),
   Node: require("./node.coffee"),
   TextureAtlas: require("./graphics/textureatlas.coffee"),
+  TextureRegion: require("./graphics/textureregion.coffee"),
   Sprite: require("./graphics/sprite.coffee"),
+  BitmapFont: require("./graphics/bitmapfont.coffee"),
   Vector2: require("./math/vector2.coffee"),
   Preloader: require("./utilities/preloader.coffee")
 };
 
 
-},{"./actor.coffee":1,"./game.coffee":2,"./graphics/sprite.coffee":3,"./graphics/textureatlas.coffee":4,"./math/vector2.coffee":7,"./node.coffee":8,"./screen.coffee":9,"./stage.coffee":10,"./utilities/preloader.coffee":11}],6:[function(require,module,exports){
+},{"./actor.coffee":1,"./game.coffee":2,"./graphics/bitmapfont.coffee":3,"./graphics/sprite.coffee":4,"./graphics/textureatlas.coffee":5,"./graphics/textureregion.coffee":6,"./math/vector2.coffee":9,"./node.coffee":10,"./screen.coffee":11,"./stage.coffee":12,"./utilities/preloader.coffee":13}],8:[function(require,module,exports){
 var Rectangle, Vector2;
 
 Vector2 = require("./vector2.coffee");
@@ -330,7 +492,7 @@ Rectangle = (function() {
 module.exports = Rectangle;
 
 
-},{"./vector2.coffee":7}],7:[function(require,module,exports){
+},{"./vector2.coffee":9}],9:[function(require,module,exports){
 var Vector2;
 
 Vector2 = (function() {
@@ -512,7 +674,7 @@ Vector2 = (function() {
 module.exports = Vector2;
 
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var Node, Rectangle, Vector2;
 
 Vector2 = require("./math/vector2.coffee");
@@ -643,7 +805,7 @@ Node = (function() {
 module.exports = Node;
 
 
-},{"./math/rectangle.coffee":6,"./math/vector2.coffee":7}],9:[function(require,module,exports){
+},{"./math/rectangle.coffee":8,"./math/vector2.coffee":9}],11:[function(require,module,exports){
 var Screen;
 
 Screen = (function() {
@@ -680,7 +842,7 @@ Screen = (function() {
 module.exports = Screen;
 
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var Stage;
 
 Stage = (function() {
@@ -759,7 +921,7 @@ Stage = (function() {
 module.exports = Stage;
 
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var EventEmitter, Preloader, async,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -846,6 +1008,22 @@ Preloader = (function(_super) {
   };
 
   /*
+   * Loads a FNT file via AJAX
+   * @param  [String]   filename
+   * @param  [Function] callback
+  */
+
+
+  Preloader.prototype.loadFNT = function(filename, callback) {
+    return $.get(filename, function(data) {
+      return callback(null, {
+        filename: filename,
+        item: data
+      });
+    });
+  };
+
+  /*
    * Loads an image item
    * @param  [String] filename
    * @param  [Function] callback
@@ -884,7 +1062,7 @@ Preloader = (function(_super) {
 module.exports = Preloader;
 
 
-},{"../vendor/async.js":12,"events":13}],12:[function(require,module,exports){
+},{"../vendor/async.js":14,"events":15}],14:[function(require,module,exports){
 var process=require("__browserify_process");/*global setImmediate: false, setTimeout: false, console: false */
 (function () {
 
@@ -1841,7 +2019,7 @@ var process=require("__browserify_process");/*global setImmediate: false, setTim
 
 }());
 
-},{"__browserify_process":14}],13:[function(require,module,exports){
+},{"__browserify_process":16}],15:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -2037,7 +2215,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":14}],14:[function(require,module,exports){
+},{"__browserify_process":16}],16:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2091,5 +2269,5 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[5])
+},{}]},{},[7])
 ;

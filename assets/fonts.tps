@@ -22,7 +22,7 @@
         <key>dataFormat</key>
         <string>json</string>
         <key>textureFileName</key>
-        <filename>../build/assets/sprites.png</filename>
+        <filename>../build/assets/fonts.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>ditherType</key>
@@ -99,7 +99,7 @@
             <key>packageName</key>
             <string>Texture</string>
             <key>javaFileName</key>
-            <filename>sprites.java</filename>
+            <filename>fonts.java</filename>
             <key>wrap</key>
             <struct type="AndEngineWrap">
                 <key>s</key>
@@ -111,7 +111,7 @@
             <enum type="AndEngine::MagFilter">MagLinear</enum>
         </struct>
         <key>dataFileName</key>
-        <filename>../build/assets/sprites.json</filename>
+        <filename>../build/assets/fonts.json</filename>
         <key>multiPack</key>
         <false/>
         <key>mainExtension</key>
@@ -132,7 +132,7 @@
         <key>globalSpriteSettings</key>
         <struct type="SpriteSettings">
             <key>scale</key>
-            <double>2</double>
+            <double>1</double>
             <key>scaleMode</key>
             <enum type="ScaleMode">Fast</enum>
             <key>innerPadding</key>
@@ -148,7 +148,7 @@
         </struct>
         <key>fileList</key>
         <array>
-            <filename>sprites</filename>
+            <filename>../build/assets/fonts</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
