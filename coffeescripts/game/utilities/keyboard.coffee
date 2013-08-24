@@ -39,7 +39,7 @@ class Keyboard extends EventEmitter
       @keyStates[keyCode] = false
 
   pressed: (keyCode) ->
-    @keyStates[keyCode] | false
+    @keyStates[keyCode] || false
 
   upPressed: ->
     return @keyStates[@Keys.UP] || @keyStates[@Keys.W] || @keyStates[@Keys.SPACE]

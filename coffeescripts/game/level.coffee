@@ -1,4 +1,5 @@
-Block = require "./entities/block.coffee"
+Block    = require "./entities/block.coffee"
+Platform = require "./entities/platform.coffee"
 
 class Level
   GRID_SIZE: 32
@@ -18,11 +19,10 @@ class Level
     @scroll = new LDFW.Vector2()
     @gravity = new LDFW.Vector2(0, 1800)
     @platforms = [
-      {
-        position: new LDFW.Vector2(200, 400)
-        width: 300
-        height: 16
-      }
+      new Platform @app, @game,
+        position: new LDFW.Vector2(2, 12)
+        width: 8
+        height: 3
     ]
 
     @blocks = []
@@ -112,11 +112,15 @@ class Level
 
     # Platform collision check
     for platform in @platforms
+      position = platform.getPosition()
+        .clone()
+        .multiply(@GRID_SIZE)
+
       platform =
-        top: platform.position.y
-        bottom: platform.position.y + platform.height
-        left: platform.position.x
-        right: platform.position.x + platform.width
+        top: position.y
+        bottom: position.y + platform.getHeight() * @GRID_SIZE
+        left: position.x
+        right: position.x + platform.getWidth() * @GRID_SIZE
 
       # Horizontal collision check
       unless player.bottom <= platform.top or

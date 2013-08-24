@@ -19,7 +19,7 @@ LevelActor = (function(_super) {
   }
 
   LevelActor.prototype.prepareSprites = function() {
-    var sprite, spriteIndex, style, _base, _i, _j, _k, _ref, _ref1, _ref2;
+    var sprite, spriteIndex, style, _base, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3;
     this.blockSprites = {};
     for (style = _i = 0, _ref = Config.block_styles; 0 <= _ref ? _i < _ref : _i > _ref; style = 0 <= _ref ? ++_i : --_i) {
       if ((_base = this.blockSprites)[style] == null) {
@@ -38,7 +38,14 @@ LevelActor = (function(_super) {
     }
     this.grassSprites["start"] = this.spritesAtlas.createSprite("grass/grass-start.png");
     this.grassSprites["end"] = this.spritesAtlas.createSprite("grass/grass-end.png");
-    return this.grassSprites["single"] = this.spritesAtlas.createSprite("grass/grass-single.png");
+    this.grassSprites["single"] = this.spritesAtlas.createSprite("grass/grass-single.png");
+    this.tileSprites = {};
+    for (spriteIndex = _l = 0, _ref3 = Config.sprites_per_block_style; 0 <= _ref3 ? _l < _ref3 : _l > _ref3; spriteIndex = 0 <= _ref3 ? ++_l : --_l) {
+      sprite = this.spritesAtlas.createSprite("platform/platform-" + spriteIndex + ".png");
+      this.tileSprites[spriteIndex] = sprite;
+    }
+    this.tileSprites["start"] = this.spritesAtlas.createSprite("platform/platform-start.png");
+    return this.tileSprites["end"] = this.spritesAtlas.createSprite("platform/platform-end.png");
   };
 
   LevelActor.prototype.draw = function(context) {
@@ -51,14 +58,49 @@ LevelActor = (function(_super) {
   };
 
   LevelActor.prototype.drawPlatforms = function(context) {
-    var platform, platforms, scroll, _i, _len, _results;
+    var grassSprite, grassXOffset, height, platform, platforms, position, scroll, spriteIndex, stylesMap, tileSprite, width, x, y, _i, _j, _k, _len, _ref, _ref1, _results;
     platforms = this.level.getPlatforms();
     scroll = this.level.getScroll();
     _results = [];
     for (_i = 0, _len = platforms.length; _i < _len; _i++) {
       platform = platforms[_i];
-      context.fillStyle = "red";
-      _results.push(context.fillRect(platform.position.x - this.level.getScroll().x, platform.position.y - this.level.getScroll().y, platform.width, platform.height));
+      stylesMap = platform.getStylesMap();
+      position = platform.getPosition().clone().multiply(this.level.GRID_SIZE);
+      width = platform.getWidth() * this.level.GRID_SIZE;
+      height = platform.getHeight() * this.level.GRID_SIZE;
+      for (y = _j = 0, _ref = platform.getHeight(); 0 <= _ref ? _j < _ref : _j > _ref; y = 0 <= _ref ? ++_j : --_j) {
+        for (x = _k = 0, _ref1 = platform.getWidth(); 0 <= _ref1 ? _k < _ref1 : _k > _ref1; x = 0 <= _ref1 ? ++_k : --_k) {
+          spriteIndex = stylesMap[y][x];
+          console.log(spriteIndex);
+          tileSprite = this.tileSprites[spriteIndex];
+          if (x === 0) {
+            tileSprite = this.tileSprites.start;
+          }
+          if (x === platform.getWidth() - 1) {
+            tileSprite = this.tileSprites.end;
+          }
+          tileSprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
+        }
+      }
+      _results.push((function() {
+        var _l, _ref2, _results1;
+        _results1 = [];
+        for (x = _l = 0, _ref2 = platform.width; 0 <= _ref2 ? _l < _ref2 : _l > _ref2; x = 0 <= _ref2 ? ++_l : --_l) {
+          grassSprite = this.grassSprites[0];
+          grassXOffset = 0;
+          if (platform.width === 1) {
+            grassSprite = this.grassSprites.single;
+            grassXOffset = -2;
+          } else if (x === 0) {
+            grassSprite = this.grassSprites.start;
+            grassXOffset = -2;
+          } else if (x === platform.width - 1) {
+            grassSprite = this.grassSprites.end;
+          }
+          _results1.push(grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y));
+        }
+        return _results1;
+      }).call(this));
     }
     return _results;
   };
@@ -205,7 +247,7 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":8}],4:[function(require,module,exports){
+},{"./ld27.coffee":9}],4:[function(require,module,exports){
 module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
@@ -254,7 +296,7 @@ Block = (function() {
     this.app = app;
     this.game = game;
     this.options = options != null ? options : {};
-    this.buildMode = this.options.buildMode | false;
+    this.buildMode = this.options.buildMode || false;
     this.map = null;
     this.rotation = Math.round(Math.random() * 3);
     this.gridPosition = new LDFW.Vector2();
@@ -359,6 +401,52 @@ module.exports = Block;
 
 
 },{"../config/available_blocks.json":4,"../config/config.json":5}],7:[function(require,module,exports){
+var Config, Platform;
+
+Config = require("../config/config.json");
+
+Platform = (function() {
+  function Platform(app, game, options) {
+    var x, y, _i, _j, _ref, _ref1;
+    this.app = app;
+    this.game = game;
+    this.options = options != null ? options : {};
+    this.position = this.options.position || new LDFW.Vector2(2, 4);
+    this.width = this.options.width || 3;
+    this.height = this.options.height || 10;
+    this.stylesMap = [];
+    for (y = _i = 0, _ref = this.height; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
+      this.stylesMap[y] = [];
+      for (x = _j = 0, _ref1 = this.width; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
+        this.stylesMap[y].push(Math.floor(Math.random() * Config.sprites_per_block_style));
+      }
+    }
+  }
+
+  Platform.prototype.getPosition = function() {
+    return this.position;
+  };
+
+  Platform.prototype.getWidth = function() {
+    return this.width;
+  };
+
+  Platform.prototype.getHeight = function() {
+    return this.height;
+  };
+
+  Platform.prototype.getStylesMap = function() {
+    return this.stylesMap;
+  };
+
+  return Platform;
+
+})();
+
+module.exports = Platform;
+
+
+},{"../config/config.json":5}],8:[function(require,module,exports){
 var Game, Keyboard, Level, Mouse, Player;
 
 Level = require("./level.coffee");
@@ -378,7 +466,7 @@ Game = (function() {
     this.level = new Level(this.app, this);
     this.player = new Player(this.app, this);
     firstPlatform = this.level.getPlatforms()[0];
-    this.player.setPosition(firstPlatform.position.x, firstPlatform.position.y - 100);
+    this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);
   }
 
   Game.prototype.update = function(delta) {
@@ -409,7 +497,7 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":9,"./player.coffee":10,"./utilities/keyboard.coffee":13,"./utilities/mouse.coffee":14}],8:[function(require,module,exports){
+},{"./level.coffee":10,"./player.coffee":11,"./utilities/keyboard.coffee":14,"./utilities/mouse.coffee":15}],9:[function(require,module,exports){
 var GameScreen, Keyboard, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -460,11 +548,13 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":11,"./utilities/keyboard.coffee":13,"./utilities/mouse.coffee":14}],9:[function(require,module,exports){
-var Block, Level,
+},{"./screens/gamescreen.coffee":12,"./utilities/keyboard.coffee":14,"./utilities/mouse.coffee":15}],10:[function(require,module,exports){
+var Block, Level, Platform,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Block = require("./entities/block.coffee");
+
+Platform = require("./entities/platform.coffee");
 
 Level = (function() {
   Level.prototype.GRID_SIZE = 32;
@@ -488,11 +578,11 @@ Level = (function() {
     this.scroll = new LDFW.Vector2();
     this.gravity = new LDFW.Vector2(0, 1800);
     this.platforms = [
-      {
-        position: new LDFW.Vector2(200, 400),
-        width: 300,
-        height: 16
-      }
+      new Platform(this.app, this.game, {
+        position: new LDFW.Vector2(2, 12),
+        width: 8,
+        height: 3
+      })
     ];
     this.blocks = [];
   }
@@ -594,11 +684,12 @@ Level = (function() {
     _ref = this.platforms;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       platform = _ref[_i];
+      position = platform.getPosition().clone().multiply(this.GRID_SIZE);
       platform = {
-        top: platform.position.y,
-        bottom: platform.position.y + platform.height,
-        left: platform.position.x,
-        right: platform.position.x + platform.width
+        top: position.y,
+        bottom: position.y + platform.getHeight() * this.GRID_SIZE,
+        left: position.x,
+        right: position.x + platform.getWidth() * this.GRID_SIZE
       };
       if (!(player.bottom <= platform.top || player.top >= platform.bottom)) {
         if (player.right <= platform.left) {
@@ -680,7 +771,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./entities/block.coffee":6}],10:[function(require,module,exports){
+},{"./entities/block.coffee":6,"./entities/platform.coffee":7}],11:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -765,7 +856,7 @@ Player = (function() {
 module.exports = Player;
 
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var Game, GameScreen, GameStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -800,7 +891,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":7,"../stages/gamestage.coffee":12}],12:[function(require,module,exports){
+},{"../game.coffee":8,"../stages/gamestage.coffee":13}],13:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -816,10 +907,10 @@ GameStage = (function(_super) {
     this.app = app;
     this.game = game;
     GameStage.__super__.constructor.call(this, this.game);
-    this.playerActor = new PlayerActor(this.app, this.game);
-    this.addActor(this.playerActor);
     this.levelActor = new LevelActor(this.app, this.game);
     this.addActor(this.levelActor);
+    this.playerActor = new PlayerActor(this.app, this.game);
+    this.addActor(this.playerActor);
   }
 
   return GameStage;
@@ -829,7 +920,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],13:[function(require,module,exports){
+},{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],14:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -887,7 +978,7 @@ Keyboard = (function(_super) {
   };
 
   Keyboard.prototype.pressed = function(keyCode) {
-    return this.keyStates[keyCode] | false;
+    return this.keyStates[keyCode] || false;
   };
 
   Keyboard.prototype.upPressed = function() {
@@ -901,7 +992,7 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":15}],14:[function(require,module,exports){
+},{"events":16}],15:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -952,7 +1043,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":15}],15:[function(require,module,exports){
+},{"events":16}],16:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -1148,7 +1239,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":16}],16:[function(require,module,exports){
+},{"__browserify_process":17}],17:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

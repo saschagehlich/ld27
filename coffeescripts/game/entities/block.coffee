@@ -3,7 +3,7 @@ Config = require "../config/config.json"
 class Block
   availableBlocks: require "../config/available_blocks.json"
   constructor: (@app, @game, @options={}) ->
-    @buildMode = @options.buildMode | false
+    @buildMode = @options.buildMode || false
 
     # Represents the block's structure
     @map = null
