@@ -48,22 +48,28 @@ LevelActor = (function(_super) {
   };
 
   LevelActor.prototype.drawBlock = function(block, context) {
-    var map, position, row, scroll, segment, x, y, _i, _j, _len, _len1;
+    var map, position, row, scroll, segment, x, y, _i, _len, _results;
     scroll = this.level.getScroll();
     map = block.getMap();
     position = block.getGridPosition().clone().multiply(this.level.GRID_SIZE).substract(scroll);
+    _results = [];
     for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
       row = map[y];
-      for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
-        segment = row[x];
-        if (segment === 0) {
-          continue;
+      _results.push((function() {
+        var _j, _len1, _results1;
+        _results1 = [];
+        for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
+          segment = row[x];
+          if (segment === 0) {
+            continue;
+          }
+          context.fillStyle = "blue";
+          _results1.push(context.fillRect(position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE, this.level.GRID_SIZE, this.level.GRID_SIZE));
         }
-        context.fillStyle = "blue";
-        context.fillRect(position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE, this.level.GRID_SIZE, this.level.GRID_SIZE);
-      }
+        return _results1;
+      }).call(this));
     }
-    return console.log("---");
+    return _results;
   };
 
   return LevelActor;
@@ -131,7 +137,7 @@ $(function() {
 
 
 },{"./ld27.coffee":7}],4:[function(require,module,exports){
-module.exports=[
+module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
   ],
@@ -318,15 +324,33 @@ Level = (function() {
   Level.prototype.update = function(delta) {};
 
   Level.prototype.getHighestPointForPlayer = function(player) {
-    var maxY, platform, w, x, _i, _len, _ref;
+    var block, map, maxY, platform, playerWidth, playerX, position, row, segment, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
     maxY = this.app.getHeight() * 2;
-    x = player.getPosition().getX();
-    w = 32;
+    playerX = player.getPosition().getX();
+    playerWidth = 32;
     _ref = this.platforms;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       platform = _ref[_i];
-      if (!(platform.position.x > x + w || platform.position.x + platform.width < x)) {
-        maxY = platform.position.y;
+      if (!(platform.position.x > playerX + playerWidth || platform.position.x + platform.width < playerX)) {
+        maxY = Math.min(platform.position.y, maxY);
+      }
+    }
+    _ref1 = this.blocks;
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      block = _ref1[_j];
+      map = block.getMap();
+      position = block.getGridPosition().clone().multiply(this.GRID_SIZE);
+      for (y = _k = 0, _len2 = map.length; _k < _len2; y = ++_k) {
+        row = map[y];
+        for (x = _l = 0, _len3 = row.length; _l < _len3; x = ++_l) {
+          segment = row[x];
+          if (segment === 0) {
+            continue;
+          }
+          if (!(position.getX() + x * this.GRID_SIZE > playerX + playerWidth || position.getX() + (x + 1) * this.GRID_SIZE < playerX)) {
+            maxY = Math.min(position.getY() + y * this.GRID_SIZE, maxY);
+          }
+        }
       }
     }
     return maxY;

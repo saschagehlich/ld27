@@ -51,6 +51,4 @@ class LevelActor extends LDFW.Actor
           @level.GRID_SIZE, @level.GRID_SIZE
         )
 
-    console.log "---"
-
 module.exports = LevelActor

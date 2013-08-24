@@ -23,12 +23,28 @@ class Level
   getHighestPointForPlayer: (player) ->
     maxY = @app.getHeight() * 2
 
-    x = player.getPosition().getX()
-    w = 32
+    # Check for platforms
+    playerX = player.getPosition().getX()
+    playerWidth = 32
     for platform in @platforms
-      unless (platform.position.x > x + w or
-        platform.position.x + platform.width < x)
-          maxY = platform.position.y
+      unless (platform.position.x > playerX + playerWidth or
+        platform.position.x + platform.width < playerX)
+          maxY = Math.min(platform.position.y, maxY)
+
+    # Check for blocks
+    for block in @blocks
+      map = block.getMap()
+      position = block.getGridPosition()
+        .clone()
+        .multiply(@GRID_SIZE)
+
+      for row, y in map
+        for segment, x in row
+          continue if segment is 0
+
+          unless (position.getX() + x * @GRID_SIZE > playerX + playerWidth or
+            position.getX() + (x + 1) * @GRID_SIZE < playerX)
+              maxY = Math.min(position.getY() + y * @GRID_SIZE, maxY)
 
     return maxY
 
