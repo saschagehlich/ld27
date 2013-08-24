@@ -187,7 +187,7 @@ Level = (function() {
     this.app = app;
     this.game = game;
     this.scroll = new LDFW.Vector2();
-    this.gravity = 8;
+    this.gravity = new LDFW.Vector2(0, 450);
     this.platforms = [
       {
         position: new LDFW.Vector2(10, 400),
@@ -196,7 +196,24 @@ Level = (function() {
     ];
   }
 
-  Level.prototype.update = function(delta) {};
+  Level.prototype.update = function(delta) {
+    return this.scroll.setX(this.scroll.getX() + delta * 20);
+  };
+
+  Level.prototype.getHighestPointForPlayer = function(player) {
+    var maxY, platform, w, x, _i, _len, _ref;
+    maxY = this.app.getHeight() * 2;
+    x = player.getPosition().getX();
+    w = 32;
+    _ref = this.platforms;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      platform = _ref[_i];
+      if (!(platform.position.x > x + w || platform.position.x + platform.width < x)) {
+        maxY = platform.position.y;
+      }
+    }
+    return maxY;
+  };
 
   Level.prototype.getScroll = function() {
     return this.scroll;
@@ -218,17 +235,19 @@ module.exports = Level;
 
 
 },{}],7:[function(require,module,exports){
-var Player;
+var JUMP_FORCE, Player;
+
+JUMP_FORCE = -200;
 
 Player = (function() {
   function Player(app, game) {
     this.app = app;
     this.game = game;
     this.keyboard = this.game.getKeyboard();
-    this.speedX = 3;
-    this.velocityX = 0;
+    this.velocity = new LDFW.Vector2();
     this.position = new LDFW.Vector2();
     this.level = this.game.getLevel();
+    this.onGround = false;
   }
 
   Player.prototype.update = function(delta) {
@@ -236,40 +255,32 @@ Player = (function() {
      * Keyboard handling
     */
 
-    var gravity, maxY, platform, platforms, w, x, _i, _len;
-    if (this.keyboard.pressed(this.keyboard.Keys.RIGHT) || this.keyboard.pressed(this.keyboard.Keys.D)) {
-      this.velocityX = 1;
-    } else if (this.keyboard.pressed(this.keyboard.Keys.LEFT) || this.keyboard.pressed(this.keyboard.Keys.A)) {
-      this.velocityX = -1;
-    } else {
-      this.velocityX = 0;
+    var gravity, gravityStep, maxY, velocityStep;
+    if (this.keyboard.upPressed() && this.onGround) {
+      this.velocity.setY(JUMP_FORCE);
     }
-    /*
-     * Move!
-    */
-
-    this.position.setX(this.position.getX() + (this.speedX * this.velocityX));
-    gravity = this.level.getGravity();
-    this.position.setY(this.position.getY() + gravity);
-    maxY = this.app.getHeight() * 2;
-    platforms = this.level.getPlatforms();
-    x = this.position.getX();
-    w = 32;
-    for (_i = 0, _len = platforms.length; _i < _len; _i++) {
-      platform = platforms[_i];
-      if (!(platform.position.x > x + w || platform.position.x + platform.width < x)) {
-        maxY = platform.position.y;
-      }
-    }
-    if (this.position.getY() > maxY) {
-      this.position.setY(maxY);
-    }
+    gravity = this.level.getGravity().clone();
+    gravityStep = gravity.multiply(delta);
+    this.velocity.add(gravityStep);
+    velocityStep = this.velocity.clone().multiply(delta);
+    this.position.add(velocityStep);
     /*
      * Boundaries
     */
 
     if (this.position.getX() < this.level.getScroll().x) {
-      return this.position.setX(this.level.getScroll().x);
+      this.position.setX(this.level.getScroll().x);
+    }
+    maxY = this.level.getHighestPointForPlayer(this);
+    if (this.position.getY() > maxY) {
+      this.position.setY(maxY);
+    }
+    if (this.position.getY() >= maxY) {
+      this.jumping = false;
+      this.onGround = true;
+      return this.velocity.setY(0);
+    } else {
+      return this.onGround = false;
     }
   };
 
@@ -402,6 +413,10 @@ Keyboard = (function() {
 
   Keyboard.prototype.pressed = function(keyCode) {
     return this.keyStates[keyCode] | false;
+  };
+
+  Keyboard.prototype.upPressed = function() {
+    return this.keyStates[this.Keys.UP] || this.keyStates[this.Keys.W] || this.keyStates[this.Keys.SPACE];
   };
 
   return Keyboard;

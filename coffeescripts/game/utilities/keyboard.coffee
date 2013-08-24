@@ -34,4 +34,7 @@ class Keyboard
   pressed: (keyCode) ->
     @keyStates[keyCode] | false
 
+  upPressed: ->
+    return @keyStates[@Keys.UP] || @keyStates[@Keys.W] || @keyStates[@Keys.SPACE]
+
 module.exports = Keyboard

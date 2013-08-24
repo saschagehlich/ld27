@@ -16,6 +16,50 @@ class Vector2
       @x = x
       @y = y
 
+    return this
+
+  ###
+   * Returns a clone of this Vector
+   * @return {Vector2}
+  ###
+  clone: -> new Vector2(@x, @y)
+
+  ###
+   * Adds the given values to this Vector
+   * @param [Number] x
+   * @param [Number] y
+  ###
+  add: (x, y) ->
+    if x instanceof Vector2
+      v2 = x
+      x = v2.getX()
+      y = v2.getY()
+    else if x? and not y?
+      y = x
+
+    @x = @x + x
+    @y = @y + y
+
+    return this
+
+  ###
+   * Multiplies this Vector with the given values
+   * @param [Number] x
+   * @param [Number] y
+  ###
+  multiply: (x, y) ->
+    if x instanceof Vector2
+      v2 = x
+      x = v2.getX()
+      y = v2.getY()
+    else if x? and not y?
+      y = x
+
+    @x = @x * x
+    @y = @y * y
+
+    return this
+
   ###
    * Returns the x value
    * @return [Number]

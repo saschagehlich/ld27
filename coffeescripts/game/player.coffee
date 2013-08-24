@@ -1,50 +1,40 @@
+JUMP_FORCE = -200
+
 class Player
   constructor: (@app, @game) ->
     @keyboard = @game.getKeyboard()
 
-    @speedX = 3
-    @velocityX = 0
-
+    @velocity = new LDFW.Vector2()
     @position = new LDFW.Vector2()
     @level = @game.getLevel()
+
+    @onGround = false
 
   update: (delta) ->
     ###
      * Keyboard handling
     ###
-    if @keyboard.pressed(@keyboard.Keys.RIGHT) or
-      @keyboard.pressed(@keyboard.Keys.D)
-        @velocityX = 1
+    # if @keyboard.pressed(@keyboard.Keys.RIGHT) or
+    #   @keyboard.pressed(@keyboard.Keys.D)
+    #     @velocity.setX 1
 
-    else if @keyboard.pressed(@keyboard.Keys.LEFT) or
-      @keyboard.pressed(@keyboard.Keys.A)
-        @velocityX = -1
+    # else if @keyboard.pressed(@keyboard.Keys.LEFT) or
+    #   @keyboard.pressed(@keyboard.Keys.A)
+    #     @velocity.setX -1
 
-    else
-      @velocityX = 0
+    # else
+    #   @velocity.setX 0
 
-    ###
-     * Move!
-    ###
-    @position.setX @position.getX() + (@speedX * @velocityX)
+    if @keyboard.upPressed() and @onGround
+      @velocity.setY JUMP_FORCE
 
-    gravity = @level.getGravity()
-    @position.setY @position.getY() + gravity
+    gravity = @level.getGravity().clone()
+    gravityStep = gravity.multiply(delta)
 
-    # Calculate the lower boundary depending on the position
-    # and the size of the player
-    maxY = @app.getHeight() * 2
-    platforms = @level.getPlatforms()
+    @velocity.add gravityStep
+    velocityStep = @velocity.clone().multiply(delta)
 
-    x = @position.getX()
-    w = 32
-    for platform in platforms
-      unless (platform.position.x > x + w or
-        platform.position.x + platform.width < x)
-          maxY = platform.position.y
-
-    if @position.getY() > maxY
-      @position.setY maxY
+    @position.add velocityStep
 
     ###
      * Boundaries
@@ -52,6 +42,18 @@ class Player
     if @position.getX() < @level.getScroll().x
       @position.setX @level.getScroll().x
 
+    # Calculate the lower boundary depending on the position
+    # and the size of the player
+    maxY = @level.getHighestPointForPlayer this
+    if @position.getY() > maxY
+      @position.setY maxY
+
+    if @position.getY() >= maxY
+      @jumping = false
+      @onGround = true
+      @velocity.setY 0
+    else
+      @onGround = false
 
   getPosition: -> @position
   setPosition: ->

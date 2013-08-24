@@ -346,11 +346,64 @@ Vector2 = (function() {
     if (x instanceof Vector2) {
       otherV2 = x;
       this.x = otherV2.x;
-      return this.y = otherV2.y;
+      this.y = otherV2.y;
     } else {
       this.x = x;
-      return this.y = y;
+      this.y = y;
     }
+    return this;
+  };
+
+  /*
+   * Returns a clone of this Vector
+   * @return {Vector2}
+  */
+
+
+  Vector2.prototype.clone = function() {
+    return new Vector2(this.x, this.y);
+  };
+
+  /*
+   * Adds the given values to this Vector
+   * @param [Number] x
+   * @param [Number] y
+  */
+
+
+  Vector2.prototype.add = function(x, y) {
+    var v2;
+    if (x instanceof Vector2) {
+      v2 = x;
+      x = v2.getX();
+      y = v2.getY();
+    } else if ((x != null) && (y == null)) {
+      y = x;
+    }
+    this.x = this.x + x;
+    this.y = this.y + y;
+    return this;
+  };
+
+  /*
+   * Multiplies this Vector with the given values
+   * @param [Number] x
+   * @param [Number] y
+  */
+
+
+  Vector2.prototype.multiply = function(x, y) {
+    var v2;
+    if (x instanceof Vector2) {
+      v2 = x;
+      x = v2.getX();
+      y = v2.getY();
+    } else if ((x != null) && (y == null)) {
+      y = x;
+    }
+    this.x = this.x * x;
+    this.y = this.y * y;
+    return this;
   };
 
   /*
