@@ -9,6 +9,10 @@ class Level
       {
         position: new LDFW.Vector2(10, 400)
         width: 300
+      },
+      {
+        position: new LDFW.Vector2(10, 100)
+        width: 300
       }
     ]
 
@@ -25,8 +29,11 @@ class Level
 
     # Check for platforms
     playerX = player.getPosition().getX()
+    playerY = player.getPosition().getY()
     playerWidth = 32
+
     for platform in @platforms
+      continue if playerY > platform.position.y
       unless (platform.position.x > playerX + playerWidth or
         platform.position.x + platform.width < playerX)
           maxY = Math.min(platform.position.y, maxY)
@@ -41,6 +48,7 @@ class Level
       for row, y in map
         for segment, x in row
           continue if segment is 0
+          continue if playerY > position.getY() + y * @GRID_SIZE
 
           unless (position.getX() + x * @GRID_SIZE > playerX + playerWidth or
             position.getX() + (x + 1) * @GRID_SIZE < playerX)

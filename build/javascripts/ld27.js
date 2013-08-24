@@ -314,6 +314,9 @@ Level = (function() {
       {
         position: new LDFW.Vector2(10, 400),
         width: 300
+      }, {
+        position: new LDFW.Vector2(10, 100),
+        width: 300
       }
     ];
     block = new Block(this.app, this.game);
@@ -324,13 +327,17 @@ Level = (function() {
   Level.prototype.update = function(delta) {};
 
   Level.prototype.getHighestPointForPlayer = function(player) {
-    var block, map, maxY, platform, playerWidth, playerX, position, row, segment, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
+    var block, map, maxY, platform, playerWidth, playerX, playerY, position, row, segment, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
     maxY = this.app.getHeight() * 2;
     playerX = player.getPosition().getX();
+    playerY = player.getPosition().getY();
     playerWidth = 32;
     _ref = this.platforms;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       platform = _ref[_i];
+      if (playerY > platform.position.y) {
+        continue;
+      }
       if (!(platform.position.x > playerX + playerWidth || platform.position.x + platform.width < playerX)) {
         maxY = Math.min(platform.position.y, maxY);
       }
@@ -345,6 +352,9 @@ Level = (function() {
         for (x = _l = 0, _len3 = row.length; _l < _len3; x = ++_l) {
           segment = row[x];
           if (segment === 0) {
+            continue;
+          }
+          if (playerY > position.getY() + y * this.GRID_SIZE) {
             continue;
           }
           if (!(position.getX() + x * this.GRID_SIZE > playerX + playerWidth || position.getX() + (x + 1) * this.GRID_SIZE < playerX)) {
@@ -402,7 +412,7 @@ Player = (function() {
      * Keyboard handling
     */
 
-    var gravity, gravityStep, maxY, velocityStep;
+    var gravity, gravityStep, maxY, newPosition, velocityStep;
     if (this.keyboard.pressed(this.keyboard.Keys.RIGHT) || this.keyboard.pressed(this.keyboard.Keys.D)) {
       this.velocity.setX(SPEED_X);
     } else if (this.keyboard.pressed(this.keyboard.Keys.LEFT) || this.keyboard.pressed(this.keyboard.Keys.A)) {
@@ -417,25 +427,26 @@ Player = (function() {
     gravityStep = gravity.multiply(delta);
     this.velocity.add(gravityStep);
     velocityStep = this.velocity.clone().multiply(delta);
-    this.position.add(velocityStep);
+    newPosition = this.position.clone().add(velocityStep);
     /*
      * Boundaries
     */
 
-    if (this.position.getX() < this.level.getScroll().x) {
-      this.position.setX(this.level.getScroll().x);
+    if (newPosition.getX() < this.level.getScroll().x) {
+      newPosition.setX(this.level.getScroll().x);
     }
     maxY = this.level.getHighestPointForPlayer(this);
-    if (this.position.getY() > maxY) {
-      this.position.setY(maxY);
+    if (newPosition.getY() > maxY) {
+      newPosition.setY(maxY);
     }
-    if (this.position.getY() >= maxY) {
+    if (newPosition.getY() >= maxY) {
       this.jumping = false;
       this.onGround = true;
-      return this.velocity.setY(0);
+      this.velocity.setY(0);
     } else {
-      return this.onGround = false;
+      this.onGround = false;
     }
+    return this.position.set(newPosition);
   };
 
   Player.prototype.getPosition = function() {

@@ -35,26 +35,28 @@ class Player
     @velocity.add gravityStep
     velocityStep = @velocity.clone().multiply(delta)
 
-    @position.add velocityStep
+    newPosition = @position.clone().add velocityStep
 
     ###
      * Boundaries
     ###
-    if @position.getX() < @level.getScroll().x
-      @position.setX @level.getScroll().x
+    if newPosition.getX() < @level.getScroll().x
+      newPosition.setX @level.getScroll().x
 
     # Calculate the lower boundary depending on the position
     # and the size of the player
     maxY = @level.getHighestPointForPlayer this
-    if @position.getY() > maxY
-      @position.setY maxY
+    if newPosition.getY() > maxY
+      newPosition.setY maxY
 
-    if @position.getY() >= maxY
+    if newPosition.getY() >= maxY
       @jumping = false
       @onGround = true
       @velocity.setY 0
     else
       @onGround = false
+
+    @position.set newPosition
 
   getPosition: -> @position
   setPosition: ->
