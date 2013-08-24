@@ -1,32 +1,14 @@
-Ball   = require "../mobs/ball.coffee"
-Player = require "../mobs/player.coffee"
+PlayerActor = require "../actors/playeractor.coffee"
+LevelActor  = require "../actors/levelactor.coffee"
 
 class GameStage extends LDFW.Stage
-  constructor: ->
-    super
+  constructor: (@app, @game) ->
+    super @game
 
-    @ball = new Ball @game
-    @ball.setPosition @game.getWidth() / 2, @game.getHeight() / 2
-    @addActor @ball
+    @playerActor = new PlayerActor @app, @game
+    @addActor @playerActor
 
-    @players = []
-
-    distanceToBoundaries = 30
-
-    player = new Player @game
-    player.setPosition(
-      distanceToBoundaries,
-      @game.getHeight() / 2 - player.getHeight() / 2
-    )
-    @players.push player
-    @addActor player
-
-    player = new Player @game
-    player.setPosition(
-      @game.getWidth() - player.getWidth() - distanceToBoundaries,
-      @game.getHeight() / 2 - player.getHeight() / 2
-    )
-    @players.push player
-    @addActor player
+    @levelActor  = new LevelActor  @app, @game
+    @addActor @levelActor
 
 module.exports = GameStage

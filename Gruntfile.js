@@ -86,7 +86,6 @@ module.exports = function(grunt) {
 
     watchify: {
       options: {
-        debug: true,
         callback: function (b) {
           b.transform(require("coffeeify"));
 
