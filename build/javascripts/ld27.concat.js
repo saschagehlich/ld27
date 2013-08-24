@@ -10889,11 +10889,9 @@ var Stats = function () {
 };
 
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var LevelActor, PLATFORM_HEIGHT,
+var LevelActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-PLATFORM_HEIGHT = 16;
 
 LevelActor = (function(_super) {
   __extends(LevelActor, _super);
@@ -10920,7 +10918,7 @@ LevelActor = (function(_super) {
     for (_i = 0, _len = platforms.length; _i < _len; _i++) {
       platform = platforms[_i];
       context.fillStyle = "red";
-      _results.push(context.fillRect(platform.position.x - this.level.getScroll().x, platform.position.y - this.level.getScroll().y, platform.width, PLATFORM_HEIGHT));
+      _results.push(context.fillRect(platform.position.x - this.level.getScroll().x, platform.position.y - this.level.getScroll().y, platform.width, platform.height));
     }
     return _results;
   };
@@ -11199,14 +11197,20 @@ Level = (function() {
     this.app = app;
     this.game = game;
     this.scroll = new LDFW.Vector2();
-    this.gravity = new LDFW.Vector2(0, 1000);
+    this.gravity = new LDFW.Vector2(0, 1800);
     this.platforms = [
       {
         position: new LDFW.Vector2(10, 400),
-        width: 300
+        width: 300,
+        height: 16
+      }, {
+        position: new LDFW.Vector2(100, 350),
+        width: 300,
+        height: 16
       }, {
         position: new LDFW.Vector2(10, 100),
-        width: 300
+        width: 300,
+        height: 16
       }
     ];
     block = new Block(this.app, this.game);
@@ -11215,6 +11219,30 @@ Level = (function() {
   }
 
   Level.prototype.update = function(delta) {};
+
+  Level.prototype.getHorizontalBoundariesForPlayer = function(player) {
+    var boundaries, platform, playerHeight, playerWidth, playerX, playerY, _i, _len, _ref;
+    playerX = player.getPosition().getX();
+    playerY = player.getPosition().getY();
+    playerWidth = 32;
+    playerHeight = 64;
+    boundaries = {
+      min: 0,
+      max: playerX + this.app.getWidth()
+    };
+    _ref = this.platforms;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      platform = _ref[_i];
+      if (!(playerY <= platform.position.y || playerY - playerHeight >= platform.position.y + platform.height)) {
+        if (playerX + playerWidth <= platform.position.x) {
+          boundaries.max = Math.min(platform.position.x, boundaries.max);
+        } else if (playerX >= platform.position.x + platform.width) {
+          boundaries.min = Math.max(platform.position.x + platform.width, boundaries.min);
+        }
+      }
+    }
+    return boundaries;
+  };
 
   Level.prototype.getHighestPointForPlayer = function(player) {
     var block, map, maxY, platform, playerWidth, playerX, playerY, position, row, segment, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
@@ -11298,11 +11326,52 @@ Player = (function() {
   }
 
   Player.prototype.update = function(delta) {
-    /*
-     * Keyboard handling
-    */
+    var aspiredPosition;
+    this.handleKeyboard();
+    aspiredPosition = this.getAspiredPosition(delta);
+    this.handleXMovement(aspiredPosition);
+    this.handleYMovement(aspiredPosition);
+    return this.position.set(aspiredPosition);
+  };
 
-    var gravity, gravityStep, maxY, newPosition, velocityStep;
+  Player.prototype.getAspiredPosition = function(delta) {
+    var gravity, gravityStep, velocityStep;
+    gravity = this.level.getGravity().clone();
+    gravityStep = gravity.multiply(delta);
+    this.velocity.add(gravityStep);
+    velocityStep = this.velocity.clone().multiply(delta);
+    return this.position.clone().add(velocityStep);
+  };
+
+  Player.prototype.handleXMovement = function(aspiredPosition) {
+    var hBoundaries;
+    if (aspiredPosition.getX() < this.level.getScroll().x) {
+      aspiredPosition.setX(this.level.getScroll().x);
+    }
+    hBoundaries = this.level.getHorizontalBoundariesForPlayer(this);
+    if (aspiredPosition.getX() <= hBoundaries.min) {
+      return aspiredPosition.setX(hBoundaries.min);
+    } else if (aspiredPosition.getX() + this.getWidth() >= hBoundaries.max) {
+      return aspiredPosition.setX(hBoundaries.max - this.getWidth());
+    }
+  };
+
+  Player.prototype.handleYMovement = function(aspiredPosition) {
+    var maxY;
+    maxY = this.level.getHighestPointForPlayer(this);
+    if (aspiredPosition.getY() > maxY) {
+      aspiredPosition.setY(maxY);
+    }
+    if (aspiredPosition.getY() >= maxY) {
+      this.jumping = false;
+      this.onGround = true;
+      return this.velocity.setY(0);
+    } else {
+      return this.onGround = false;
+    }
+  };
+
+  Player.prototype.handleKeyboard = function() {
     if (this.keyboard.pressed(this.keyboard.Keys.RIGHT) || this.keyboard.pressed(this.keyboard.Keys.D)) {
       this.velocity.setX(SPEED_X);
     } else if (this.keyboard.pressed(this.keyboard.Keys.LEFT) || this.keyboard.pressed(this.keyboard.Keys.A)) {
@@ -11311,32 +11380,12 @@ Player = (function() {
       this.velocity.setX(0);
     }
     if (this.keyboard.upPressed() && this.onGround) {
-      this.velocity.setY(JUMP_FORCE);
+      return this.velocity.setY(JUMP_FORCE);
     }
-    gravity = this.level.getGravity().clone();
-    gravityStep = gravity.multiply(delta);
-    this.velocity.add(gravityStep);
-    velocityStep = this.velocity.clone().multiply(delta);
-    newPosition = this.position.clone().add(velocityStep);
-    /*
-     * Boundaries
-    */
+  };
 
-    if (newPosition.getX() < this.level.getScroll().x) {
-      newPosition.setX(this.level.getScroll().x);
-    }
-    maxY = this.level.getHighestPointForPlayer(this);
-    if (newPosition.getY() > maxY) {
-      newPosition.setY(maxY);
-    }
-    if (newPosition.getY() >= maxY) {
-      this.jumping = false;
-      this.onGround = true;
-      this.velocity.setY(0);
-    } else {
-      this.onGround = false;
-    }
-    return this.position.set(newPosition);
+  Player.prototype.getWidth = function() {
+    return 32;
   };
 
   Player.prototype.getPosition = function() {

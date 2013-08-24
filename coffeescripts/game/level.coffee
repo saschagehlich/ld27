@@ -4,15 +4,22 @@ class Level
   GRID_SIZE: 32
   constructor: (@app, @game) ->
     @scroll = new LDFW.Vector2()
-    @gravity = new LDFW.Vector2(0, 1000)
+    @gravity = new LDFW.Vector2(0, 1800)
     @platforms = [
       {
         position: new LDFW.Vector2(10, 400)
         width: 300
+        height: 16
+      },
+      {
+        position: new LDFW.Vector2(100, 350)
+        width: 300
+        height: 16
       },
       {
         position: new LDFW.Vector2(10, 100)
         width: 300
+        height: 16
       }
     ]
 
@@ -23,6 +30,29 @@ class Level
   update: (delta) ->
     # @scroll.setX @scroll.getX() + delta * 20
     return
+
+  getHorizontalBoundariesForPlayer: (player) ->
+    playerX = player.getPosition().getX()
+    playerY = player.getPosition().getY()
+    playerWidth = 32
+    playerHeight = 64
+
+    boundaries =
+      min: 0
+      max: playerX + @app.getWidth()
+
+    for platform in @platforms
+      # continue unless (playerX > platform.position.x + platform.width or
+      #   playerX + playerWidth < platform.position.x)
+
+      unless (playerY <= platform.position.y or
+        playerY - playerHeight >= platform.position.y + platform.height)
+          if playerX + playerWidth <= platform.position.x
+            boundaries.max = Math.min(platform.position.x, boundaries.max)
+          else if playerX >= platform.position.x + platform.width
+            boundaries.min = Math.max(platform.position.x + platform.width, boundaries.min)
+
+    return boundaries
 
   getHighestPointForPlayer: (player) ->
     maxY = @app.getHeight() * 2

@@ -1,5 +1,3 @@
-PLATFORM_HEIGHT = 16
-
 class LevelActor extends LDFW.Actor
   constructor: (@app, @game) ->
     super @game
@@ -22,7 +20,7 @@ class LevelActor extends LDFW.Actor
       context.fillRect(
         platform.position.x - @level.getScroll().x,
         platform.position.y - @level.getScroll().y,
-        platform.width, PLATFORM_HEIGHT
+        platform.width, platform.height
       )
 
   drawBlocks: (context) ->
