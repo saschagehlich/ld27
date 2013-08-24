@@ -69,7 +69,6 @@ class LevelActor extends LDFW.Actor
       for y in [0...platform.getHeight()]
         for x in [0...platform.getWidth()]
           spriteIndex = stylesMap[y][x]
-          console.log spriteIndex
           tileSprite = @tileSprites[spriteIndex]
           if x is 0
             tileSprite = @tileSprites.start

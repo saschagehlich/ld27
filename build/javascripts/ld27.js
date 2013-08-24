@@ -71,7 +71,6 @@ LevelActor = (function(_super) {
       for (y = _j = 0, _ref = platform.getHeight(); 0 <= _ref ? _j < _ref : _j > _ref; y = 0 <= _ref ? ++_j : --_j) {
         for (x = _k = 0, _ref1 = platform.getWidth(); 0 <= _ref1 ? _k < _ref1 : _k > _ref1; x = 0 <= _ref1 ? ++_k : --_k) {
           spriteIndex = stylesMap[y][x];
-          console.log(spriteIndex);
           tileSprite = this.tileSprites[spriteIndex];
           if (x === 0) {
             tileSprite = this.tileSprites.start;
