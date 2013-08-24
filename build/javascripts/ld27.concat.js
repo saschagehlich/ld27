@@ -11203,25 +11203,17 @@ Level = (function() {
         position: new LDFW.Vector2(10, 400),
         width: 300,
         height: 16
-      }, {
-        position: new LDFW.Vector2(100, 350),
-        width: 300,
-        height: 16
-      }, {
-        position: new LDFW.Vector2(10, 100),
-        width: 300,
-        height: 16
       }
     ];
     block = new Block(this.app, this.game);
-    block.setGridPosition(10, 7);
+    block.setGridPosition(5, 10);
     this.blocks = [block];
   }
 
   Level.prototype.update = function(delta) {};
 
   Level.prototype.getHorizontalBoundariesForPlayer = function(player) {
-    var boundaries, platform, playerHeight, playerWidth, playerX, playerY, _i, _len, _ref;
+    var block, boundaries, map, platform, playerHeight, playerWidth, playerX, playerY, position, row, segment, segmentB, segmentL, segmentR, segmentT, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
     playerX = player.getPosition().getX();
     playerY = player.getPosition().getY();
     playerWidth = 32;
@@ -11238,6 +11230,32 @@ Level = (function() {
           boundaries.max = Math.min(platform.position.x, boundaries.max);
         } else if (playerX >= platform.position.x + platform.width) {
           boundaries.min = Math.max(platform.position.x + platform.width, boundaries.min);
+        }
+      }
+    }
+    _ref1 = this.blocks;
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      block = _ref1[_j];
+      map = block.getMap();
+      position = block.getGridPosition().clone().multiply(this.GRID_SIZE);
+      for (y = _k = 0, _len2 = map.length; _k < _len2; y = ++_k) {
+        row = map[y];
+        for (x = _l = 0, _len3 = row.length; _l < _len3; x = ++_l) {
+          segment = row[x];
+          if (segment === 0) {
+            continue;
+          }
+          segmentL = position.getX() + x * this.GRID_SIZE;
+          segmentR = position.getX() + (x + 1) * this.GRID_SIZE;
+          segmentT = position.getY() + y * this.GRID_SIZE;
+          segmentB = position.getY() + (y + 1) * this.GRID_SIZE;
+          if (!(playerY <= segmentT || playerY - playerHeight >= segmentB)) {
+            if (playerX + playerWidth <= segmentL) {
+              boundaries.max = Math.min(segmentL, boundaries.max);
+            } else if (playerX >= segmentR) {
+              boundaries.min = Math.max(segmentR, boundaries.min);
+            }
+          }
         }
       }
     }
@@ -11275,7 +11293,7 @@ Level = (function() {
           if (playerY > position.getY() + y * this.GRID_SIZE) {
             continue;
           }
-          if (!(position.getX() + x * this.GRID_SIZE > playerX + playerWidth || position.getX() + (x + 1) * this.GRID_SIZE < playerX)) {
+          if (!(position.getX() + x * this.GRID_SIZE >= playerX + playerWidth || position.getX() + (x + 1) * this.GRID_SIZE <= playerX)) {
             maxY = Math.min(position.getY() + y * this.GRID_SIZE, maxY);
           }
         }

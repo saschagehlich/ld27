@@ -10,21 +10,11 @@ class Level
         position: new LDFW.Vector2(10, 400)
         width: 300
         height: 16
-      },
-      {
-        position: new LDFW.Vector2(100, 350)
-        width: 300
-        height: 16
-      },
-      {
-        position: new LDFW.Vector2(10, 100)
-        width: 300
-        height: 16
       }
     ]
 
     block = new Block(@app, @game)
-    block.setGridPosition 10, 7
+    block.setGridPosition 5, 10
     @blocks = [ block ]
 
   update: (delta) ->
@@ -42,15 +32,34 @@ class Level
       max: playerX + @app.getWidth()
 
     for platform in @platforms
-      # continue unless (playerX > platform.position.x + platform.width or
-      #   playerX + playerWidth < platform.position.x)
-
       unless (playerY <= platform.position.y or
         playerY - playerHeight >= platform.position.y + platform.height)
           if playerX + playerWidth <= platform.position.x
             boundaries.max = Math.min(platform.position.x, boundaries.max)
           else if playerX >= platform.position.x + platform.width
             boundaries.min = Math.max(platform.position.x + platform.width, boundaries.min)
+
+    # Check for blocks
+    for block in @blocks
+      map = block.getMap()
+      position = block.getGridPosition()
+        .clone()
+        .multiply(@GRID_SIZE)
+
+      for row, y in map
+        for segment, x in row
+          continue if segment is 0
+
+          segmentL = position.getX() + x * @GRID_SIZE
+          segmentR = position.getX() + (x + 1) * @GRID_SIZE
+          segmentT = position.getY() + y * @GRID_SIZE
+          segmentB = position.getY() + (y + 1) * @GRID_SIZE
+
+          unless playerY <= segmentT or playerY - playerHeight >= segmentB
+            if playerX + playerWidth <= segmentL
+              boundaries.max = Math.min(segmentL, boundaries.max)
+            else if playerX >= segmentR
+              boundaries.min = Math.max(segmentR, boundaries.min)
 
     return boundaries
 
@@ -80,8 +89,8 @@ class Level
           continue if segment is 0
           continue if playerY > position.getY() + y * @GRID_SIZE
 
-          unless (position.getX() + x * @GRID_SIZE > playerX + playerWidth or
-            position.getX() + (x + 1) * @GRID_SIZE < playerX)
+          unless (position.getX() + x * @GRID_SIZE >= playerX + playerWidth or
+            position.getX() + (x + 1) * @GRID_SIZE <= playerX)
               maxY = Math.min(position.getY() + y * @GRID_SIZE, maxY)
 
     return maxY
