@@ -198,7 +198,7 @@ Sprite = (function(_super) {
   */
 
 
-  Sprite.prototype.draw = function(context) {
+  Sprite.prototype.draw = function(context, drawX, drawY) {
     var dh, dw, image, sh, sw, sx, sy;
     image = this.textureAtlas.getAtlasImage();
     sx = this.frame.frame.x;
@@ -208,7 +208,7 @@ Sprite = (function(_super) {
     dw = this.frame.frame.w * this.scale.x;
     dh = this.frame.frame.h * this.scale.y;
     context.save();
-    context.translate(this.position.x + this.origin.x, this.position.y + this.origin.y);
+    context.translate((drawX | this.position.x) + this.origin.x, (drawY | this.position.y) + this.origin.y);
     context.rotate(Math.PI / 180 * this.rotation);
     context.drawImage(image, sx, sy, sw, sh, -this.origin.x, -this.origin.y, dw, dh);
     return context.restore();

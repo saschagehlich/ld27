@@ -10889,9 +10889,11 @@ var Stats = function () {
 };
 
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var LevelActor,
+var Config, LevelActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Config = require("../config/config.json");
 
 LevelActor = (function(_super) {
   __extends(LevelActor, _super);
@@ -10900,11 +10902,37 @@ LevelActor = (function(_super) {
     this.app = app;
     this.game = game;
     LevelActor.__super__.constructor.call(this, this.game);
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.backgroundSprite = this.spritesAtlas.createSprite("background.png");
+    this.prepareSprites();
     this.level = this.game.getLevel();
   }
 
+  LevelActor.prototype.prepareSprites = function() {
+    var sprite, spriteIndex, style, _base, _i, _j, _k, _ref, _ref1, _ref2;
+    this.blockSprites = {};
+    for (style = _i = 0, _ref = Config.block_styles; 0 <= _ref ? _i < _ref : _i > _ref; style = 0 <= _ref ? ++_i : --_i) {
+      if ((_base = this.blockSprites)[style] == null) {
+        _base[style] = [];
+      }
+      for (spriteIndex = _j = 0, _ref1 = Config.sprites_per_block_style; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; spriteIndex = 0 <= _ref1 ? ++_j : --_j) {
+        sprite = this.spritesAtlas.createSprite("blocks/" + style + "-" + spriteIndex + ".png");
+        this.blockSprites[style].push(sprite);
+      }
+    }
+    this.grassSprites = {};
+    for (spriteIndex = _k = 0, _ref2 = Config.sprites_per_block_style; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; spriteIndex = 0 <= _ref2 ? ++_k : --_k) {
+      sprite = this.spritesAtlas.createSprite("grass/grass-" + spriteIndex + ".png");
+      this.grassSprites[spriteIndex] = sprite;
+    }
+    this.grassSprites["start"] = this.spritesAtlas.createSprite("grass/grass-start.png");
+    this.grassSprites["end"] = this.spritesAtlas.createSprite("grass/grass-end.png");
+    return this.grassSprites["single"] = this.spritesAtlas.createSprite("grass/grass-single.png");
+  };
+
   LevelActor.prototype.draw = function(context) {
     context.save();
+    this.backgroundSprite.draw(context);
     this.drawPlatforms(context);
     this.drawBlocks(context);
     this.drawBuildBlock(context);
@@ -10947,9 +10975,10 @@ LevelActor = (function(_super) {
   };
 
   LevelActor.prototype.drawBlock = function(block, context) {
-    var map, position, row, scroll, segment, x, y, _i, _len, _results;
+    var drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, style, x, y, _i, _len, _results;
     scroll = this.level.getScroll();
     map = block.getMap();
+    style = block.getStyle();
     position = block.getGridPosition().clone().multiply(this.level.GRID_SIZE).substract(scroll);
     _results = [];
     for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
@@ -10962,16 +10991,31 @@ LevelActor = (function(_super) {
           if (segment === 0) {
             continue;
           }
-          if (block.inBuildMode()) {
-            if (this.level.isBuildBlockBuildable()) {
-              context.fillStyle = "rgba(0, 0, 255, 0.5)";
-            } else {
-              context.fillStyle = "rgba(255, 0, 0, 0.5)";
+          spriteIndex = 0;
+          sprite = this.blockSprites[style][spriteIndex];
+          sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
+          drawGrass = true;
+          if (y !== 0) {
+            if (map[y - 1][x] === 1) {
+              drawGrass = false;
             }
-          } else {
-            context.fillStyle = "blue";
           }
-          _results1.push(context.fillRect(position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE, this.level.GRID_SIZE, this.level.GRID_SIZE));
+          if (drawGrass) {
+            grassSprite = this.grassSprites[spriteIndex];
+            grassXOffset = 0;
+            if (!row[x - 1] && !row[x + 1]) {
+              grassSprite = this.grassSprites.single;
+              grassXOffset = -2;
+            } else if (!row[x - 1]) {
+              grassSprite = this.grassSprites.start;
+              grassXOffset = -2;
+            } else if (!row[x + 1]) {
+              grassSprite = this.grassSprites.end;
+            }
+            _results1.push(grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y + y * this.level.GRID_SIZE));
+          } else {
+            _results1.push(void 0);
+          }
         }
         return _results1;
       }).call(this));
@@ -10986,7 +11030,7 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{}],2:[function(require,module,exports){
+},{"../config/config.json":5}],2:[function(require,module,exports){
 var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11043,7 +11087,7 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":7}],4:[function(require,module,exports){
+},{"./ld27.coffee":8}],4:[function(require,module,exports){
 module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
@@ -11075,7 +11119,15 @@ module.exports=module.exports=[
 ]
 
 },{}],5:[function(require,module,exports){
-var Block;
+module.exports=module.exports={
+  "block_styles": 3,
+  "sprites_per_block_style": 3
+}
+
+},{}],6:[function(require,module,exports){
+var Block, Config;
+
+Config = require("../config/config.json");
 
 Block = (function() {
   Block.prototype.availableBlocks = require("../config/available_blocks.json");
@@ -11085,6 +11137,7 @@ Block = (function() {
     this.game = game;
     this.options = options != null ? options : {};
     this.buildMode = this.options.buildMode | false;
+    this.style = Math.floor(Math.random() * Config.block_styles);
     this.map = null;
     this.rotation = Math.round(Math.random() * 3);
     this.gridPosition = new LDFW.Vector2();
@@ -11140,6 +11193,10 @@ Block = (function() {
     return this.buildMode = buildMode;
   };
 
+  Block.prototype.getStyle = function() {
+    return this.style;
+  };
+
   return Block;
 
 })();
@@ -11147,7 +11204,7 @@ Block = (function() {
 module.exports = Block;
 
 
-},{"../config/available_blocks.json":4}],6:[function(require,module,exports){
+},{"../config/available_blocks.json":4,"../config/config.json":5}],7:[function(require,module,exports){
 var Game, Keyboard, Level, Mouse, Player;
 
 Level = require("./level.coffee");
@@ -11198,7 +11255,7 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":8,"./player.coffee":9,"./utilities/keyboard.coffee":12,"./utilities/mouse.coffee":13}],7:[function(require,module,exports){
+},{"./level.coffee":9,"./player.coffee":10,"./utilities/keyboard.coffee":13,"./utilities/mouse.coffee":14}],8:[function(require,module,exports){
 var GameScreen, Keyboard, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11249,7 +11306,7 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":10,"./utilities/keyboard.coffee":12,"./utilities/mouse.coffee":13}],8:[function(require,module,exports){
+},{"./screens/gamescreen.coffee":11,"./utilities/keyboard.coffee":13,"./utilities/mouse.coffee":14}],9:[function(require,module,exports){
 var Block, Level,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -11322,7 +11379,6 @@ Level = (function() {
 
   Level.prototype.update = function(delta) {
     var blockMap, gridPosition, mousePosition;
-    this.scroll.setX(this.scroll.getX() + this.scrollSpeed * delta);
     mousePosition = this.mouse.getPosition();
     if (this.buildMode) {
       blockMap = this.buildBlock.getMap();
@@ -11470,7 +11526,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./entities/block.coffee":5}],9:[function(require,module,exports){
+},{"./entities/block.coffee":6}],10:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -11555,7 +11611,7 @@ Player = (function() {
 module.exports = Player;
 
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var Game, GameScreen, GameStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11590,7 +11646,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":6,"../stages/gamestage.coffee":11}],11:[function(require,module,exports){
+},{"../game.coffee":7,"../stages/gamestage.coffee":12}],12:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11619,7 +11675,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],12:[function(require,module,exports){
+},{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],13:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -11691,7 +11747,7 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":14}],13:[function(require,module,exports){
+},{"events":15}],14:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -11742,7 +11798,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":14}],14:[function(require,module,exports){
+},{"events":15}],15:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -11938,7 +11994,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":15}],15:[function(require,module,exports){
+},{"__browserify_process":16}],16:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

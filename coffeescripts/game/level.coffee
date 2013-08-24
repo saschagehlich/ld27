@@ -51,7 +51,7 @@ class Level
     @buildBlock = new Block @app, @game, buildMode: true
 
   update: (delta) ->
-    @scroll.setX @scroll.getX() + @scrollSpeed * delta
+    # @scroll.setX @scroll.getX() + @scrollSpeed * delta
 
     mousePosition = @mouse.getPosition()
 

@@ -21,7 +21,7 @@ class Sprite extends Node
    * Draws the sprite on the given context
    * @param  [CanvasRenderingContext2D] context
   ###
-  draw: (context) ->
+  draw: (context, drawX, drawY) ->
     image = @textureAtlas.getAtlasImage()
 
     # Source rectangle
@@ -36,7 +36,7 @@ class Sprite extends Node
 
     context.save()
 
-    context.translate @position.x + @origin.x, @position.y + @origin.y
+    context.translate (drawX | @position.x) + @origin.x, (drawY | @position.y) + @origin.y
     context.rotate Math.PI / 180 * @rotation
 
     context.drawImage image, sx, sy, sw, sh, -@origin.x, -@origin.y, dw, dh

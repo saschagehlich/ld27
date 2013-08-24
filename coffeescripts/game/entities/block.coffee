@@ -1,7 +1,11 @@
+Config = require "../config/config.json"
+
 class Block
   availableBlocks: require "../config/available_blocks.json"
   constructor: (@app, @game, @options={}) ->
     @buildMode = @options.buildMode | false
+
+    @style = Math.floor(Math.random() * Config.block_styles)
 
     # Represents the block's structure
     @map = null
@@ -40,5 +44,7 @@ class Block
 
   inBuildMode: -> @buildMode
   setBuildMode: (buildMode) -> @buildMode = buildMode
+
+  getStyle: -> @style
 
 module.exports = Block

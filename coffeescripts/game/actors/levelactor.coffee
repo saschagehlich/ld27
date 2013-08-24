@@ -1,10 +1,39 @@
+Config = require "../config/config.json"
+
 class LevelActor extends LDFW.Actor
   constructor: (@app, @game) ->
     super @game
+
+    @spritesAtlas = @app.getSpritesAtlas()
+    @backgroundSprite = @spritesAtlas.createSprite "background.png"
+
+    @prepareSprites()
+
     @level = @game.getLevel()
+
+  prepareSprites: ->
+    @blockSprites = {}
+    for style in [0...Config.block_styles]
+      @blockSprites[style] ?= []
+      for spriteIndex in [0...Config.sprites_per_block_style]
+        sprite = @spritesAtlas.createSprite "blocks/#{style}-#{spriteIndex}.png"
+
+        @blockSprites[style].push sprite
+
+    @grassSprites = {}
+    for spriteIndex in [0...Config.sprites_per_block_style]
+      sprite = @spritesAtlas.createSprite "grass/grass-#{spriteIndex}.png"
+
+      @grassSprites[spriteIndex] = sprite
+
+    @grassSprites["start"] = @spritesAtlas.createSprite "grass/grass-start.png"
+    @grassSprites["end"] = @spritesAtlas.createSprite "grass/grass-end.png"
+    @grassSprites["single"] = @spritesAtlas.createSprite "grass/grass-single.png"
 
   draw: (context) ->
     context.save()
+
+    @backgroundSprite.draw context
 
     @drawPlatforms  context
     @drawBlocks     context
@@ -40,6 +69,7 @@ class LevelActor extends LDFW.Actor
   drawBlock: (block, context) ->
     scroll   = @level.getScroll()
     map      = block.getMap()
+    style    = block.getStyle()
     position = block
       .getGridPosition()
       .clone()
@@ -50,18 +80,32 @@ class LevelActor extends LDFW.Actor
       for segment, x in row
         continue if segment is 0
 
-        if block.inBuildMode()
-          if @level.isBuildBlockBuildable()
-            context.fillStyle = "rgba(0, 0, 255, 0.5)"
-          else
-            context.fillStyle = "rgba(255, 0, 0, 0.5)"
-        else
-          context.fillStyle = "blue"
+        spriteIndex = 0
+        sprite = @blockSprites[style][spriteIndex]
 
-        context.fillRect(
+        sprite.draw context,
           position.x + x * @level.GRID_SIZE,
-          position.y + y * @level.GRID_SIZE,
-          @level.GRID_SIZE, @level.GRID_SIZE
-        )
+          position.y + y * @level.GRID_SIZE
+
+        drawGrass = true
+        unless y is 0
+          if map[y - 1][x] is 1
+            drawGrass = false
+
+        if drawGrass
+          grassSprite = @grassSprites[spriteIndex]
+          grassXOffset = 0
+          if not row[x-1] and not row[x+1]
+            grassSprite = @grassSprites.single
+            grassXOffset = -2
+          else if not row[x-1]
+            grassSprite = @grassSprites.start
+            grassXOffset = -2
+          else if not row[x+1]
+            grassSprite = @grassSprites.end
+
+          grassSprite.draw context,
+            position.x + x * @level.GRID_SIZE + grassXOffset,
+            position.y + y * @level.GRID_SIZE
 
 module.exports = LevelActor
