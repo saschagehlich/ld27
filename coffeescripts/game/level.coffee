@@ -37,6 +37,9 @@ class Level
     @blocks.push @buildBlock
     @buildBlock = null
 
+    # for development
+    @buildMode = true
+    @buildBlock = new Block @app, @game, buildMode: true
 
   update: (delta) ->
     mousePosition = @mouse.getPosition()

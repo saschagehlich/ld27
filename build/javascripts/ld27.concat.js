@@ -11082,7 +11082,7 @@ Block = (function() {
     this.options = options != null ? options : {};
     this.buildMode = this.options.buildMode | false;
     this.map = null;
-    this.rotation = 0;
+    this.rotation = Math.round(Math.random() * 3);
     this.gridPosition = new LDFW.Vector2();
     this.randomize();
   }
@@ -11102,7 +11102,21 @@ Block = (function() {
   };
 
   Block.prototype.getMap = function() {
-    return this.map;
+    var i, j, map, newData, _i, _j, _k, _ref, _ref1, _ref2;
+    map = this.map;
+    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      newData = [];
+      for (i = _j = _ref1 = map.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
+        for (j = _k = 0, _ref2 = map[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
+          if (!newData.hasOwnProperty(j)) {
+            newData[j] = [];
+          }
+          newData[j].push(map[i][j]);
+        }
+      }
+      map = newData;
+    }
+    return map;
   };
 
   Block.prototype.getRotation = function() {
@@ -11261,7 +11275,11 @@ Level = (function() {
     this.buildBlock.setBuildMode(false);
     this.buildMode = false;
     this.blocks.push(this.buildBlock);
-    return this.buildBlock = null;
+    this.buildBlock = null;
+    this.buildMode = true;
+    return this.buildBlock = new Block(this.app, this.game, {
+      buildMode: true
+    });
   };
 
   Level.prototype.update = function(delta) {
