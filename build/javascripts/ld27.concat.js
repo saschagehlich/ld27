@@ -10968,7 +10968,7 @@ LevelActor = (function(_super) {
           if (x === platform.getWidth() - 1) {
             tileSprite = this.tileSprites.end;
           }
-          tileSprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
+          tileSprite.draw(context, position.x + x * this.level.GRID_SIZE - scroll.getX(), position.y + y * this.level.GRID_SIZE - scroll.getY());
         }
       }
       _results.push((function() {
@@ -10986,7 +10986,7 @@ LevelActor = (function(_super) {
           } else if (x === platform.width - 1) {
             grassSprite = this.grassSprites.end;
           }
-          _results1.push(grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y));
+          _results1.push(grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset - scroll.getX(), position.y - scroll.getY()));
         }
         return _results1;
       }).call(this));
@@ -11017,7 +11017,7 @@ LevelActor = (function(_super) {
   };
 
   LevelActor.prototype.drawBlock = function(block, context, isBuildBlock) {
-    var blockStyles, drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, style, x, y, _i, _len, _results;
+    var blockStyles, drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, style, x, y, _i, _j, _len, _len1;
     if (isBuildBlock == null) {
       isBuildBlock = false;
     }
@@ -11025,51 +11025,47 @@ LevelActor = (function(_super) {
     map = block.getMap();
     style = block.getStyle();
     blockStyles = block.getBlockStyles();
+    context.save();
     position = block.getGridPosition().clone().multiply(this.level.GRID_SIZE).substract(scroll);
-    _results = [];
     for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
       row = map[y];
-      _results.push((function() {
-        var _j, _len1, _results1;
-        _results1 = [];
-        for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
-          segment = row[x];
-          if (segment === 0) {
-            continue;
-          }
-          spriteIndex = blockStyles[y][x];
-          sprite = this.blockSprites[style][spriteIndex];
-          if (!this.level.isBuildBlockBuildable() && isBuildBlock) {
-            sprite = this.blockSprites[style].unbuildable;
-          }
-          sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
-          drawGrass = true;
-          if (y !== 0) {
-            if (map[y - 1][x] === 1) {
-              drawGrass = false;
-            }
-          }
-          if (drawGrass) {
-            grassSprite = this.grassSprites[spriteIndex];
-            grassXOffset = 0;
-            if (!row[x - 1] && !row[x + 1]) {
-              grassSprite = this.grassSprites.single;
-              grassXOffset = -2;
-            } else if (!row[x - 1]) {
-              grassSprite = this.grassSprites.start;
-              grassXOffset = -2;
-            } else if (!row[x + 1]) {
-              grassSprite = this.grassSprites.end;
-            }
-            _results1.push(grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y + y * this.level.GRID_SIZE));
-          } else {
-            _results1.push(void 0);
+      for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
+        segment = row[x];
+        if (segment === 0) {
+          continue;
+        }
+        spriteIndex = blockStyles[y][x];
+        sprite = this.blockSprites[style][spriteIndex];
+        if (!this.level.isBuildBlockBuildable() && isBuildBlock) {
+          sprite = this.blockSprites[style].unbuildable;
+        }
+        if (isBuildBlock) {
+          context.globalAlpha = 0.5;
+        }
+        sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
+        drawGrass = true;
+        if (y !== 0) {
+          if (map[y - 1][x] === 1) {
+            drawGrass = false;
           }
         }
-        return _results1;
-      }).call(this));
+        if (drawGrass) {
+          grassSprite = this.grassSprites[spriteIndex];
+          grassXOffset = 0;
+          if (!row[x - 1] && !row[x + 1]) {
+            grassSprite = this.grassSprites.single;
+            grassXOffset = -2;
+          } else if (!row[x - 1]) {
+            grassSprite = this.grassSprites.start;
+            grassXOffset = -2;
+          } else if (!row[x + 1]) {
+            grassSprite = this.grassSprites.end;
+          }
+          grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y + y * this.level.GRID_SIZE);
+        }
+      }
     }
-    return _results;
+    return context.restore();
   };
 
   return LevelActor;
@@ -11168,9 +11164,11 @@ module.exports=module.exports=[
 ]
 
 },{}],5:[function(require,module,exports){
-module.exports=module.exports={
+module.exports={
   "block_styles": 3,
-  "sprites_per_block_style": 3
+  "sprites_per_block_style": 3,
+
+  "ui_minimap_height": 74
 }
 
 },{}],6:[function(require,module,exports){
@@ -11386,7 +11384,7 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":10,"./player.coffee":11,"./utilities/keyboard.coffee":14,"./utilities/mouse.coffee":15}],9:[function(require,module,exports){
+},{"./level.coffee":10,"./player.coffee":11,"./utilities/keyboard.coffee":15,"./utilities/mouse.coffee":17}],9:[function(require,module,exports){
 var GameScreen, Keyboard, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11411,7 +11409,8 @@ LD27 = (function(_super) {
       spritesJSON = _this.preloader.get("assets/sprites.json");
       spritesImage = _this.preloader.get("assets/sprites.png");
       _this.spritesAtlas = new LDFW.TextureAtlas(spritesJSON.frames, spritesImage);
-      _this.screen = new GameScreen(_this);
+      _this.gameScreen = new GameScreen(_this);
+      _this.screen = _this.gameScreen;
       return _this.run();
     });
     this.preloader.load();
@@ -11437,13 +11436,17 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":12,"./utilities/keyboard.coffee":14,"./utilities/mouse.coffee":15}],10:[function(require,module,exports){
-var Block, Level, Platform,
+},{"./screens/gamescreen.coffee":12,"./utilities/keyboard.coffee":15,"./utilities/mouse.coffee":17}],10:[function(require,module,exports){
+var Block, Config, Level, LevelGenerator, Platform,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+Config = require("./config/config.json");
 
 Block = require("./entities/block.coffee");
 
 Platform = require("./entities/platform.coffee");
+
+LevelGenerator = require("./utilities/levelgenerator.coffee");
 
 Level = (function() {
   Level.prototype.GRID_SIZE = 32;
@@ -11454,7 +11457,7 @@ Level = (function() {
     this.onClick = __bind(this.onClick, this);
     this.onRightClick = __bind(this.onRightClick, this);
     this.onKeyDown = __bind(this.onKeyDown, this);
-    this.scrollSpeed = 200;
+    this.scrollSpeed = 150;
     this.buildMode = true;
     this.buildBlock = new Block(this.app, this.game, {
       buildMode: true
@@ -11464,16 +11467,18 @@ Level = (function() {
     this.mouse = this.game.getMouse();
     this.mouse.on("click", this.onClick);
     this.mouse.on("rightclick", this.onRightClick);
-    this.scroll = new LDFW.Vector2();
+    this.scroll = new LDFW.Vector2(0, Config.ui_minimap_height);
     this.gravity = new LDFW.Vector2(0, 1800);
+    this.generator = new LevelGenerator(this.app, this.game, this);
     this.platforms = [
       new Platform(this.app, this.game, {
-        position: new LDFW.Vector2(2, 12),
-        width: 8,
-        height: 3
+        position: new LDFW.Vector2(2, 10),
+        width: 10,
+        height: 10
       })
     ];
     this.blocks = [];
+    this.generator.generate(1, 5);
   }
 
   Level.prototype.onKeyDown = function(event) {
@@ -11512,6 +11517,7 @@ Level = (function() {
 
   Level.prototype.update = function(delta) {
     var blockMap, gridPosition, mousePosition;
+    this.scroll.setX(Math.round(this.scroll.getX() + this.scrollSpeed * delta));
     mousePosition = this.mouse.getPosition();
     if (this.buildMode) {
       blockMap = this.buildBlock.getMap();
@@ -11625,6 +11631,10 @@ Level = (function() {
     return boundaries;
   };
 
+  Level.prototype.addPlatform = function(platform) {
+    return this.platforms.push(platform);
+  };
+
   Level.prototype.getScroll = function() {
     return this.scroll;
   };
@@ -11660,7 +11670,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./entities/block.coffee":6,"./entities/platform.coffee":7}],11:[function(require,module,exports){
+},{"./config/config.json":5,"./entities/block.coffee":6,"./entities/platform.coffee":7,"./utilities/levelgenerator.coffee":16}],11:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -11746,11 +11756,13 @@ module.exports = Player;
 
 
 },{}],12:[function(require,module,exports){
-var Game, GameScreen, GameStage,
+var Game, GameScreen, GameStage, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 GameStage = require("../stages/gamestage.coffee");
+
+UIStage = require("../stages/uistage.coffee");
 
 Game = require("../game.coffee");
 
@@ -11761,16 +11773,19 @@ GameScreen = (function(_super) {
     this.app = app;
     GameScreen.__super__.constructor.call(this, this.app);
     this.game = new Game(this.game);
+    this.uiStage = new UIStage(this.app, this.game);
     this.gameStage = new GameStage(this.app, this.game);
   }
 
   GameScreen.prototype.update = function(delta) {
     this.game.update(delta);
     this.gameStage.update(delta);
+    this.uiStage.update(delta);
   };
 
   GameScreen.prototype.draw = function(context) {
     this.gameStage.draw(context);
+    this.uiStage.draw(context);
   };
 
   return GameScreen;
@@ -11780,7 +11795,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":8,"../stages/gamestage.coffee":13}],13:[function(require,module,exports){
+},{"../game.coffee":8,"../stages/gamestage.coffee":13,"../stages/uistage.coffee":14}],13:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11810,6 +11825,27 @@ module.exports = GameStage;
 
 
 },{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],14:[function(require,module,exports){
+var UIStage,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+UIStage = (function(_super) {
+  __extends(UIStage, _super);
+
+  function UIStage(app, game) {
+    this.app = app;
+    this.game = game;
+    UIStage.__super__.constructor.call(this, this.game);
+  }
+
+  return UIStage;
+
+})(LDFW.Stage);
+
+module.exports = UIStage;
+
+
+},{}],15:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -11881,7 +11917,64 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":16}],15:[function(require,module,exports){
+},{"events":18}],16:[function(require,module,exports){
+var LevelGenerator, Platform;
+
+Platform = require("../entities/platform.coffee");
+
+LevelGenerator = (function() {
+  function LevelGenerator(app, game, level) {
+    this.app = app;
+    this.game = game;
+    this.level = level;
+    return;
+  }
+
+  /*
+    1 long platform per 5 screens
+    1 short platform per 5 screens
+    1 big obstacle per 5 screens (what exactly? a gear? a saw?)
+    1 small obstacle per 5 screens
+  */
+
+
+  LevelGenerator.prototype.generate = function(screenOffset, screens) {
+    var i, longPlatformMaxWidth, longPlatformMinWidth, platform, platformWidth, platformX, platformY, screenAreaWidth, screenOffsetX, screenTilesX, screenTilesY, _i, _ref, _results;
+    if (screenOffset == null) {
+      screenOffset = 1;
+    }
+    if (screens == null) {
+      screens = 10;
+    }
+    screenTilesX = Math.round(this.app.getWidth() / this.level.GRID_SIZE);
+    screenTilesY = Math.round(this.app.getHeight() / this.level.GRID_SIZE);
+    longPlatformMaxWidth = screenTilesX;
+    longPlatformMinWidth = Math.round(screenTilesX / 2);
+    _results = [];
+    for (i = _i = screenOffset, _ref = screenOffset + Math.floor(screens / 5); screenOffset <= _ref ? _i < _ref : _i > _ref; i = screenOffset <= _ref ? ++_i : --_i) {
+      screenAreaWidth = screenTilesX * 5;
+      screenOffsetX = screenTilesX * i;
+      platformWidth = Math.round(longPlatformMinWidth + Math.random() * (longPlatformMaxWidth - longPlatformMinWidth));
+      platformX = screenOffsetX + Math.round(Math.random() * (screenAreaWidth - platformWidth));
+      platformY = Math.round(screenTilesY / 2 + Math.random() * (screenTilesY / 2));
+      platform = new Platform(this.app, this.game, {
+        position: new LDFW.Vector2(platformX, platformY),
+        width: platformWidth,
+        height: screenTilesY - platformY
+      });
+      _results.push(this.level.addPlatform(platform));
+    }
+    return _results;
+  };
+
+  return LevelGenerator;
+
+})();
+
+module.exports = LevelGenerator;
+
+
+},{"../entities/platform.coffee":7}],17:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -11932,7 +12025,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":16}],16:[function(require,module,exports){
+},{"events":18}],18:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -12128,7 +12221,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":17}],17:[function(require,module,exports){
+},{"__browserify_process":19}],19:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

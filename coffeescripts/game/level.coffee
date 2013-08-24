@@ -1,10 +1,12 @@
+Config   = require "./config/config.json"
 Block    = require "./entities/block.coffee"
 Platform = require "./entities/platform.coffee"
+LevelGenerator = require "./utilities/levelgenerator.coffee"
 
 class Level
   GRID_SIZE: 32
   constructor: (@app, @game) ->
-    @scrollSpeed = 200
+    @scrollSpeed = 150
 
     @buildMode = true
     @buildBlock = new Block @app, @game, buildMode: true
@@ -16,16 +18,22 @@ class Level
     @mouse.on "click", @onClick
     @mouse.on "rightclick", @onRightClick
 
-    @scroll = new LDFW.Vector2()
+    @scroll = new LDFW.Vector2(0, Config.ui_minimap_height)
     @gravity = new LDFW.Vector2(0, 1800)
-    @platforms = [
-      new Platform @app, @game,
-        position: new LDFW.Vector2(2, 12)
-        width: 8
-        height: 3
-    ]
 
+    @generator = new LevelGenerator @app, @game, this
+
+    @platforms = [
+      new Platform(@app, @game,
+        position: new LDFW.Vector2(2, 10)
+        width: 10,
+        height: 10
+      )
+    ]
     @blocks = []
+
+    @generator.generate 1, 5
+
 
   onKeyDown: (event) =>
     return unless @buildMode
@@ -51,7 +59,7 @@ class Level
     @buildBlock = new Block @app, @game, buildMode: true
 
   update: (delta) ->
-    # @scroll.setX @scroll.getX() + @scrollSpeed * delta
+    @scroll.setX Math.round(@scroll.getX() + @scrollSpeed * delta)
 
     mousePosition = @mouse.getPosition()
 
@@ -167,6 +175,8 @@ class Level
               boundaries.y.max = Math.min(segment.top, boundaries.y.max)
 
     return boundaries
+
+  addPlatform: (platform) -> @platforms.push platform
 
   getScroll: -> @scroll
   getPlatforms: -> @platforms

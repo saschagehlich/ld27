@@ -1,4 +1,5 @@
 GameStage = require "../stages/gamestage.coffee"
+UIStage   = require "../stages/uistage.coffee"
 Game      = require "../game.coffee"
 
 class GameScreen extends LDFW.Screen
@@ -6,15 +7,18 @@ class GameScreen extends LDFW.Screen
     super @app
     @game = new Game @game
 
+    @uiStage   = new UIStage @app, @game
     @gameStage = new GameStage @app, @game
 
   update: (delta) ->
     @game.update delta
     @gameStage.update delta
+    @uiStage.update delta
     return
 
   draw: (context) ->
     @gameStage.draw context
+    @uiStage.draw context
     return
 
 module.exports = GameScreen

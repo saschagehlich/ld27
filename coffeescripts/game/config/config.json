@@ -1,4 +1,6 @@
 {
   "block_styles": 3,
-  "sprites_per_block_style": 3
+  "sprites_per_block_style": 3,
+
+  "ui_minimap_height": 74
 }

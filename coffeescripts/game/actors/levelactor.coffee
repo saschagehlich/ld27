@@ -76,8 +76,8 @@ class LevelActor extends LDFW.Actor
             tileSprite = @tileSprites.end
 
           tileSprite.draw context,
-            position.x + x * @level.GRID_SIZE,
-            position.y + y * @level.GRID_SIZE
+            position.x + x * @level.GRID_SIZE - scroll.getX(),
+            position.y + y * @level.GRID_SIZE - scroll.getY()
 
       # Draw grass
       for x in [0...platform.width]
@@ -93,8 +93,8 @@ class LevelActor extends LDFW.Actor
           grassSprite = @grassSprites.end
 
         grassSprite.draw context,
-          position.x + x * @level.GRID_SIZE + grassXOffset,
-          position.y
+          position.x + x * @level.GRID_SIZE + grassXOffset - scroll.getX(),
+          position.y - scroll.getY()
 
   drawBuildBlock: (context) ->
     return unless @level.inBuildMode()
@@ -115,6 +115,7 @@ class LevelActor extends LDFW.Actor
     style    = block.getStyle()
     blockStyles = block.getBlockStyles()
 
+    context.save()
     position = block
       .getGridPosition()
       .clone()
@@ -130,6 +131,8 @@ class LevelActor extends LDFW.Actor
 
         if not @level.isBuildBlockBuildable() and isBuildBlock
           sprite = @blockSprites[style].unbuildable
+        if isBuildBlock
+          context.globalAlpha = 0.5
 
         sprite.draw context,
           position.x + x * @level.GRID_SIZE,
@@ -155,5 +158,7 @@ class LevelActor extends LDFW.Actor
           grassSprite.draw context,
             position.x + x * @level.GRID_SIZE + grassXOffset,
             position.y + y * @level.GRID_SIZE
+
+    context.restore()
 
 module.exports = LevelActor

@@ -19,7 +19,9 @@ class LD27 extends LDFW.Game
       spritesImage = @preloader.get "assets/sprites.png"
 
       @spritesAtlas = new LDFW.TextureAtlas spritesJSON.frames, spritesImage
-      @screen       = new GameScreen this
+      @gameScreen   = new GameScreen this
+      @screen       = @gameScreen
+
       @run()
     @preloader.load()
 
