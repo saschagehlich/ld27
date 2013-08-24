@@ -6,6 +6,7 @@ class Sprite extends Node
    * A Sprite represents a drawable image
    * @param  [TextureAtlas] @TextureAtlas
   ###
+  @renderOffset: new Vector2(0, 0)
   constructor: (@textureAtlas, @frame) ->
     super
 
@@ -36,7 +37,7 @@ class Sprite extends Node
 
     context.save()
 
-    context.translate (drawX | @position.x) + @origin.x, (drawY | @position.y) + @origin.y
+    context.translate (drawX | @position.x) + @origin.x + Sprite.renderOffset.x, (drawY | @position.y) + @origin.y + Sprite.renderOffset.y
     context.rotate Math.PI / 180 * @rotation
 
     context.drawImage image, sx, sy, sw, sh, -@origin.x, -@origin.y, dw, dh

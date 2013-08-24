@@ -12,8 +12,12 @@ class Block
     @gridPosition = new LDFW.Vector2()
 
     @randomize()
-    @style = Math.floor(Math.random() * Config.block_styles)
+    @defaultStyle = Math.floor(Math.random() * Config.block_styles)
+    @style = @defaultStyle
     @randomizeBlockStyles()
+
+  setStyle: (@style) -> return
+  setDefaultStyle: -> @style = @defaultStyle
 
   randomizeBlockStyles: ->
     @blockStyles = []

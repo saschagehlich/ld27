@@ -2,13 +2,15 @@ Config   = require "./config/config.json"
 Block    = require "./entities/block.coffee"
 Platform = require "./entities/platform.coffee"
 LevelGenerator = require "./utilities/levelgenerator.coffee"
+Powerups = require "./powerups.coffee"
 
 FuckingPiranhasActor = require "./actors/fuckingpiranhasactor.coffee"
 
 class Level
   GRID_SIZE: 32
   constructor: (@app, @game) ->
-    @scrollSpeed = 150
+    @defaultScrollSpeed = 200
+    @scrollSpeed = @defaultScrollSpeed
 
     @buildMode = true
     @buildBlock = new Block @app, @game, buildMode: true
@@ -21,7 +23,8 @@ class Level
     @mouse.on "rightclick", @onRightClick
 
     @scroll = new LDFW.Vector2(0, Config.ui_minimap_height)
-    @gravity = new LDFW.Vector2(0, 1800)
+    @defaultGravity = new LDFW.Vector2(0, 1800)
+    @gravity = @defaultGravity.clone()
 
     @generator = new LevelGenerator @app, @game, this
 
@@ -35,14 +38,9 @@ class Level
     @blocks = []
 
     appTileHeight = Math.round @app.getHeight() / @GRID_SIZE
-    @obstacles = [
-      new FuckingPiranhasActor(@app, @game, {
-        position: new LDFW.Vector2(14, appTileHeight - 6)
-      })
-    ]
+    @obstacles = []
 
-    @generator.generate 1, 5
-
+    @generator.generate 2, 10
 
   onKeyDown: (event) =>
     return unless @buildMode
@@ -69,6 +67,28 @@ class Level
 
   update: (delta) ->
     @scroll.setX Math.round(@scroll.getX() + @scrollSpeed * delta)
+
+    if @game.getActivePowerup() == Powerups.BROKEN_BLOCKS and @buildMode
+      @buildBlock.setStyle "broken"
+    else
+      @buildBlock.setDefaultStyle()
+
+    if @game.getActivePowerup() == Powerups.LOW_GRAVITY
+      @gravity.setY @defaultGravity.getY() / 2
+    else
+      @gravity.setY @defaultGravity.getY()
+
+    if @game.getActivePowerup() == Powerups.EARTHQUAKE
+      LDFW.Sprite.renderOffset = new LDFW.Vector2(-10 + Math.random() * 20, -10 + Math.random() * 20)
+    else
+      LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0)
+
+    if @game.getActivePowerup() == Powerups.BOOST
+      @scrollSpeed = @defaultScrollSpeed * 2
+    else if @game.getActivePowerup() == Powerups.SLOW
+      @scrollSpeed = @defaultScrollSpeed * 0.75
+    else
+      @scrollSpeed = @defaultScrollSpeed
 
     mousePosition = @mouse.getPosition()
 
@@ -190,6 +210,7 @@ class Level
     return boundaries
 
   addPlatform: (platform) -> @platforms.push platform
+  addObstacle: (obstacle) -> @obstacles.push obstacle
 
   getScroll: -> @scroll
   getPlatforms: -> @platforms

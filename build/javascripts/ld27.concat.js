@@ -10907,12 +10907,14 @@ FuckingPiranhasActor = (function(_super) {
     this.height = 6;
     this.spritesAtlas = this.app.getSpritesAtlas();
     this.backgroundSprite = this.spritesAtlas.createSprite("obstacles/fucking-piranhas/fucking-piranhas-background.png");
+    this.glassSprite = this.spritesAtlas.createSprite("obstacles/fucking-piranhas/fucking-piranhas-glass.png");
   }
 
   FuckingPiranhasActor.prototype.update = function() {};
 
   FuckingPiranhasActor.prototype.draw = function(context, x, y) {
     this.backgroundSprite.draw(context, x, y);
+    this.glassSprite.draw(context, x, y);
   };
 
   FuckingPiranhasActor.prototype.getWidth = function() {
@@ -10931,11 +10933,13 @@ module.exports = FuckingPiranhasActor;
 
 
 },{"../config/config.json":6}],2:[function(require,module,exports){
-var Config, LevelActor,
+var Config, LevelActor, Powerups,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 Config = require("../config/config.json");
+
+Powerups = require("../powerups.coffee");
 
 LevelActor = (function(_super) {
   __extends(LevelActor, _super);
@@ -10951,20 +10955,27 @@ LevelActor = (function(_super) {
   }
 
   LevelActor.prototype.prepareSprites = function() {
-    var sprite, spriteIndex, style, _base, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3;
+    var sprite, spriteIndex, style, styles, _base, _i, _j, _k, _l, _len, _m, _ref, _ref1, _ref2, _ref3, _results;
     this.blockSprites = {};
-    for (style = _i = 0, _ref = Config.block_styles; 0 <= _ref ? _i < _ref : _i > _ref; style = 0 <= _ref ? ++_i : --_i) {
+    styles = (function() {
+      _results = [];
+      for (var _i = 0, _ref = Config.block_styles; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
+      return _results;
+    }).apply(this);
+    styles.push("broken");
+    for (_j = 0, _len = styles.length; _j < _len; _j++) {
+      style = styles[_j];
       if ((_base = this.blockSprites)[style] == null) {
         _base[style] = {};
       }
-      for (spriteIndex = _j = 0, _ref1 = Config.sprites_per_block_style; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; spriteIndex = 0 <= _ref1 ? ++_j : --_j) {
+      for (spriteIndex = _k = 0, _ref1 = Config.sprites_per_block_style; 0 <= _ref1 ? _k < _ref1 : _k > _ref1; spriteIndex = 0 <= _ref1 ? ++_k : --_k) {
         sprite = this.spritesAtlas.createSprite("blocks/" + style + "-" + spriteIndex + ".png");
         this.blockSprites[style][spriteIndex] = sprite;
       }
       this.blockSprites[style]["unbuildable"] = this.spritesAtlas.createSprite("blocks/" + style + "-unbuildable.png");
     }
     this.grassSprites = {};
-    for (spriteIndex = _k = 0, _ref2 = Config.sprites_per_block_style; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; spriteIndex = 0 <= _ref2 ? ++_k : --_k) {
+    for (spriteIndex = _l = 0, _ref2 = Config.sprites_per_block_style; 0 <= _ref2 ? _l < _ref2 : _l > _ref2; spriteIndex = 0 <= _ref2 ? ++_l : --_l) {
       sprite = this.spritesAtlas.createSprite("grass/grass-" + spriteIndex + ".png");
       this.grassSprites[spriteIndex] = sprite;
     }
@@ -10972,7 +10983,7 @@ LevelActor = (function(_super) {
     this.grassSprites["end"] = this.spritesAtlas.createSprite("grass/grass-end.png");
     this.grassSprites["single"] = this.spritesAtlas.createSprite("grass/grass-single.png");
     this.tileSprites = {};
-    for (spriteIndex = _l = 0, _ref3 = Config.sprites_per_block_style; 0 <= _ref3 ? _l < _ref3 : _l > _ref3; spriteIndex = 0 <= _ref3 ? ++_l : --_l) {
+    for (spriteIndex = _m = 0, _ref3 = Config.sprites_per_block_style; 0 <= _ref3 ? _m < _ref3 : _m > _ref3; spriteIndex = 0 <= _ref3 ? ++_m : --_m) {
       sprite = this.spritesAtlas.createSprite("platform/platform-" + spriteIndex + ".png");
       this.tileSprites[spriteIndex] = sprite;
     }
@@ -11116,7 +11127,7 @@ LevelActor = (function(_super) {
             drawGrass = false;
           }
         }
-        if (drawGrass) {
+        if (drawGrass && style !== "broken") {
           grassSprite = this.grassSprites[spriteIndex];
           grassXOffset = 0;
           if (!row[x - 1] && !row[x + 1]) {
@@ -11142,7 +11153,7 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{"../config/config.json":6}],3:[function(require,module,exports){
+},{"../config/config.json":6,"../powerups.coffee":13}],3:[function(require,module,exports){
 var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11255,9 +11266,18 @@ Block = (function() {
     this.rotation = Math.round(Math.random() * 3);
     this.gridPosition = new LDFW.Vector2();
     this.randomize();
-    this.style = Math.floor(Math.random() * Config.block_styles);
+    this.defaultStyle = Math.floor(Math.random() * Config.block_styles);
+    this.style = this.defaultStyle;
     this.randomizeBlockStyles();
   }
+
+  Block.prototype.setStyle = function(style) {
+    this.style = style;
+  };
+
+  Block.prototype.setDefaultStyle = function() {
+    return this.style = this.defaultStyle;
+  };
 
   Block.prototype.randomizeBlockStyles = function() {
     var col, r, row, _i, _j, _len, _len1, _ref, _results;
@@ -11401,7 +11421,7 @@ module.exports = Platform;
 
 
 },{"../config/config.json":6}],9:[function(require,module,exports){
-var Game, Keyboard, Level, Mouse, Player;
+var Game, Keyboard, Level, Mouse, Player, Powerups;
 
 Level = require("./level.coffee");
 
@@ -11411,7 +11431,11 @@ Keyboard = require("./utilities/keyboard.coffee");
 
 Mouse = require("./utilities/mouse.coffee");
 
+Powerups = require("./powerups.coffee");
+
 Game = (function() {
+  Game.prototype.powerupDuration = 10000;
+
   function Game(app) {
     var firstPlatform;
     this.app = app;
@@ -11419,13 +11443,34 @@ Game = (function() {
     this.mouse = new Mouse(this.app);
     this.level = new Level(this.app, this);
     this.player = new Player(this.app, this);
+    this.activePowerup = Powerups.BROKEN_BLOCKS;
+    this.powerupStart = +new Date();
     firstPlatform = this.level.getPlatforms()[0];
     this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);
   }
 
   Game.prototype.update = function(delta) {
     this.level.update(delta);
-    return this.player.update(delta);
+    this.player.update(delta);
+    if (+new Date() - this.powerupStart >= this.powerupDuration) {
+      this.activePowerup = this.getRandomPowerup();
+      return this.powerupStart = +new Date();
+    }
+  };
+
+  Game.prototype.getRandomPowerup = function() {
+    var powerupKey, powerups;
+    powerups = Object.keys(Powerups);
+    powerupKey = powerups[Math.floor(Math.random() * powerups.length)];
+    return Powerups[powerupKey];
+  };
+
+  Game.prototype.getPowerupTimeleft = function() {
+    return this.powerupDuration - (+new Date() - this.powerupStart);
+  };
+
+  Game.prototype.getActivePowerup = function() {
+    return this.activePowerup;
   };
 
   Game.prototype.getLevel = function() {
@@ -11451,7 +11496,7 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":11,"./player.coffee":12,"./utilities/keyboard.coffee":16,"./utilities/mouse.coffee":18}],10:[function(require,module,exports){
+},{"./level.coffee":11,"./player.coffee":12,"./powerups.coffee":13,"./utilities/keyboard.coffee":17,"./utilities/mouse.coffee":19}],10:[function(require,module,exports){
 var GameScreen, Keyboard, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11503,8 +11548,8 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":13,"./utilities/keyboard.coffee":16,"./utilities/mouse.coffee":18}],11:[function(require,module,exports){
-var Block, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform,
+},{"./screens/gamescreen.coffee":14,"./utilities/keyboard.coffee":17,"./utilities/mouse.coffee":19}],11:[function(require,module,exports){
+var Block, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform, Powerups,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Config = require("./config/config.json");
@@ -11514,6 +11559,8 @@ Block = require("./entities/block.coffee");
 Platform = require("./entities/platform.coffee");
 
 LevelGenerator = require("./utilities/levelgenerator.coffee");
+
+Powerups = require("./powerups.coffee");
 
 FuckingPiranhasActor = require("./actors/fuckingpiranhasactor.coffee");
 
@@ -11527,7 +11574,8 @@ Level = (function() {
     this.onClick = __bind(this.onClick, this);
     this.onRightClick = __bind(this.onRightClick, this);
     this.onKeyDown = __bind(this.onKeyDown, this);
-    this.scrollSpeed = 150;
+    this.defaultScrollSpeed = 200;
+    this.scrollSpeed = this.defaultScrollSpeed;
     this.buildMode = true;
     this.buildBlock = new Block(this.app, this.game, {
       buildMode: true
@@ -11538,7 +11586,8 @@ Level = (function() {
     this.mouse.on("click", this.onClick);
     this.mouse.on("rightclick", this.onRightClick);
     this.scroll = new LDFW.Vector2(0, Config.ui_minimap_height);
-    this.gravity = new LDFW.Vector2(0, 1800);
+    this.defaultGravity = new LDFW.Vector2(0, 1800);
+    this.gravity = this.defaultGravity.clone();
     this.generator = new LevelGenerator(this.app, this.game, this);
     this.platforms = [
       new Platform(this.app, this.game, {
@@ -11549,12 +11598,8 @@ Level = (function() {
     ];
     this.blocks = [];
     appTileHeight = Math.round(this.app.getHeight() / this.GRID_SIZE);
-    this.obstacles = [
-      new FuckingPiranhasActor(this.app, this.game, {
-        position: new LDFW.Vector2(14, appTileHeight - 6)
-      })
-    ];
-    this.generator.generate(1, 5);
+    this.obstacles = [];
+    this.generator.generate(2, 10);
   }
 
   Level.prototype.onKeyDown = function(event) {
@@ -11594,6 +11639,28 @@ Level = (function() {
   Level.prototype.update = function(delta) {
     var blockMap, gridPosition, mousePosition, obstacle, _i, _len, _ref, _results;
     this.scroll.setX(Math.round(this.scroll.getX() + this.scrollSpeed * delta));
+    if (this.game.getActivePowerup() === Powerups.BROKEN_BLOCKS && this.buildMode) {
+      this.buildBlock.setStyle("broken");
+    } else {
+      this.buildBlock.setDefaultStyle();
+    }
+    if (this.game.getActivePowerup() === Powerups.LOW_GRAVITY) {
+      this.gravity.setY(this.defaultGravity.getY() / 2);
+    } else {
+      this.gravity.setY(this.defaultGravity.getY());
+    }
+    if (this.game.getActivePowerup() === Powerups.EARTHQUAKE) {
+      LDFW.Sprite.renderOffset = new LDFW.Vector2(-10 + Math.random() * 20, -10 + Math.random() * 20);
+    } else {
+      LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0);
+    }
+    if (this.game.getActivePowerup() === Powerups.BOOST) {
+      this.scrollSpeed = this.defaultScrollSpeed * 2;
+    } else if (this.game.getActivePowerup() === Powerups.SLOW) {
+      this.scrollSpeed = this.defaultScrollSpeed * 0.75;
+    } else {
+      this.scrollSpeed = this.defaultScrollSpeed;
+    }
     mousePosition = this.mouse.getPosition();
     if (this.buildMode) {
       blockMap = this.buildBlock.getMap();
@@ -11722,6 +11789,10 @@ Level = (function() {
     return this.platforms.push(platform);
   };
 
+  Level.prototype.addObstacle = function(obstacle) {
+    return this.obstacles.push(obstacle);
+  };
+
   Level.prototype.getScroll = function() {
     return this.scroll;
   };
@@ -11761,7 +11832,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./actors/fuckingpiranhasactor.coffee":1,"./config/config.json":6,"./entities/block.coffee":7,"./entities/platform.coffee":8,"./utilities/levelgenerator.coffee":17}],12:[function(require,module,exports){
+},{"./actors/fuckingpiranhasactor.coffee":1,"./config/config.json":6,"./entities/block.coffee":7,"./entities/platform.coffee":8,"./powerups.coffee":13,"./utilities/levelgenerator.coffee":18}],12:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -11791,7 +11862,6 @@ Player = (function() {
     var gravity, gravityStep, velocityStep;
     gravity = this.level.getGravity().clone();
     gravityStep = gravity.multiply(delta);
-    this.velocity.setX(this.game.getLevel().getScrollSpeed());
     this.velocity.add(gravityStep);
     velocityStep = this.velocity.clone().multiply(delta);
     return this.position.clone().add(velocityStep);
@@ -11843,6 +11913,13 @@ Player = (function() {
   };
 
   Player.prototype.handleKeyboard = function() {
+    if (this.keyboard.pressed(this.keyboard.Keys.RIGHT) || this.keyboard.pressed(this.keyboard.Keys.D)) {
+      this.velocity.setX(this.level.getScrollSpeed() * 2);
+    } else if (this.keyboard.pressed(this.keyboard.Keys.LEFT) || this.keyboard.pressed(this.keyboard.Keys.A)) {
+      this.velocity.setX(-this.level.getScrollSpeed() * 2);
+    } else {
+      this.velocity.setX(0);
+    }
     if (this.keyboard.upPressed() && this.onGround) {
       return this.velocity.setY(JUMP_FORCE);
     }
@@ -11872,6 +11949,35 @@ module.exports = Player;
 
 
 },{}],13:[function(require,module,exports){
+var Powerups;
+
+Powerups = {
+  BOOST: {
+    id: 0,
+    name: "RUN FOREST!"
+  },
+  SLOW: {
+    id: 1,
+    name: "HALT STOPP!"
+  },
+  BROKEN_BLOCKS: {
+    id: 2,
+    name: "DON'T BREAK IT!"
+  },
+  EARTHQUAKE: {
+    id: 3,
+    name: "WAAAAH!"
+  },
+  LOW_GRAVITY: {
+    id: 4,
+    name: "HEY NEIL"
+  }
+};
+
+module.exports = Powerups;
+
+
+},{}],14:[function(require,module,exports){
 var Game, GameScreen, GameStage, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11911,7 +12017,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":9,"../stages/gamestage.coffee":14,"../stages/uistage.coffee":15}],14:[function(require,module,exports){
+},{"../game.coffee":9,"../stages/gamestage.coffee":15,"../stages/uistage.coffee":16}],15:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11940,7 +12046,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":2,"../actors/playeractor.coffee":3}],15:[function(require,module,exports){
+},{"../actors/levelactor.coffee":2,"../actors/playeractor.coffee":3}],16:[function(require,module,exports){
 var UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11961,7 +12067,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -12033,10 +12139,12 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":19}],17:[function(require,module,exports){
-var LevelGenerator, Platform;
+},{"events":20}],18:[function(require,module,exports){
+var FuckingPiranhas, LevelGenerator, Platform;
 
 Platform = require("../entities/platform.coffee");
+
+FuckingPiranhas = require("../actors/fuckingpiranhasactor.coffee");
 
 LevelGenerator = (function() {
   function LevelGenerator(app, game, level) {
@@ -12055,7 +12163,7 @@ LevelGenerator = (function() {
 
 
   LevelGenerator.prototype.generate = function(screenOffset, screens) {
-    var i, longPlatformMaxWidth, longPlatformMinWidth, platform, platformWidth, platformX, platformY, screenAreaWidth, screenOffsetX, screenTilesX, screenTilesY, _i, _ref, _results;
+    var i, longPlatformMaxWidth, longPlatformMinWidth, piranhas, platform, platformWidth, platformX, platformY, screenAreaWidth, screenOffsetX, screenTilesX, screenTilesY, _i, _ref, _results;
     if (screenOffset == null) {
       screenOffset = 1;
     }
@@ -12070,6 +12178,10 @@ LevelGenerator = (function() {
     for (i = _i = screenOffset, _ref = screenOffset + Math.floor(screens / 5); screenOffset <= _ref ? _i < _ref : _i > _ref; i = screenOffset <= _ref ? ++_i : --_i) {
       screenAreaWidth = screenTilesX * 5;
       screenOffsetX = screenTilesX * i;
+      /*
+        Generate long platform
+      */
+
       platformWidth = Math.round(longPlatformMinWidth + Math.random() * (longPlatformMaxWidth - longPlatformMinWidth));
       platformX = screenOffsetX + Math.round(Math.random() * (screenAreaWidth - platformWidth));
       platformY = Math.round(screenTilesY / 2 + Math.random() * (screenTilesY / 2));
@@ -12078,7 +12190,16 @@ LevelGenerator = (function() {
         width: platformWidth,
         height: screenTilesY - platformY
       });
-      _results.push(this.level.addPlatform(platform));
+      this.level.addPlatform(platform);
+      /*
+        Generate fucking piranhas
+        (generate them in front of the platform)
+      */
+
+      piranhas = new FuckingPiranhas(this.app, this.game, {
+        position: new LDFW.Vector2(platformX - 10, screenTilesY - 6)
+      });
+      _results.push(this.level.addObstacle(piranhas));
     }
     return _results;
   };
@@ -12090,7 +12211,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../entities/platform.coffee":8}],18:[function(require,module,exports){
+},{"../actors/fuckingpiranhasactor.coffee":1,"../entities/platform.coffee":8}],19:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -12141,7 +12262,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":19}],19:[function(require,module,exports){
+},{"events":20}],20:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -12337,7 +12458,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":20}],20:[function(require,module,exports){
+},{"__browserify_process":21}],21:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

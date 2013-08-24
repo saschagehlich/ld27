@@ -169,6 +169,8 @@ Sprite = (function(_super) {
   */
 
 
+  Sprite.renderOffset = new Vector2(0, 0);
+
   function Sprite(textureAtlas, frame) {
     this.textureAtlas = textureAtlas;
     this.frame = frame;
@@ -208,7 +210,7 @@ Sprite = (function(_super) {
     dw = this.frame.frame.w * this.scale.x;
     dh = this.frame.frame.h * this.scale.y;
     context.save();
-    context.translate((drawX | this.position.x) + this.origin.x, (drawY | this.position.y) + this.origin.y);
+    context.translate((drawX | this.position.x) + this.origin.x + Sprite.renderOffset.x, (drawY | this.position.y) + this.origin.y + Sprite.renderOffset.y);
     context.rotate(Math.PI / 180 * this.rotation);
     context.drawImage(image, sx, sy, sw, sh, -this.origin.x, -this.origin.y, dw, dh);
     return context.restore();

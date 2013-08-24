@@ -9,12 +9,14 @@ class FuckingPiranhasActor extends LDFW.Actor
     @spritesAtlas = @app.getSpritesAtlas()
 
     @backgroundSprite = @spritesAtlas.createSprite "obstacles/fucking-piranhas/fucking-piranhas-background.png"
+    @glassSprite = @spritesAtlas.createSprite "obstacles/fucking-piranhas/fucking-piranhas-glass.png"
 
   update: ->
     return
 
   draw: (context, x, y) ->
     @backgroundSprite.draw context, x, y
+    @glassSprite.draw context, x, y
     return
 
   getWidth: -> @width

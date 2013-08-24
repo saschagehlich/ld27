@@ -1,4 +1,5 @@
 Platform = require "../entities/platform.coffee"
+FuckingPiranhas = require "../actors/fuckingpiranhasactor.coffee"
 
 class LevelGenerator
   constructor: (@app, @game, @level) ->
@@ -21,6 +22,9 @@ class LevelGenerator
       screenAreaWidth = screenTilesX * 5
       screenOffsetX = screenTilesX * i
 
+      ###
+        Generate long platform
+      ###
       platformWidth = Math.round(
         longPlatformMinWidth +
         Math.random() * (longPlatformMaxWidth - longPlatformMinWidth)
@@ -35,5 +39,14 @@ class LevelGenerator
         height: screenTilesY - platformY
 
       @level.addPlatform platform
+
+      ###
+        Generate fucking piranhas
+        (generate them in front of the platform)
+      ###
+      piranhas = new FuckingPiranhas @app, @game,
+        position: new LDFW.Vector2(platformX - 10, screenTilesY - 6)
+
+      @level.addObstacle piranhas
 
 module.exports = LevelGenerator

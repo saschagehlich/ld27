@@ -1,4 +1,5 @@
 Config = require "../config/config.json"
+Powerups = require "../powerups.coffee"
 
 class LevelActor extends LDFW.Actor
   constructor: (@app, @game) ->
@@ -13,7 +14,11 @@ class LevelActor extends LDFW.Actor
 
   prepareSprites: ->
     @blockSprites = {}
-    for style in [0...Config.block_styles]
+
+    styles = [0...Config.block_styles]
+    styles.push "broken"
+
+    for style in styles
       @blockSprites[style] ?= {}
       for spriteIndex in [0...Config.sprites_per_block_style]
         sprite = @spritesAtlas.createSprite "blocks/#{style}-#{spriteIndex}.png"
@@ -161,7 +166,7 @@ class LevelActor extends LDFW.Actor
           if map[y - 1][x] is 1
             drawGrass = false
 
-        if drawGrass
+        if drawGrass and style isnt "broken"
           grassSprite = @grassSprites[spriteIndex]
           grassXOffset = 0
           if not row[x-1] and not row[x+1]
