@@ -18,6 +18,10 @@ class Block
   getGridPosition: -> @gridPosition
   setGridPosition: -> @gridPosition.set.apply @gridPosition, arguments
 
+  rotate: ->
+    @rotation += 1
+    @rotation %= 4
+
   getMap: ->
     map = @map
     for i in [0...@rotation]

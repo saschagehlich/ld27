@@ -1,4 +1,6 @@
-class Keyboard
+{EventEmitter} = require "events"
+
+class Keyboard extends EventEmitter
   Keys:
     LEFT: 37
     UP: 38
@@ -10,6 +12,9 @@ class Keyboard
     S: 83
     D: 68
 
+    R: 82
+
+    SHIFT: 16
     SPACE: 32
     ESC: 27
 
@@ -22,6 +27,8 @@ class Keyboard
     $(window).keyup   @onKeyUp
 
   onKeyDown: (e) =>
+    @emit "keydown", e
+
     keyCode = e.keyCode
     if @keyStates[keyCode]?
       @keyStates[keyCode] = true

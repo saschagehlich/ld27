@@ -1,10 +1,12 @@
 Level    = require "./level.coffee"
 Player   = require "./player.coffee"
 Keyboard = require "./utilities/keyboard.coffee"
+Mouse    = require "./utilities/mouse.coffee"
 
 class Game
   constructor: (@app) ->
     @keyboard = new Keyboard()
+    @mouse    = new Mouse @app
 
     @level = new Level @app, this
     @player = new Player @app, this
@@ -22,5 +24,6 @@ class Game
   getLevel: -> @level
   getPlayer: -> @player
   getKeyboard: -> @keyboard
+  getMouse: -> @mouse
 
 module.exports = Game

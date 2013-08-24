@@ -211,6 +211,11 @@ Block = (function() {
     return this.gridPosition.set.apply(this.gridPosition, arguments);
   };
 
+  Block.prototype.rotate = function() {
+    this.rotation += 1;
+    return this.rotation %= 4;
+  };
+
   Block.prototype.getMap = function() {
     var i, j, map, newData, _i, _j, _k, _ref, _ref1, _ref2;
     map = this.map;
@@ -249,7 +254,7 @@ module.exports = Block;
 
 
 },{"../config/available_blocks.json":4}],6:[function(require,module,exports){
-var Game, Keyboard, Level, Player;
+var Game, Keyboard, Level, Mouse, Player;
 
 Level = require("./level.coffee");
 
@@ -257,11 +262,14 @@ Player = require("./player.coffee");
 
 Keyboard = require("./utilities/keyboard.coffee");
 
+Mouse = require("./utilities/mouse.coffee");
+
 Game = (function() {
   function Game(app) {
     var firstPlatform;
     this.app = app;
     this.keyboard = new Keyboard();
+    this.mouse = new Mouse(this.app);
     this.level = new Level(this.app, this);
     this.player = new Player(this.app, this);
     firstPlatform = this.level.getPlatforms()[0];
@@ -285,6 +293,10 @@ Game = (function() {
     return this.keyboard;
   };
 
+  Game.prototype.getMouse = function() {
+    return this.mouse;
+  };
+
   return Game;
 
 })();
@@ -292,8 +304,8 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":8,"./player.coffee":9,"./utilities/keyboard.coffee":12}],7:[function(require,module,exports){
-var GameScreen, LD27, Mouse,
+},{"./level.coffee":8,"./player.coffee":9,"./utilities/keyboard.coffee":12,"./utilities/mouse.coffee":13}],7:[function(require,module,exports){
+var GameScreen, Keyboard, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -301,13 +313,14 @@ GameScreen = require("./screens/gamescreen.coffee");
 
 Mouse = require("./utilities/mouse.coffee");
 
+Keyboard = require("./utilities/keyboard.coffee");
+
 LD27 = (function(_super) {
   __extends(LD27, _super);
 
   function LD27() {
     var _this = this;
     LD27.__super__.constructor.apply(this, arguments);
-    this.mouse = new Mouse(this);
     this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png"]);
     this.preloader.on("done", function() {
       var spritesImage, spritesJSON;
@@ -329,10 +342,6 @@ LD27 = (function(_super) {
     return this.spritesAtlas;
   };
 
-  LD27.prototype.getMouse = function() {
-    return this.mouse;
-  };
-
   return LD27;
 
 })(LDFW.Game);
@@ -340,7 +349,7 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":10,"./utilities/mouse.coffee":13}],8:[function(require,module,exports){
+},{"./screens/gamescreen.coffee":10,"./utilities/keyboard.coffee":12,"./utilities/mouse.coffee":13}],8:[function(require,module,exports){
 var Block, Level,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -354,11 +363,14 @@ Level = (function() {
     this.app = app;
     this.game = game;
     this.onClick = __bind(this.onClick, this);
+    this.onKeyDown = __bind(this.onKeyDown, this);
     this.buildMode = true;
     this.buildBlock = new Block(this.app, this.game, {
       buildMode: true
     });
-    this.mouse = this.app.getMouse();
+    this.keyboard = this.game.getKeyboard();
+    this.keyboard.on("keydown", this.onKeyDown);
+    this.mouse = this.game.getMouse();
     this.mouse.on("click", this.onClick);
     this.scroll = new LDFW.Vector2();
     this.gravity = new LDFW.Vector2(0, 1800);
@@ -377,6 +389,13 @@ Level = (function() {
     block.setGridPosition(5, 10);
     this.blocks = [block];
   }
+
+  Level.prototype.onKeyDown = function(event) {
+    var _ref;
+    if ((_ref = event.keyCode) === this.keyboard.Keys.R || _ref === this.keyboard.Keys.SHIFT) {
+      return this.buildBlock.rotate();
+    }
+  };
 
   Level.prototype.onClick = function(position) {
     if (!this.buildMode) {
@@ -665,10 +684,16 @@ module.exports = GameStage;
 
 
 },{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],12:[function(require,module,exports){
-var Keyboard,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+var EventEmitter, Keyboard,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-Keyboard = (function() {
+EventEmitter = require("events").EventEmitter;
+
+Keyboard = (function(_super) {
+  __extends(Keyboard, _super);
+
   Keyboard.prototype.Keys = {
     LEFT: 37,
     UP: 38,
@@ -678,6 +703,8 @@ Keyboard = (function() {
     A: 65,
     S: 83,
     D: 68,
+    R: 82,
+    SHIFT: 16,
     SPACE: 32,
     ESC: 27
   };
@@ -698,6 +725,7 @@ Keyboard = (function() {
 
   Keyboard.prototype.onKeyDown = function(e) {
     var keyCode;
+    this.emit("keydown", e);
     keyCode = e.keyCode;
     if (this.keyStates[keyCode] != null) {
       return this.keyStates[keyCode] = true;
@@ -722,12 +750,12 @@ Keyboard = (function() {
 
   return Keyboard;
 
-})();
+})(EventEmitter);
 
 module.exports = Keyboard;
 
 
-},{}],13:[function(require,module,exports){
+},{"events":14}],13:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,

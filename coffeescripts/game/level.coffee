@@ -6,7 +6,10 @@ class Level
     @buildMode = true
     @buildBlock = new Block @app, @game, buildMode: true
 
-    @mouse = @app.getMouse()
+    @keyboard = @game.getKeyboard()
+    @keyboard.on "keydown", @onKeyDown
+
+    @mouse = @game.getMouse()
     @mouse.on "click", @onClick
 
     @scroll = new LDFW.Vector2()
@@ -27,6 +30,10 @@ class Level
     block = new Block(@app, @game)
     block.setGridPosition 5, 10
     @blocks = [ block ]
+
+  onKeyDown: (event) =>
+    if event.keyCode in [@keyboard.Keys.R, @keyboard.Keys.SHIFT]
+      @buildBlock.rotate()
 
   onClick: (position) =>
     return unless @buildMode
