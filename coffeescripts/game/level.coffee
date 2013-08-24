@@ -54,7 +54,7 @@ class Level
         player.top >= platform.bottom
           if player.right <= platform.left
             boundaries.x.max = Math.min(platform.left, boundaries.x.max)
-          else if playerX >= platform.right
+          else if player.left >= platform.right
             boundaries.x.min = Math.max(platform.right, boundaries.x.min)
 
       # Vertical collision check
