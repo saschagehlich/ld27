@@ -152,3 +152,14 @@ body {
   height: 100%;
   background: white;
 }
+/* line 34, ../../sass/application.sass */
+.canvas-wrapper .debug {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: white;
+  font: Monaco;
+  background: black;
+  padding: 5px;
+  white-space: pre;
+}

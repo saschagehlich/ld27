@@ -14,6 +14,7 @@ class Block
   randomize: ->
     index = Math.floor(Math.random() * @availableBlocks.length)
     @map = @availableBlocks[index]
+    @map = [[1, 1, 1, 1]]
 
   getGridPosition: -> @gridPosition
   setGridPosition: -> @gridPosition.set.apply @gridPosition, arguments

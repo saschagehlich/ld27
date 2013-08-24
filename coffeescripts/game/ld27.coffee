@@ -7,6 +7,9 @@ class LD27 extends LDFW.Game
   constructor: ->
     super
 
+    @debugDiv = $("<div>").addClass("debug")
+    @debugDiv.appendTo @getWrapper()
+
     @preloader = new LDFW.Preloader [
       "assets/sprites.json",
       "assets/sprites.png"
@@ -24,5 +27,8 @@ class LD27 extends LDFW.Game
    * Getters / setters
   ###
   getSpritesAtlas: -> return @spritesAtlas
+
+  setDebugText: (text) ->
+    @debugDiv.text text
 
 module.exports = LD27

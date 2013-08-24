@@ -73,7 +73,11 @@ LevelActor = (function(_super) {
             continue;
           }
           if (block.inBuildMode()) {
-            context.fillStyle = "rgba(0, 0, 255, 0.5)";
+            if (this.level.isBuildBlockBuildable()) {
+              context.fillStyle = "rgba(0, 0, 255, 0.5)";
+            } else {
+              context.fillStyle = "rgba(255, 0, 0, 0.5)";
+            }
           } else {
             context.fillStyle = "blue";
           }
@@ -200,7 +204,8 @@ Block = (function() {
   Block.prototype.randomize = function() {
     var index;
     index = Math.floor(Math.random() * this.availableBlocks.length);
-    return this.map = this.availableBlocks[index];
+    this.map = this.availableBlocks[index];
+    return this.map = [[1, 1, 1, 1]];
   };
 
   Block.prototype.getGridPosition = function() {
@@ -321,6 +326,8 @@ LD27 = (function(_super) {
   function LD27() {
     var _this = this;
     LD27.__super__.constructor.apply(this, arguments);
+    this.debugDiv = $("<div>").addClass("debug");
+    this.debugDiv.appendTo(this.getWrapper());
     this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png"]);
     this.preloader.on("done", function() {
       var spritesImage, spritesJSON;
@@ -340,6 +347,10 @@ LD27 = (function(_super) {
 
   LD27.prototype.getSpritesAtlas = function() {
     return this.spritesAtlas;
+  };
+
+  LD27.prototype.setDebugText = function(text) {
+    return this.debugDiv.text(text);
   };
 
   return LD27;
@@ -401,6 +412,9 @@ Level = (function() {
     if (!this.buildMode) {
       return;
     }
+    if (!this.isBuildBlockBuildable()) {
+      return;
+    }
     this.buildBlock.setBuildMode(false);
     this.buildMode = false;
     this.blocks.push(this.buildBlock);
@@ -419,6 +433,36 @@ Level = (function() {
       gridPosition = mousePosition.clone().add(this.scroll).substract(blockMap[0].length * this.GRID_SIZE / 2, blockMap.length * this.GRID_SIZE / 2).divideBy(this.GRID_SIZE).round();
       return this.buildBlock.setGridPosition(gridPosition);
     }
+  };
+
+  Level.prototype.isBuildBlockBuildable = function() {
+    var block, buildable, buildableBlockMap, buildableBlockPosition, buildableSegment, map, offset, position, row, segment, x, y, _i, _j, _k, _len, _len1, _len2, _ref;
+    buildable = true;
+    buildableBlockMap = this.buildBlock.getMap();
+    buildableBlockPosition = this.buildBlock.getGridPosition();
+    _ref = this.blocks;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      block = _ref[_i];
+      map = block.getMap();
+      position = block.getGridPosition();
+      for (y = _j = 0, _len1 = map.length; _j < _len1; y = ++_j) {
+        row = map[y];
+        for (x = _k = 0, _len2 = row.length; _k < _len2; x = ++_k) {
+          segment = row[x];
+          if (segment === 0) {
+            continue;
+          }
+          offset = new LDFW.Vector2(position.getX() + x - buildableBlockPosition.getX(), position.getY() + y - buildableBlockPosition.getY());
+          if ((buildableBlockMap[offset.y] != null) && (buildableBlockMap[offset.y][offset.x] != null)) {
+            buildableSegment = buildableBlockMap[offset.y][offset.x];
+            if (buildableSegment === 1) {
+              buildable = false;
+            }
+          }
+        }
+      }
+    }
+    return buildable;
   };
 
   Level.prototype.getBoundariesForPlayer = function(player) {

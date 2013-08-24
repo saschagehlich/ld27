@@ -37,6 +37,7 @@ class Level
 
   onClick: (position) =>
     return unless @buildMode
+    return unless @isBuildBlockBuildable()
 
     @buildBlock.setBuildMode false
     @buildMode = false
@@ -63,6 +64,33 @@ class Level
         .round()
 
       @buildBlock.setGridPosition gridPosition
+
+  isBuildBlockBuildable: ->
+    # Does the building block overlap any
+    # of the existing blocks?
+    buildable = true
+    buildableBlockMap      = @buildBlock.getMap()
+    buildableBlockPosition = @buildBlock.getGridPosition()
+
+    for block in @blocks
+      map      = block.getMap()
+      position = block.getGridPosition()
+
+      for row, y in map
+        for segment, x in row
+          continue if segment is 0
+
+          offset = new LDFW.Vector2(
+            position.getX() + x - buildableBlockPosition.getX(),
+            position.getY() + y - buildableBlockPosition.getY()
+          )
+
+          if buildableBlockMap[offset.y]? and buildableBlockMap[offset.y][offset.x]?
+            buildableSegment = buildableBlockMap[offset.y][offset.x]
+            if buildableSegment is 1
+              buildable = false
+
+    return buildable
 
   getBoundariesForPlayer: (player) ->
     playerWidth = 32

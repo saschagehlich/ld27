@@ -51,7 +51,10 @@ class LevelActor extends LDFW.Actor
         continue if segment is 0
 
         if block.inBuildMode()
-          context.fillStyle = "rgba(0, 0, 255, 0.5)"
+          if @level.isBuildBlockBuildable()
+            context.fillStyle = "rgba(0, 0, 255, 0.5)"
+          else
+            context.fillStyle = "rgba(255, 0, 0, 0.5)"
         else
           context.fillStyle = "blue"
 
