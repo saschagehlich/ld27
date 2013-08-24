@@ -15,9 +15,10 @@ class Player
     @handleKeyboard()
 
     aspiredPosition = @getAspiredPosition delta
+    boundaries      = @level.getBoundariesForPlayer this
 
-    @handleXMovement aspiredPosition
-    @handleYMovement aspiredPosition
+    @handleXMovement aspiredPosition, boundaries
+    @handleYMovement aspiredPosition, boundaries
 
     @position.set aspiredPosition
 
@@ -30,26 +31,21 @@ class Player
 
     return @position.clone().add velocityStep
 
-  handleXMovement: (aspiredPosition) ->
+  handleXMovement: (aspiredPosition, boundaries) ->
     # Don't let the player walk out of the left edge
     if aspiredPosition.getX() < @level.getScroll().x
       aspiredPosition.setX @level.getScroll().x
 
-    hBoundaries = @level.getHorizontalBoundariesForPlayer this
+    if aspiredPosition.getX() <= boundaries.x.min
+      aspiredPosition.setX boundaries.x.min
+    else if aspiredPosition.getX() + @getWidth() >= boundaries.x.max
+      aspiredPosition.setX boundaries.x.max - @getWidth()
 
-    if aspiredPosition.getX() <= hBoundaries.min
-      aspiredPosition.setX hBoundaries.min
-    else if aspiredPosition.getX() + @getWidth() >= hBoundaries.max
-      aspiredPosition.setX hBoundaries.max - @getWidth()
+  handleYMovement: (aspiredPosition, boundaries) ->
+    if aspiredPosition.getY() > boundaries.y.max
+      aspiredPosition.setY boundaries.y.max
 
-  handleYMovement: (aspiredPosition) ->
-    # Calculate the lower boundary depending on the position
-    # and the size of the player
-    maxY = @level.getHighestPointForPlayer this
-    if aspiredPosition.getY() > maxY
-      aspiredPosition.setY maxY
-
-    if aspiredPosition.getY() >= maxY
+    if aspiredPosition.getY() >= boundaries.y.max
       @jumping = false
       @onGround = true
       @velocity.setY 0

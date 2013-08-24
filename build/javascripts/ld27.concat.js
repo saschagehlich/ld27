@@ -11203,6 +11203,10 @@ Level = (function() {
         position: new LDFW.Vector2(10, 400),
         width: 300,
         height: 16
+      }, {
+        position: new LDFW.Vector2(10, 100),
+        width: 300,
+        height: 16
       }
     ];
     block = new Block(this.app, this.game);
@@ -11212,25 +11216,44 @@ Level = (function() {
 
   Level.prototype.update = function(delta) {};
 
-  Level.prototype.getHorizontalBoundariesForPlayer = function(player) {
-    var block, boundaries, map, platform, playerHeight, playerWidth, playerX, playerY, position, row, segment, segmentB, segmentL, segmentR, segmentT, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
-    playerX = player.getPosition().getX();
-    playerY = player.getPosition().getY();
+  Level.prototype.getBoundariesForPlayer = function(player) {
+    var block, boundaries, map, platform, playerHeight, playerWidth, position, row, segment, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
     playerWidth = 32;
     playerHeight = 64;
+    player = {
+      top: player.getPosition().getY() - playerHeight,
+      bottom: player.getPosition().getY(),
+      left: player.getPosition().getX(),
+      right: player.getPosition().getX() + playerWidth
+    };
     boundaries = {
-      min: 0,
-      max: playerX + this.app.getWidth()
+      x: {
+        min: 0,
+        max: player.left + this.app.getWidth()
+      },
+      y: {
+        min: -this.app.getHeight(),
+        max: this.app.getHeight() * 2
+      }
     };
     _ref = this.platforms;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       platform = _ref[_i];
-      if (!(playerY <= platform.position.y || playerY - playerHeight >= platform.position.y + platform.height)) {
-        if (playerX + playerWidth <= platform.position.x) {
-          boundaries.max = Math.min(platform.position.x, boundaries.max);
-        } else if (playerX >= platform.position.x + platform.width) {
-          boundaries.min = Math.max(platform.position.x + platform.width, boundaries.min);
+      platform = {
+        top: platform.position.y,
+        bottom: platform.position.y + platform.height,
+        left: platform.position.x,
+        right: platform.position.x + platform.width
+      };
+      if (!(player.bottom <= platform.top || player.top >= platform.bottom)) {
+        if (player.right <= platform.left) {
+          boundaries.x.max = Math.min(platform.left, boundaries.x.max);
+        } else if (playerX >= platform.right) {
+          boundaries.x.min = Math.max(platform.right, boundaries.x.min);
         }
+      }
+      if (!(player.right < platform.left || player.left > platform.right || player.bottom > platform.top)) {
+        boundaries.y.max = Math.min(platform.top, boundaries.y.max);
       }
     }
     _ref1 = this.blocks;
@@ -11245,61 +11268,26 @@ Level = (function() {
           if (segment === 0) {
             continue;
           }
-          segmentL = position.getX() + x * this.GRID_SIZE;
-          segmentR = position.getX() + (x + 1) * this.GRID_SIZE;
-          segmentT = position.getY() + y * this.GRID_SIZE;
-          segmentB = position.getY() + (y + 1) * this.GRID_SIZE;
-          if (!(playerY <= segmentT || playerY - playerHeight >= segmentB)) {
-            if (playerX + playerWidth <= segmentL) {
-              boundaries.max = Math.min(segmentL, boundaries.max);
-            } else if (playerX >= segmentR) {
-              boundaries.min = Math.max(segmentR, boundaries.min);
+          segment = {
+            left: position.getX() + x * this.GRID_SIZE,
+            right: position.getX() + (x + 1) * this.GRID_SIZE,
+            top: position.getY() + y * this.GRID_SIZE,
+            bottom: position.getY() + (y + 1) * this.GRID_SIZE
+          };
+          if (!(player.bottom <= segment.top || player.top >= segment.bottom)) {
+            if (player.right <= segment.left) {
+              boundaries.x.max = Math.min(segment.left, boundaries.x.max);
+            } else if (player.left >= segment.right) {
+              boundaries.x.min = Math.max(segment.right, boundaries.x.min);
             }
+          }
+          if (!(player.left > segment.right || player.right < segment.left || player.bottom > segment.top)) {
+            boundaries.y.max = Math.min(segment.top, boundaries.y.max);
           }
         }
       }
     }
     return boundaries;
-  };
-
-  Level.prototype.getHighestPointForPlayer = function(player) {
-    var block, map, maxY, platform, playerWidth, playerX, playerY, position, row, segment, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
-    maxY = this.app.getHeight() * 2;
-    playerX = player.getPosition().getX();
-    playerY = player.getPosition().getY();
-    playerWidth = 32;
-    _ref = this.platforms;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      platform = _ref[_i];
-      if (playerY > platform.position.y) {
-        continue;
-      }
-      if (!(platform.position.x > playerX + playerWidth || platform.position.x + platform.width < playerX)) {
-        maxY = Math.min(platform.position.y, maxY);
-      }
-    }
-    _ref1 = this.blocks;
-    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-      block = _ref1[_j];
-      map = block.getMap();
-      position = block.getGridPosition().clone().multiply(this.GRID_SIZE);
-      for (y = _k = 0, _len2 = map.length; _k < _len2; y = ++_k) {
-        row = map[y];
-        for (x = _l = 0, _len3 = row.length; _l < _len3; x = ++_l) {
-          segment = row[x];
-          if (segment === 0) {
-            continue;
-          }
-          if (playerY > position.getY() + y * this.GRID_SIZE) {
-            continue;
-          }
-          if (!(position.getX() + x * this.GRID_SIZE >= playerX + playerWidth || position.getX() + (x + 1) * this.GRID_SIZE <= playerX)) {
-            maxY = Math.min(position.getY() + y * this.GRID_SIZE, maxY);
-          }
-        }
-      }
-    }
-    return maxY;
   };
 
   Level.prototype.getScroll = function() {
@@ -11344,11 +11332,12 @@ Player = (function() {
   }
 
   Player.prototype.update = function(delta) {
-    var aspiredPosition;
+    var aspiredPosition, boundaries;
     this.handleKeyboard();
     aspiredPosition = this.getAspiredPosition(delta);
-    this.handleXMovement(aspiredPosition);
-    this.handleYMovement(aspiredPosition);
+    boundaries = this.level.getBoundariesForPlayer(this);
+    this.handleXMovement(aspiredPosition, boundaries);
+    this.handleYMovement(aspiredPosition, boundaries);
     return this.position.set(aspiredPosition);
   };
 
@@ -11361,26 +11350,22 @@ Player = (function() {
     return this.position.clone().add(velocityStep);
   };
 
-  Player.prototype.handleXMovement = function(aspiredPosition) {
-    var hBoundaries;
+  Player.prototype.handleXMovement = function(aspiredPosition, boundaries) {
     if (aspiredPosition.getX() < this.level.getScroll().x) {
       aspiredPosition.setX(this.level.getScroll().x);
     }
-    hBoundaries = this.level.getHorizontalBoundariesForPlayer(this);
-    if (aspiredPosition.getX() <= hBoundaries.min) {
-      return aspiredPosition.setX(hBoundaries.min);
-    } else if (aspiredPosition.getX() + this.getWidth() >= hBoundaries.max) {
-      return aspiredPosition.setX(hBoundaries.max - this.getWidth());
+    if (aspiredPosition.getX() <= boundaries.x.min) {
+      return aspiredPosition.setX(boundaries.x.min);
+    } else if (aspiredPosition.getX() + this.getWidth() >= boundaries.x.max) {
+      return aspiredPosition.setX(boundaries.x.max - this.getWidth());
     }
   };
 
-  Player.prototype.handleYMovement = function(aspiredPosition) {
-    var maxY;
-    maxY = this.level.getHighestPointForPlayer(this);
-    if (aspiredPosition.getY() > maxY) {
-      aspiredPosition.setY(maxY);
+  Player.prototype.handleYMovement = function(aspiredPosition, boundaries) {
+    if (aspiredPosition.getY() > boundaries.y.max) {
+      aspiredPosition.setY(boundaries.y.max);
     }
-    if (aspiredPosition.getY() >= maxY) {
+    if (aspiredPosition.getY() >= boundaries.y.max) {
       this.jumping = false;
       this.onGround = true;
       return this.velocity.setY(0);
