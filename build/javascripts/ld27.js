@@ -1,4 +1,46 @@
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Config, FuckingPiranhasActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Config = require("../config/config.json");
+
+FuckingPiranhasActor = (function(_super) {
+  __extends(FuckingPiranhasActor, _super);
+
+  function FuckingPiranhasActor(app, game, options) {
+    this.app = app;
+    this.game = game;
+    this.options = options != null ? options : {};
+    this.position = this.options.position || new LDFW.Vector2(0, 0);
+    this.width = 6;
+    this.height = 6;
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.backgroundSprite = this.spritesAtlas.createSprite("obstacles/fucking-piranhas/fucking-piranhas-background.png");
+  }
+
+  FuckingPiranhasActor.prototype.update = function() {};
+
+  FuckingPiranhasActor.prototype.draw = function(context, x, y) {
+    this.backgroundSprite.draw(context, x, y);
+  };
+
+  FuckingPiranhasActor.prototype.getWidth = function() {
+    return this.width;
+  };
+
+  FuckingPiranhasActor.prototype.getHeight = function() {
+    return this.height;
+  };
+
+  return FuckingPiranhasActor;
+
+})(LDFW.Actor);
+
+module.exports = FuckingPiranhasActor;
+
+
+},{"../config/config.json":6}],2:[function(require,module,exports){
 var Config, LevelActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -48,13 +90,38 @@ LevelActor = (function(_super) {
     return this.tileSprites["end"] = this.spritesAtlas.createSprite("platform/platform-end.png");
   };
 
+  LevelActor.prototype.update = function(delta) {
+    var obstacle, obstacles, _i, _len, _results;
+    obstacles = this.level.getObstacles();
+    _results = [];
+    for (_i = 0, _len = obstacles.length; _i < _len; _i++) {
+      obstacle = obstacles[_i];
+      _results.push(obstacle.update(delta));
+    }
+    return _results;
+  };
+
   LevelActor.prototype.draw = function(context) {
     context.save();
     this.backgroundSprite.draw(context);
     this.drawPlatforms(context);
     this.drawBlocks(context);
     this.drawBuildBlock(context);
+    this.drawObstacles(context);
     return context.restore();
+  };
+
+  LevelActor.prototype.drawObstacles = function(context) {
+    var obstacle, obstacles, position, scroll, _i, _len, _results;
+    obstacles = this.level.getObstacles();
+    scroll = this.level.getScroll();
+    _results = [];
+    for (_i = 0, _len = obstacles.length; _i < _len; _i++) {
+      obstacle = obstacles[_i];
+      position = obstacle.getPosition().clone().multiply(this.level.GRID_SIZE);
+      _results.push(obstacle.draw(context, position.x - scroll.getX(), position.y - scroll.getY()));
+    }
+    return _results;
   };
 
   LevelActor.prototype.drawPlatforms = function(context) {
@@ -185,7 +252,7 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{"../config/config.json":5}],2:[function(require,module,exports){
+},{"../config/config.json":6}],3:[function(require,module,exports){
 var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -224,7 +291,7 @@ PlayerActor = (function(_super) {
 module.exports = PlayerActor;
 
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var LD27;
 
 LD27 = require("./ld27.coffee");
@@ -242,7 +309,7 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":9}],4:[function(require,module,exports){
+},{"./ld27.coffee":10}],5:[function(require,module,exports){
 module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
@@ -273,15 +340,15 @@ module.exports=module.exports=[
   ],
 ]
 
-},{}],5:[function(require,module,exports){
-module.exports={
+},{}],6:[function(require,module,exports){
+module.exports=module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
 
   "ui_minimap_height": 74
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var Block, Config;
 
 Config = require("../config/config.json");
@@ -397,7 +464,7 @@ Block = (function() {
 module.exports = Block;
 
 
-},{"../config/available_blocks.json":4,"../config/config.json":5}],7:[function(require,module,exports){
+},{"../config/available_blocks.json":5,"../config/config.json":6}],8:[function(require,module,exports){
 var Config, Platform;
 
 Config = require("../config/config.json");
@@ -443,7 +510,7 @@ Platform = (function() {
 module.exports = Platform;
 
 
-},{"../config/config.json":5}],8:[function(require,module,exports){
+},{"../config/config.json":6}],9:[function(require,module,exports){
 var Game, Keyboard, Level, Mouse, Player;
 
 Level = require("./level.coffee");
@@ -494,7 +561,7 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":10,"./player.coffee":11,"./utilities/keyboard.coffee":15,"./utilities/mouse.coffee":17}],9:[function(require,module,exports){
+},{"./level.coffee":11,"./player.coffee":12,"./utilities/keyboard.coffee":16,"./utilities/mouse.coffee":18}],10:[function(require,module,exports){
 var GameScreen, Keyboard, LD27, Mouse,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -546,8 +613,8 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":12,"./utilities/keyboard.coffee":15,"./utilities/mouse.coffee":17}],10:[function(require,module,exports){
-var Block, Config, Level, LevelGenerator, Platform,
+},{"./screens/gamescreen.coffee":13,"./utilities/keyboard.coffee":16,"./utilities/mouse.coffee":18}],11:[function(require,module,exports){
+var Block, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Config = require("./config/config.json");
@@ -558,10 +625,13 @@ Platform = require("./entities/platform.coffee");
 
 LevelGenerator = require("./utilities/levelgenerator.coffee");
 
+FuckingPiranhasActor = require("./actors/fuckingpiranhasactor.coffee");
+
 Level = (function() {
   Level.prototype.GRID_SIZE = 32;
 
   function Level(app, game) {
+    var appTileHeight;
     this.app = app;
     this.game = game;
     this.onClick = __bind(this.onClick, this);
@@ -588,6 +658,12 @@ Level = (function() {
       })
     ];
     this.blocks = [];
+    appTileHeight = Math.round(this.app.getHeight() / this.GRID_SIZE);
+    this.obstacles = [
+      new FuckingPiranhasActor(this.app, this.game, {
+        position: new LDFW.Vector2(14, appTileHeight - 6)
+      })
+    ];
     this.generator.generate(1, 5);
   }
 
@@ -626,14 +702,25 @@ Level = (function() {
   };
 
   Level.prototype.update = function(delta) {
-    var blockMap, gridPosition, mousePosition;
+    var blockMap, gridPosition, mousePosition, obstacle, _i, _len, _ref, _results;
     this.scroll.setX(Math.round(this.scroll.getX() + this.scrollSpeed * delta));
     mousePosition = this.mouse.getPosition();
     if (this.buildMode) {
       blockMap = this.buildBlock.getMap();
       gridPosition = mousePosition.clone().add(this.scroll).substract(blockMap[0].length * this.GRID_SIZE / 2, blockMap.length * this.GRID_SIZE / 2).divideBy(this.GRID_SIZE).round();
-      return this.buildBlock.setGridPosition(gridPosition);
+      this.buildBlock.setGridPosition(gridPosition);
     }
+    _ref = this.obstacles;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      obstacle = _ref[_i];
+      if (this.game.getPlayer().collidesWithObstacle(obstacle)) {
+        _results.push(console.log("u dead."));
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
   };
 
   Level.prototype.isBuildBlockBuildable = function() {
@@ -757,6 +844,10 @@ Level = (function() {
     return this.blocks;
   };
 
+  Level.prototype.getObstacles = function() {
+    return this.obstacles;
+  };
+
   Level.prototype.getGravity = function() {
     return this.gravity;
   };
@@ -780,7 +871,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./config/config.json":5,"./entities/block.coffee":6,"./entities/platform.coffee":7,"./utilities/levelgenerator.coffee":16}],11:[function(require,module,exports){
+},{"./actors/fuckingpiranhasactor.coffee":1,"./config/config.json":6,"./entities/block.coffee":7,"./entities/platform.coffee":8,"./utilities/levelgenerator.coffee":17}],12:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -840,6 +931,27 @@ Player = (function() {
     }
   };
 
+  Player.prototype.collidesWithObstacle = function(obstacle) {
+    var obstaclePosition, player;
+    obstaclePosition = obstacle.getPosition().clone().multiply(this.level.GRID_SIZE);
+    obstacle = {
+      top: obstaclePosition.y,
+      right: obstaclePosition.x + obstacle.getWidth() * this.level.GRID_SIZE,
+      bottom: obstaclePosition.y + obstacle.getHeight() * this.level.GRID_SIZE,
+      left: obstaclePosition.x
+    };
+    player = {
+      top: this.position.getY() + this.getHeight(),
+      right: this.position.getX() + this.getWidth(),
+      bottom: this.position.getY(),
+      left: this.position.getX()
+    };
+    if (!(player.left > obstacle.right || player.right < obstacle.left || player.bottom < obstacle.top || player.top > obstacle.bottom)) {
+      return true;
+    }
+    return false;
+  };
+
   Player.prototype.handleKeyboard = function() {
     if (this.keyboard.upPressed() && this.onGround) {
       return this.velocity.setY(JUMP_FORCE);
@@ -848,6 +960,10 @@ Player = (function() {
 
   Player.prototype.getWidth = function() {
     return 32;
+  };
+
+  Player.prototype.getHeight = function() {
+    return 64;
   };
 
   Player.prototype.getPosition = function() {
@@ -865,7 +981,7 @@ Player = (function() {
 module.exports = Player;
 
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var Game, GameScreen, GameStage, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -905,7 +1021,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":8,"../stages/gamestage.coffee":13,"../stages/uistage.coffee":14}],13:[function(require,module,exports){
+},{"../game.coffee":9,"../stages/gamestage.coffee":14,"../stages/uistage.coffee":15}],14:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -934,7 +1050,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],14:[function(require,module,exports){
+},{"../actors/levelactor.coffee":2,"../actors/playeractor.coffee":3}],15:[function(require,module,exports){
 var UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -955,7 +1071,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -1027,7 +1143,7 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":18}],16:[function(require,module,exports){
+},{"events":19}],17:[function(require,module,exports){
 var LevelGenerator, Platform;
 
 Platform = require("../entities/platform.coffee");
@@ -1084,7 +1200,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../entities/platform.coffee":7}],17:[function(require,module,exports){
+},{"../entities/platform.coffee":8}],18:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -1135,7 +1251,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":18}],18:[function(require,module,exports){
+},{"events":19}],19:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -1331,7 +1447,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":19}],19:[function(require,module,exports){
+},{"__browserify_process":20}],20:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1385,5 +1501,5 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[3])
+},{}]},{},[4])
 ;

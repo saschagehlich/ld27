@@ -52,19 +52,36 @@ class Player
     else
       @onGround = false
 
+  collidesWithObstacle: (obstacle) ->
+    obstaclePosition = obstacle.getPosition()
+      .clone()
+      .multiply(@level.GRID_SIZE)
+
+    obstacle =
+      top: obstaclePosition.y
+      right: obstaclePosition.x + obstacle.getWidth() * @level.GRID_SIZE
+      bottom: obstaclePosition.y + obstacle.getHeight() * @level.GRID_SIZE
+      left: obstaclePosition.x
+
+    player =
+      top: @position.getY() + @getHeight()
+      right: @position.getX() + @getWidth()
+      bottom: @position.getY()
+      left: @position.getX()
+
+    unless player.left > obstacle.right or player.right < obstacle.left or
+      player.bottom < obstacle.top or player.top > obstacle.bottom
+        return true
+
+    return false
+
+
   handleKeyboard: ->
-    # if @keyboard.pressed(@keyboard.Keys.RIGHT) or
-    #   @keyboard.pressed(@keyboard.Keys.D)
-    #     @velocity.setX SPEED_X
-
-    # else if @keyboard.pressed(@keyboard.Keys.LEFT) or
-    #   @keyboard.pressed(@keyboard.Keys.A)
-    #     @velocity.setX -SPEED_X
-
     if @keyboard.upPressed() and @onGround
       @velocity.setY JUMP_FORCE
 
   getWidth: -> 32
+  getHeight: -> 64
 
   getPosition: -> @position
   setPosition: ->

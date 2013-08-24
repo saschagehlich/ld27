@@ -3,6 +3,8 @@ Block    = require "./entities/block.coffee"
 Platform = require "./entities/platform.coffee"
 LevelGenerator = require "./utilities/levelgenerator.coffee"
 
+FuckingPiranhasActor = require "./actors/fuckingpiranhasactor.coffee"
+
 class Level
   GRID_SIZE: 32
   constructor: (@app, @game) ->
@@ -31,6 +33,13 @@ class Level
       )
     ]
     @blocks = []
+
+    appTileHeight = Math.round @app.getHeight() / @GRID_SIZE
+    @obstacles = [
+      new FuckingPiranhasActor(@app, @game, {
+        position: new LDFW.Vector2(14, appTileHeight - 6)
+      })
+    ]
 
     @generator.generate 1, 5
 
@@ -75,6 +84,10 @@ class Level
         .round()
 
       @buildBlock.setGridPosition gridPosition
+
+    for obstacle in @obstacles
+      if @game.getPlayer().collidesWithObstacle obstacle
+        console.log "u dead."
 
   isBuildBlockBuildable: ->
     # Does the building block overlap any
@@ -181,6 +194,7 @@ class Level
   getScroll: -> @scroll
   getPlatforms: -> @platforms
   getBlocks: -> @blocks
+  getObstacles: -> @obstacles
   getGravity: -> @gravity
   inBuildMode: -> @buildMode
   getBuildBlock: -> @buildBlock

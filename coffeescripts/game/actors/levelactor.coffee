@@ -41,6 +41,11 @@ class LevelActor extends LDFW.Actor
     @tileSprites["start"] = @spritesAtlas.createSprite "platform/platform-start.png"
     @tileSprites["end"] = @spritesAtlas.createSprite "platform/platform-end.png"
 
+  update: (delta) ->
+    obstacles = @level.getObstacles()
+    for obstacle in obstacles
+      obstacle.update delta
+
   draw: (context) ->
     context.save()
 
@@ -49,8 +54,21 @@ class LevelActor extends LDFW.Actor
     @drawPlatforms  context
     @drawBlocks     context
     @drawBuildBlock context
+    @drawObstacles  context
 
     context.restore()
+
+  drawObstacles: (context) ->
+    obstacles = @level.getObstacles()
+    scroll    = @level.getScroll()
+    for obstacle in obstacles
+      position = obstacle.getPosition()
+        .clone()
+        .multiply(@level.GRID_SIZE)
+
+      obstacle.draw context,
+        position.x - scroll.getX(),
+        position.y - scroll.getY()
 
   drawPlatforms: (context) ->
     platforms = @level.getPlatforms()
