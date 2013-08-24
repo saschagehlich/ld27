@@ -25,6 +25,24 @@ class Vector2
   clone: -> new Vector2(@x, @y)
 
   ###
+   * Substracts the given values from this Vector
+   * @param [Number] x
+   * @param [Number] y
+  ###
+  substract: (x, y) ->
+    if x instanceof Vector2
+      v2 = x
+      x = v2.getX()
+      y = v2.getY()
+    else if x? and not y?
+      y = x
+
+    @x = @x - x
+    @y = @y - y
+
+    return this
+
+  ###
    * Adds the given values to this Vector
    * @param [Number] x
    * @param [Number] y

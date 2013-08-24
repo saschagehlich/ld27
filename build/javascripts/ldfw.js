@@ -365,6 +365,27 @@ Vector2 = (function() {
   };
 
   /*
+   * Substracts the given values from this Vector
+   * @param [Number] x
+   * @param [Number] y
+  */
+
+
+  Vector2.prototype.substract = function(x, y) {
+    var v2;
+    if (x instanceof Vector2) {
+      v2 = x;
+      x = v2.getX();
+      y = v2.getY();
+    } else if ((x != null) && (y == null)) {
+      y = x;
+    }
+    this.x = this.x - x;
+    this.y = this.y - y;
+    return this;
+  };
+
+  /*
    * Adds the given values to this Vector
    * @param [Number] x
    * @param [Number] y

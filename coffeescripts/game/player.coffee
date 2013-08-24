@@ -1,4 +1,5 @@
-JUMP_FORCE = -200
+JUMP_FORCE = -700
+SPEED_X = 300
 
 class Player
   constructor: (@app, @game) ->
@@ -14,16 +15,16 @@ class Player
     ###
      * Keyboard handling
     ###
-    # if @keyboard.pressed(@keyboard.Keys.RIGHT) or
-    #   @keyboard.pressed(@keyboard.Keys.D)
-    #     @velocity.setX 1
+    if @keyboard.pressed(@keyboard.Keys.RIGHT) or
+      @keyboard.pressed(@keyboard.Keys.D)
+        @velocity.setX SPEED_X
 
-    # else if @keyboard.pressed(@keyboard.Keys.LEFT) or
-    #   @keyboard.pressed(@keyboard.Keys.A)
-    #     @velocity.setX -1
+    else if @keyboard.pressed(@keyboard.Keys.LEFT) or
+      @keyboard.pressed(@keyboard.Keys.A)
+        @velocity.setX -SPEED_X
 
-    # else
-    #   @velocity.setX 0
+    else
+      @velocity.setX 0
 
     if @keyboard.upPressed() and @onGround
       @velocity.setY JUMP_FORCE

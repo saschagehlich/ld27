@@ -16,18 +16,54 @@ LevelActor = (function(_super) {
   }
 
   LevelActor.prototype.draw = function(context) {
+    context.save();
+    this.drawPlatforms(context);
+    this.drawBlocks(context);
+    return context.restore();
+  };
+
+  LevelActor.prototype.drawPlatforms = function(context) {
     var platform, platforms, scroll, _i, _len, _results;
     platforms = this.level.getPlatforms();
     scroll = this.level.getScroll();
     _results = [];
     for (_i = 0, _len = platforms.length; _i < _len; _i++) {
       platform = platforms[_i];
-      context.save();
       context.fillStyle = "red";
-      context.fillRect(platform.position.x - this.level.getScroll().x, platform.position.y - this.level.getScroll().y, platform.width, PLATFORM_HEIGHT);
-      _results.push(context.restore());
+      _results.push(context.fillRect(platform.position.x - this.level.getScroll().x, platform.position.y - this.level.getScroll().y, platform.width, PLATFORM_HEIGHT));
     }
     return _results;
+  };
+
+  LevelActor.prototype.drawBlocks = function(context) {
+    var block, blocks, scroll, _i, _len, _results;
+    scroll = this.level.getScroll();
+    blocks = this.level.getBlocks();
+    _results = [];
+    for (_i = 0, _len = blocks.length; _i < _len; _i++) {
+      block = blocks[_i];
+      _results.push(this.drawBlock(block, context));
+    }
+    return _results;
+  };
+
+  LevelActor.prototype.drawBlock = function(block, context) {
+    var map, position, row, scroll, segment, x, y, _i, _j, _len, _len1;
+    scroll = this.level.getScroll();
+    map = block.getMap();
+    position = block.getGridPosition().clone().multiply(this.level.GRID_SIZE).substract(scroll);
+    for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
+      row = map[y];
+      for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
+        segment = row[x];
+        if (segment === 0) {
+          continue;
+        }
+        context.fillStyle = "blue";
+        context.fillRect(position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE, this.level.GRID_SIZE, this.level.GRID_SIZE);
+      }
+    }
+    return console.log("---");
   };
 
   return LevelActor;
@@ -94,7 +130,82 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":5}],4:[function(require,module,exports){
+},{"./ld27.coffee":7}],4:[function(require,module,exports){
+module.exports=[
+  [
+    [ 1, 1, 1, 1 ]
+  ],
+  [
+    [ 1, 0, 0 ],
+    [ 1, 1, 1 ]
+  ],
+  [
+    [ 0, 0, 1 ],
+    [ 1, 1, 1 ]
+  ],
+  [
+    [ 1, 1 ],
+    [ 1, 1 ]
+  ],
+  [
+    [ 0, 1, 1 ],
+    [ 1, 1, 0 ]
+  ],
+  [
+    [ 0, 1, 0 ],
+    [ 1, 1, 1 ]
+  ],
+  [
+    [ 1, 1, 0 ],
+    [ 0, 1, 1 ]
+  ],
+]
+
+},{}],5:[function(require,module,exports){
+var Block;
+
+Block = (function() {
+  Block.prototype.availableBlocks = require("../config/available_blocks.json");
+
+  function Block(app, game) {
+    this.app = app;
+    this.game = game;
+    this.map = null;
+    this.rotation = 0;
+    this.gridPosition = new LDFW.Vector2();
+    this.randomize();
+  }
+
+  Block.prototype.randomize = function() {
+    var index;
+    index = Math.floor(Math.random() * this.availableBlocks.length);
+    return this.map = this.availableBlocks[index];
+  };
+
+  Block.prototype.getGridPosition = function() {
+    return this.gridPosition;
+  };
+
+  Block.prototype.setGridPosition = function() {
+    return this.gridPosition.set.apply(this.gridPosition, arguments);
+  };
+
+  Block.prototype.getMap = function() {
+    return this.map;
+  };
+
+  Block.prototype.getRotation = function() {
+    return this.rotation;
+  };
+
+  return Block;
+
+})();
+
+module.exports = Block;
+
+
+},{"../config/available_blocks.json":4}],6:[function(require,module,exports){
 var Game, Keyboard, Level, Player;
 
 Level = require("./level.coffee");
@@ -138,7 +249,7 @@ Game = (function() {
 module.exports = Game;
 
 
-},{"./level.coffee":6,"./player.coffee":7,"./utilities/keyboard.coffee":10}],5:[function(require,module,exports){
+},{"./level.coffee":8,"./player.coffee":9,"./utilities/keyboard.coffee":12}],7:[function(require,module,exports){
 var GameScreen, LD27,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -179,26 +290,32 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":8}],6:[function(require,module,exports){
-var Level;
+},{"./screens/gamescreen.coffee":10}],8:[function(require,module,exports){
+var Block, Level;
+
+Block = require("./entities/block.coffee");
 
 Level = (function() {
+  Level.prototype.GRID_SIZE = 32;
+
   function Level(app, game) {
+    var block;
     this.app = app;
     this.game = game;
     this.scroll = new LDFW.Vector2();
-    this.gravity = new LDFW.Vector2(0, 450);
+    this.gravity = new LDFW.Vector2(0, 1000);
     this.platforms = [
       {
         position: new LDFW.Vector2(10, 400),
         width: 300
       }
     ];
+    block = new Block(this.app, this.game);
+    block.setGridPosition(10, 7);
+    this.blocks = [block];
   }
 
-  Level.prototype.update = function(delta) {
-    return this.scroll.setX(this.scroll.getX() + delta * 20);
-  };
+  Level.prototype.update = function(delta) {};
 
   Level.prototype.getHighestPointForPlayer = function(player) {
     var maxY, platform, w, x, _i, _len, _ref;
@@ -223,6 +340,10 @@ Level = (function() {
     return this.platforms;
   };
 
+  Level.prototype.getBlocks = function() {
+    return this.blocks;
+  };
+
   Level.prototype.getGravity = function() {
     return this.gravity;
   };
@@ -234,10 +355,12 @@ Level = (function() {
 module.exports = Level;
 
 
-},{}],7:[function(require,module,exports){
-var JUMP_FORCE, Player;
+},{"./entities/block.coffee":5}],9:[function(require,module,exports){
+var JUMP_FORCE, Player, SPEED_X;
 
-JUMP_FORCE = -200;
+JUMP_FORCE = -700;
+
+SPEED_X = 300;
 
 Player = (function() {
   function Player(app, game) {
@@ -256,6 +379,13 @@ Player = (function() {
     */
 
     var gravity, gravityStep, maxY, velocityStep;
+    if (this.keyboard.pressed(this.keyboard.Keys.RIGHT) || this.keyboard.pressed(this.keyboard.Keys.D)) {
+      this.velocity.setX(SPEED_X);
+    } else if (this.keyboard.pressed(this.keyboard.Keys.LEFT) || this.keyboard.pressed(this.keyboard.Keys.A)) {
+      this.velocity.setX(-SPEED_X);
+    } else {
+      this.velocity.setX(0);
+    }
     if (this.keyboard.upPressed() && this.onGround) {
       this.velocity.setY(JUMP_FORCE);
     }
@@ -299,7 +429,7 @@ Player = (function() {
 module.exports = Player;
 
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var Game, GameScreen, GameStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -334,7 +464,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":4,"../stages/gamestage.coffee":9}],9:[function(require,module,exports){
+},{"../game.coffee":6,"../stages/gamestage.coffee":11}],11:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -363,7 +493,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],10:[function(require,module,exports){
+},{"../actors/levelactor.coffee":1,"../actors/playeractor.coffee":2}],12:[function(require,module,exports){
 var Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
