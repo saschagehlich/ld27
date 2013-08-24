@@ -3,6 +3,8 @@ Block = require "./entities/block.coffee"
 class Level
   GRID_SIZE: 32
   constructor: (@app, @game) ->
+    @scrollSpeed = 200
+
     @buildMode = true
     @buildBlock = new Block @app, @game, buildMode: true
 
@@ -11,29 +13,28 @@ class Level
 
     @mouse = @game.getMouse()
     @mouse.on "click", @onClick
+    @mouse.on "rightclick", @onRightClick
 
     @scroll = new LDFW.Vector2()
     @gravity = new LDFW.Vector2(0, 1800)
     @platforms = [
       {
-        position: new LDFW.Vector2(10, 400)
-        width: 300
-        height: 16
-      },
-      {
-        position: new LDFW.Vector2(10, 100)
+        position: new LDFW.Vector2(200, 400)
         width: 300
         height: 16
       }
     ]
 
-    block = new Block(@app, @game)
-    block.setGridPosition 5, 10
-    @blocks = [ block ]
+    @blocks = []
 
   onKeyDown: (event) =>
+    return unless @buildMode
     if event.keyCode in [@keyboard.Keys.R, @keyboard.Keys.SHIFT]
       @buildBlock.rotate()
+
+  onRightClick: (position) =>
+    return unless @buildMode
+    @buildBlock.rotate()
 
   onClick: (position) =>
     return unless @buildMode
@@ -50,6 +51,8 @@ class Level
     @buildBlock = new Block @app, @game, buildMode: true
 
   update: (delta) ->
+    @scroll.setX @scroll.getX() + @scrollSpeed * delta
+
     mousePosition = @mouse.getPosition()
 
     if @buildMode
@@ -167,5 +170,6 @@ class Level
   getGravity: -> @gravity
   inBuildMode: -> @buildMode
   getBuildBlock: -> @buildBlock
+  getScrollSpeed: -> @scrollSpeed
 
 module.exports = Level

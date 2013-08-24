@@ -11094,8 +11094,7 @@ Block = (function() {
   Block.prototype.randomize = function() {
     var index;
     index = Math.floor(Math.random() * this.availableBlocks.length);
-    this.map = this.availableBlocks[index];
-    return this.map = [[1, 1, 1, 1]];
+    return this.map = this.availableBlocks[index];
   };
 
   Block.prototype.getGridPosition = function() {
@@ -11260,11 +11259,12 @@ Level = (function() {
   Level.prototype.GRID_SIZE = 32;
 
   function Level(app, game) {
-    var block;
     this.app = app;
     this.game = game;
     this.onClick = __bind(this.onClick, this);
+    this.onRightClick = __bind(this.onRightClick, this);
     this.onKeyDown = __bind(this.onKeyDown, this);
+    this.scrollSpeed = 200;
     this.buildMode = true;
     this.buildBlock = new Block(this.app, this.game, {
       buildMode: true
@@ -11273,29 +11273,34 @@ Level = (function() {
     this.keyboard.on("keydown", this.onKeyDown);
     this.mouse = this.game.getMouse();
     this.mouse.on("click", this.onClick);
+    this.mouse.on("rightclick", this.onRightClick);
     this.scroll = new LDFW.Vector2();
     this.gravity = new LDFW.Vector2(0, 1800);
     this.platforms = [
       {
-        position: new LDFW.Vector2(10, 400),
-        width: 300,
-        height: 16
-      }, {
-        position: new LDFW.Vector2(10, 100),
+        position: new LDFW.Vector2(200, 400),
         width: 300,
         height: 16
       }
     ];
-    block = new Block(this.app, this.game);
-    block.setGridPosition(5, 10);
-    this.blocks = [block];
+    this.blocks = [];
   }
 
   Level.prototype.onKeyDown = function(event) {
     var _ref;
+    if (!this.buildMode) {
+      return;
+    }
     if ((_ref = event.keyCode) === this.keyboard.Keys.R || _ref === this.keyboard.Keys.SHIFT) {
       return this.buildBlock.rotate();
     }
+  };
+
+  Level.prototype.onRightClick = function(position) {
+    if (!this.buildMode) {
+      return;
+    }
+    return this.buildBlock.rotate();
   };
 
   Level.prototype.onClick = function(position) {
@@ -11317,6 +11322,7 @@ Level = (function() {
 
   Level.prototype.update = function(delta) {
     var blockMap, gridPosition, mousePosition;
+    this.scroll.setX(this.scroll.getX() + this.scrollSpeed * delta);
     mousePosition = this.mouse.getPosition();
     if (this.buildMode) {
       blockMap = this.buildBlock.getMap();
@@ -11453,6 +11459,10 @@ Level = (function() {
     return this.buildBlock;
   };
 
+  Level.prototype.getScrollSpeed = function() {
+    return this.scrollSpeed;
+  };
+
   return Level;
 
 })();
@@ -11461,11 +11471,9 @@ module.exports = Level;
 
 
 },{"./entities/block.coffee":5}],9:[function(require,module,exports){
-var JUMP_FORCE, Player, SPEED_X;
+var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
-
-SPEED_X = 300;
 
 Player = (function() {
   function Player(app, game) {
@@ -11492,6 +11500,7 @@ Player = (function() {
     var gravity, gravityStep, velocityStep;
     gravity = this.level.getGravity().clone();
     gravityStep = gravity.multiply(delta);
+    this.velocity.setX(this.game.getLevel().getScrollSpeed());
     this.velocity.add(gravityStep);
     velocityStep = this.velocity.clone().multiply(delta);
     return this.position.clone().add(velocityStep);
@@ -11522,13 +11531,6 @@ Player = (function() {
   };
 
   Player.prototype.handleKeyboard = function() {
-    if (this.keyboard.pressed(this.keyboard.Keys.RIGHT) || this.keyboard.pressed(this.keyboard.Keys.D)) {
-      this.velocity.setX(SPEED_X);
-    } else if (this.keyboard.pressed(this.keyboard.Keys.LEFT) || this.keyboard.pressed(this.keyboard.Keys.A)) {
-      this.velocity.setX(-SPEED_X);
-    } else {
-      this.velocity.setX(0);
-    }
     if (this.keyboard.upPressed() && this.onGround) {
       return this.velocity.setY(JUMP_FORCE);
     }
@@ -11702,11 +11704,16 @@ Mouse = (function(_super) {
 
   function Mouse(app) {
     this.app = app;
+    this.onMouseDown = __bind(this.onMouseDown, this);
     this.onClick = __bind(this.onClick, this);
     this.onMouseMove = __bind(this.onMouseMove, this);
     this.position = new LDFW.Vector2();
     this.app.getWrapper().mousemove(this.onMouseMove);
     this.app.getWrapper().click(this.onClick);
+    this.app.getWrapper().mousedown(this.onMouseDown);
+    this.app.getWrapper().contextmenu(function(e) {
+      return e.preventDefault();
+    });
   }
 
   Mouse.prototype.onMouseMove = function(e) {
@@ -11715,6 +11722,13 @@ Mouse = (function(_super) {
 
   Mouse.prototype.onClick = function(e) {
     return this.emit("click", this.position);
+  };
+
+  Mouse.prototype.onMouseDown = function(e) {
+    if (e.which === 3) {
+      e.preventDefault();
+      return this.emit("rightclick", this.position);
+    }
   };
 
   Mouse.prototype.getPosition = function() {

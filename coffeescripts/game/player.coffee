@@ -1,5 +1,4 @@
 JUMP_FORCE = -700
-SPEED_X = 300
 
 class Player
   constructor: (@app, @game) ->
@@ -26,6 +25,7 @@ class Player
     gravity = @level.getGravity().clone()
     gravityStep = gravity.multiply(delta)
 
+    @velocity.setX @game.getLevel().getScrollSpeed()
     @velocity.add gravityStep
     velocityStep = @velocity.clone().multiply(delta)
 
@@ -53,16 +53,13 @@ class Player
       @onGround = false
 
   handleKeyboard: ->
-    if @keyboard.pressed(@keyboard.Keys.RIGHT) or
-      @keyboard.pressed(@keyboard.Keys.D)
-        @velocity.setX SPEED_X
+    # if @keyboard.pressed(@keyboard.Keys.RIGHT) or
+    #   @keyboard.pressed(@keyboard.Keys.D)
+    #     @velocity.setX SPEED_X
 
-    else if @keyboard.pressed(@keyboard.Keys.LEFT) or
-      @keyboard.pressed(@keyboard.Keys.A)
-        @velocity.setX -SPEED_X
-
-    else
-      @velocity.setX 0
+    # else if @keyboard.pressed(@keyboard.Keys.LEFT) or
+    #   @keyboard.pressed(@keyboard.Keys.A)
+    #     @velocity.setX -SPEED_X
 
     if @keyboard.upPressed() and @onGround
       @velocity.setY JUMP_FORCE
