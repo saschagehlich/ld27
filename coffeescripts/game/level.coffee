@@ -255,6 +255,7 @@ class Level
       for row, y in map
         for segment, x in row
           continue if segment is 0
+          continue if map[y - 1] and map[y - 1][x] isnt 0
 
           yOffset = segment.getOffset().getY()
           segment =
@@ -271,8 +272,8 @@ class Level
               boundaries.x.min = Math.max(segment.right, boundaries.x.min)
 
           # Vertical collision check
-          unless player.left > segment.right or
-            player.right < segment.left or
+          unless player.left >= segment.right or
+            player.right <= segment.left or
             player.bottom > segment.top
               boundaries.y.max = Math.min(segment.top, boundaries.y.max)
 

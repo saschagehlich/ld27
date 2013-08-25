@@ -12916,6 +12916,9 @@ Level = (function() {
           if (segment === 0) {
             continue;
           }
+          if (map[y - 1] && map[y - 1][x] !== 0) {
+            continue;
+          }
           yOffset = segment.getOffset().getY();
           segment = {
             left: position.getX() + x * this.GRID_SIZE,
@@ -12930,7 +12933,7 @@ Level = (function() {
               boundaries.x.min = Math.max(segment.right, boundaries.x.min);
             }
           }
-          if (!(player.left > segment.right || player.right < segment.left || player.bottom > segment.top)) {
+          if (!(player.left >= segment.right || player.right <= segment.left || player.bottom > segment.top)) {
             boundaries.y.max = Math.min(segment.top, boundaries.y.max);
             if (boundaries.y.max === segment.top) {
               boundaries.y.object = block;
