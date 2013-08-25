@@ -31,7 +31,7 @@ class Level
       new Platform(@app, @game,
         position: new LDFW.Vector2(10, 10)
         width: 10,
-        height: 10
+        height: 5
       )
     ]
     @blocks = []

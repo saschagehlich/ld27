@@ -29,6 +29,7 @@ class MinimapActor extends LDFW.Actor
       offset:  @background.getPosition().clone().floor()
       padding: drawPadding
       height:  @background.getHeight() - drawPadding.getY() * 2
+      width:   @background.getWidth() - drawPadding.getX() * 2
 
     scale = drawOptions.height / @app.getHeight()
     drawOptions.scaledGridSize = @level.GRID_SIZE * scale
@@ -82,11 +83,23 @@ class MinimapActor extends LDFW.Actor
           scaledX = x * options.scaledGridSize
           scaledY = y * options.scaledGridSize
 
+          rx = Math.floor(options.offset.getX() + options.padding.getX() + position.getX() + scaledX - scroll.getX())
+          ry = Math.floor(options.offset.getY() + options.padding.getY() + position.getY() + scaledY)
+          rw = options.scaledGridSize
+          rh = options.scaledGridSize
+
+          # Render limitation
+          rox = options.offset.getX() + options.padding.getX()
+          rmx = options.offset.getX() + options.padding.getX() + options.width
+          continue if rx + rw < rox or rx > rmx
+
+          if rx < rox
+            rw += rx - rox
+            rx = rox
+
           context.fillRect(
-            Math.floor(options.offset.getX() + options.padding.getX() + position.getX() + scaledX - scroll.getX()),
-            Math.floor(options.offset.getY() + options.padding.getY() + position.getY() + scaledY),
-            options.scaledGridSize,
-            options.scaledGridSize
+            rx, ry,
+            rw, rh
           )
 
   drawObstacles: (context, obstacles, scroll, options) ->
@@ -100,11 +113,25 @@ class MinimapActor extends LDFW.Actor
       width = obstacle.getWidth() * options.scaledGridSize
       height = obstacle.getHeight() * options.scaledGridSize
 
+      rx = Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX())
+      ry = Math.floor(options.offset.getY() + options.padding.getY() + position.getY())
+      rw = width
+      rh = height
+
+      # Render limitation
+      rox = options.offset.getX() + options.padding.getX()
+      rmx = options.offset.getX() + options.padding.getX() + options.width
+      continue if rx + rw < rox or rx > rmx
+
+      if rx < rox
+        rw += rx - rox
+        rx = rox
+      if rx + rw > rmx
+        rw -= (rx + rw) - rmx
+
       context.fillRect(
-        Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX()),
-        Math.floor(options.offset.getY() + options.padding.getY() + position.getY()),
-        width,
-        height
+        rx, ry,
+        rw, rh
       )
 
       if obstacle instanceof FuckingPiranhasActor
@@ -131,11 +158,25 @@ class MinimapActor extends LDFW.Actor
 
       context.fillStyle = "white"
 
+      rx = options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX()
+      ry = options.offset.getY() + options.padding.getY() + position.getY()
+      rw = width * options.scaledGridSize
+      rh = height * options.scaledGridSize
+
+      # Render limitation
+      rox = options.offset.getX() + options.padding.getX()
+      rmx = options.offset.getX() + options.padding.getX() + options.width
+      continue if rx + rw < rox or rx > rmx
+
+      if rx < rox
+        rw += rx - rox
+        rx = rox
+      if rx + rw > rmx
+        rw -= (rx + rw) - rmx
+
       context.fillRect(
-        options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX(),
-        options.offset.getY() + options.padding.getY() + position.getY(),
-        width * options.scaledGridSize,
-        height * options.scaledGridSize
+        rx, ry,
+        rw, rh
       )
 
 

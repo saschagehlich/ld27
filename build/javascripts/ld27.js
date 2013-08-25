@@ -560,7 +560,8 @@ MinimapActor = (function(_super) {
     drawOptions = {
       offset: this.background.getPosition().clone().floor(),
       padding: drawPadding,
-      height: this.background.getHeight() - drawPadding.getY() * 2
+      height: this.background.getHeight() - drawPadding.getY() * 2,
+      width: this.background.getWidth() - drawPadding.getX() * 2
     };
     scale = drawOptions.height / this.app.getHeight();
     drawOptions.scaledGridSize = this.level.GRID_SIZE * scale;
@@ -583,7 +584,7 @@ MinimapActor = (function(_super) {
   };
 
   MinimapActor.prototype.drawBlocks = function(context, blocks, scroll, options) {
-    var block, map, position, row, scaledX, scaledY, segment, x, y, _i, _len, _results;
+    var block, map, position, rh, rmx, row, rox, rw, rx, ry, scaledX, scaledY, segment, x, y, _i, _len, _results;
     _results = [];
     for (_i = 0, _len = blocks.length; _i < _len; _i++) {
       block = blocks[_i];
@@ -604,7 +605,20 @@ MinimapActor = (function(_super) {
               }
               scaledX = x * options.scaledGridSize;
               scaledY = y * options.scaledGridSize;
-              _results2.push(context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() + scaledX - scroll.getX()), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() + scaledY), options.scaledGridSize, options.scaledGridSize));
+              rx = Math.floor(options.offset.getX() + options.padding.getX() + position.getX() + scaledX - scroll.getX());
+              ry = Math.floor(options.offset.getY() + options.padding.getY() + position.getY() + scaledY);
+              rw = options.scaledGridSize;
+              rh = options.scaledGridSize;
+              rox = options.offset.getX() + options.padding.getX();
+              rmx = options.offset.getX() + options.padding.getX() + options.width;
+              if (rx + rw < rox || rx > rmx) {
+                continue;
+              }
+              if (rx < rox) {
+                rw += rx - rox;
+                rx = rox;
+              }
+              _results2.push(context.fillRect(rx, ry, rw, rh));
             }
             return _results2;
           })());
@@ -616,7 +630,7 @@ MinimapActor = (function(_super) {
   };
 
   MinimapActor.prototype.drawObstacles = function(context, obstacles, scroll, options) {
-    var height, obstacle, position, width, _i, _len;
+    var height, obstacle, position, rh, rmx, rox, rw, rx, ry, width, _i, _len;
     context.save();
     context.fillStyle = "#af2f2f";
     for (_i = 0, _len = obstacles.length; _i < _len; _i++) {
@@ -624,7 +638,23 @@ MinimapActor = (function(_super) {
       position = obstacle.getPosition().clone().multiply(options.scaledGridSize);
       width = obstacle.getWidth() * options.scaledGridSize;
       height = obstacle.getHeight() * options.scaledGridSize;
-      context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX()), Math.floor(options.offset.getY() + options.padding.getY() + position.getY()), width, height);
+      rx = Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX());
+      ry = Math.floor(options.offset.getY() + options.padding.getY() + position.getY());
+      rw = width;
+      rh = height;
+      rox = options.offset.getX() + options.padding.getX();
+      rmx = options.offset.getX() + options.padding.getX() + options.width;
+      if (rx + rw < rox || rx > rmx) {
+        continue;
+      }
+      if (rx < rox) {
+        rw += rx - rox;
+        rx = rox;
+      }
+      if (rx + rw > rmx) {
+        rw -= (rx + rw) - rmx;
+      }
+      context.fillRect(rx, ry, rw, rh);
       if (obstacle instanceof FuckingPiranhasActor) {
         this.piranhasSprite.draw(context, Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX() + +width / 2 - this.piranhasSprite.getWidth() / 2), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() + +height / 2 - this.piranhasSprite.getHeight() / 2));
       }
@@ -633,7 +663,7 @@ MinimapActor = (function(_super) {
   };
 
   MinimapActor.prototype.drawPlatforms = function(context, platforms, scroll, options) {
-    var height, platform, position, width, _i, _len, _results;
+    var height, platform, position, rh, rmx, rox, rw, rx, ry, width, _i, _len, _results;
     _results = [];
     for (_i = 0, _len = platforms.length; _i < _len; _i++) {
       platform = platforms[_i];
@@ -641,7 +671,23 @@ MinimapActor = (function(_super) {
       width = platform.getWidth();
       height = platform.getHeight();
       context.fillStyle = "white";
-      _results.push(context.fillRect(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX(), options.offset.getY() + options.padding.getY() + position.getY(), width * options.scaledGridSize, height * options.scaledGridSize));
+      rx = options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX();
+      ry = options.offset.getY() + options.padding.getY() + position.getY();
+      rw = width * options.scaledGridSize;
+      rh = height * options.scaledGridSize;
+      rox = options.offset.getX() + options.padding.getX();
+      rmx = options.offset.getX() + options.padding.getX() + options.width;
+      if (rx + rw < rox || rx > rmx) {
+        continue;
+      }
+      if (rx < rox) {
+        rw += rx - rox;
+        rx = rox;
+      }
+      if (rx + rw > rmx) {
+        rw -= (rx + rw) - rmx;
+      }
+      _results.push(context.fillRect(rx, ry, rw, rh));
     }
     return _results;
   };
@@ -1093,7 +1139,7 @@ Level = (function() {
       new Platform(this.app, this.game, {
         position: new LDFW.Vector2(10, 10),
         width: 10,
-        height: 10
+        height: 5
       })
     ];
     this.blocks = [];
