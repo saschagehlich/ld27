@@ -42,7 +42,7 @@ class Game extends EventEmitter
     @gameover = true
     @player.getVelocity().setX 0
 
-    soundManager.play "wilhelm"
+    soundManager.play "scream"
 
     @emit "gameover"
 

@@ -140,6 +140,20 @@ body {
 }
 
 /* line 16, ../../sass/application.sass */
+.social-media {
+  position: absolute;
+  width: 640px;
+  top: 50%;
+  left: 50%;
+  margin-left: -320px;
+  margin-top: -270px;
+}
+/* line 26, ../../sass/application.sass */
+.social-media > * {
+  margin-right: 20px;
+}
+
+/* line 29, ../../sass/application.sass */
 .canvas-wrapper {
   position: absolute;
   top: 50%;
@@ -153,7 +167,7 @@ body {
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(0, 0, 0, 0.4);
 }
-/* line 31, ../../sass/application.sass */
+/* line 44, ../../sass/application.sass */
 .canvas-wrapper canvas {
   position: absolute;
   top: 0;
@@ -162,7 +176,7 @@ body {
   height: 100%;
   background: black;
 }
-/* line 42, ../../sass/application.sass */
+/* line 55, ../../sass/application.sass */
 .canvas-wrapper .debug {
   position: absolute;
   top: 0;

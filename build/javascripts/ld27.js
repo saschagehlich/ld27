@@ -1515,7 +1515,7 @@ Game = (function(_super) {
     }
     this.gameover = true;
     this.player.getVelocity().setX(0);
-    soundManager.play("wilhelm");
+    soundManager.play("scream");
     return this.emit("gameover");
   };
 
@@ -1667,6 +1667,7 @@ LD27 = (function(_super) {
   LD27.prototype.playBackground = function() {
     var _this = this;
     return soundManager.play("background", {
+      volume: 50,
       onfinish: function() {
         console.log("finish");
         return _this.playBackground();
@@ -1677,7 +1678,7 @@ LD27 = (function(_super) {
   LD27.prototype.createSounds = function() {
     var self, sounds, _i, _len, _results, _sound;
     self = this;
-    sounds = ["block-0", "block-1", "grass-0", "grass-1", "build", "earthquake", "background", "powerup", "wilhelm"];
+    sounds = ["block-0", "block-1", "grass-0", "grass-1", "build", "earthquake", "background", "powerup", "scream"];
     _results = [];
     for (_i = 0, _len = sounds.length; _i < _len; _i++) {
       _sound = sounds[_i];

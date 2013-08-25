@@ -52,6 +52,7 @@ class LD27 extends LDFW.Game
 
   playBackground: ->
     soundManager.play "background",
+      volume: 50
       onfinish: =>
         console.log "finish"
         @playBackground()
@@ -64,7 +65,7 @@ class LD27 extends LDFW.Game
       "grass-0", "grass-1",
       "build", "earthquake",
       "background", "powerup",
-      "wilhelm"
+      "scream"
     ]
     for _sound in sounds
       (->
