@@ -1,5 +1,7 @@
 JUMP_FORCE = -700
 
+BlockActor = require "./actors/blockactor.coffee"
+
 class Player
   constructor: (@app, @game) ->
     @keyboard = @game.getKeyboard()
@@ -50,6 +52,14 @@ class Player
       @velocity.setY 0
     else
       @onGround = false
+
+    if @onGround and boundaries.y.object instanceof BlockActor
+      obj = boundaries.y.object
+      obj.steppedOn(
+        aspiredPosition.getX() -
+        obj.getGridPosition().getX() * @level.GRID_SIZE,
+        @getWidth()
+      )
 
   collidesWithObstacle: (obstacle) ->
     obstaclePosition = obstacle.getPosition()

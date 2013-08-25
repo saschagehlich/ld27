@@ -60,7 +60,6 @@ class Level
     @blocks.push @buildBlock
     @buildBlock = null
 
-    # for development
     @buildMode = true
     @buildBlock = new BlockActor @app, @game, this, buildMode: true
 
@@ -128,7 +127,7 @@ class Level
 
           if buildableBlockMap[offset.y]? and buildableBlockMap[offset.y][offset.x]?
             buildableSegment = buildableBlockMap[offset.y][offset.x]
-            if buildableSegment is 1
+            if buildableSegment isnt 0
               buildable = false
 
     return buildable
@@ -144,9 +143,13 @@ class Level
 
     boundaries =
       x:
-        min: 0, max: player.left + @app.getWidth()
+        min: 0
+        max: player.left + @app.getWidth()
+        object: null
       y:
-        min: -@app.getHeight(), max: @app.getHeight() * 2
+        min: -@app.getHeight()
+        max: @app.getHeight() * 2
+        object: null
 
     # Platform collision check
     for platform in @platforms
@@ -185,11 +188,12 @@ class Level
         for segment, x in row
           continue if segment is 0
 
+          yOffset = segment.getOffset().getY()
           segment =
             left: position.getX() + x * @GRID_SIZE
             right: position.getX() + (x + 1) * @GRID_SIZE
-            top: position.getY() + y * @GRID_SIZE
-            bottom: position.getY() + (y + 1) * @GRID_SIZE
+            top: position.getY() + y * @GRID_SIZE + yOffset
+            bottom: position.getY() + (y + 1) * @GRID_SIZE + yOffset
 
           # Horizontal collision check
           unless player.bottom <= segment.top or player.top >= segment.bottom
@@ -203,6 +207,9 @@ class Level
             player.right < segment.left or
             player.bottom > segment.top
               boundaries.y.max = Math.min(segment.top, boundaries.y.max)
+
+              if boundaries.y.max is segment.top
+                boundaries.y.object = block
 
     return boundaries
 

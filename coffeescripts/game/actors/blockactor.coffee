@@ -1,4 +1,5 @@
 Config = require "../config/config.json"
+Segment = require "../entities/segment.coffee"
 
 class BlockActor extends LDFW.Actor
   availableBlocks: require "../config/available_blocks.json"
@@ -13,9 +14,10 @@ class BlockActor extends LDFW.Actor
 
     @gridPosition = new LDFW.Vector2()
 
-    @randomize()
     @defaultStyle = Math.floor(Math.random() * Config.block_styles)
-    @style = @defaultStyle
+    @style = @options.style || @defaultStyle
+
+    @randomize()
     @randomizeBlockStyles()
 
     @loadSprites()
@@ -59,7 +61,19 @@ class BlockActor extends LDFW.Actor
 
   randomize: ->
     index = Math.floor(Math.random() * @availableBlocks.length)
-    @map = @availableBlocks[index]
+
+    map = []
+    originalMap = @availableBlocks[index]
+    for row, y in originalMap
+      r = []
+      for segment, x in row
+        if r is 0
+          r.push 0
+        else
+          r.push new Segment this, @level
+      map.push r
+
+    @map = map
 
   getGridPosition: -> @gridPosition
   setGridPosition: -> @gridPosition.set.apply @gridPosition, arguments
@@ -103,6 +117,24 @@ class BlockActor extends LDFW.Actor
 
   getStyle: -> @style
 
+  steppedOn: (x, width) ->
+    return unless @getStyle() is "broken"
+
+    segmentOffset = Math.floor(x / @level.GRID_SIZE)
+    segmentEnd = Math.ceil((segmentOffset + width) / @level.GRID_SIZE)
+
+    map = @getMap()
+    for i in [segmentOffset, segmentEnd]
+      for row, y in map
+        continue unless map[y][i]?
+
+        map[y][i].setFalling true
+
+  update: (delta) ->
+    for row, y in @map
+      for segment, x in row
+        segment.update delta
+
   draw: (context) ->
     scroll   = @level.getScroll()
 
@@ -128,11 +160,11 @@ class BlockActor extends LDFW.Actor
 
         sprite.draw context,
           position.x + x * @level.GRID_SIZE,
-          position.y + y * @level.GRID_SIZE
+          position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
 
         drawGrass = true
         unless y is 0
-          if map[y - 1][x] is 1
+          if map[y - 1][x] isnt 0
             drawGrass = false
 
         if drawGrass and @style isnt "broken"
@@ -149,7 +181,7 @@ class BlockActor extends LDFW.Actor
 
           grassSprite.draw context,
             position.x + x * @level.GRID_SIZE + grassXOffset,
-            position.y + y * @level.GRID_SIZE
+            position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
 
     context.restore()
 

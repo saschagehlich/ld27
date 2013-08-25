@@ -37,6 +37,10 @@ class LevelActor extends LDFW.Actor
     for obstacle in obstacles
       obstacle.update delta
 
+    blocks = @level.getBlocks()
+    for block in blocks
+      block.update delta
+
   draw: (context) ->
     context.save()
 
