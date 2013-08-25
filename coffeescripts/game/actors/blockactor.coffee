@@ -16,7 +16,7 @@ class BlockActor extends LDFW.Actor
     @defaultStyle = Math.floor(Math.random() * Config.block_styles)
     @style = @options.style || @defaultStyle
 
-    @floatOffset = new LDFW.Vector2(0, 10)
+    @floatOffset = new LDFW.Vector2(0, 0)
 
     @randomize()
     @randomizeBlockStyles()

@@ -14,7 +14,7 @@ class BackgroundActor extends LDFW.Actor
         Math.random() * @app.getHeight() / 2
       )
       cloud.opacity = 0.05 + Math.random() * 0.03
-      cloud.speedX = -Math.random() * 10
+      cloud.speedX = 10 + -Math.random() * 30
       cloud.parallaxFactor = [0.5, 0.1, 0.3][index] # URGH
 
       @goddamnCloudsMan.push cloud

@@ -10909,7 +10909,7 @@ BackgroundActor = (function(_super) {
       cloud = this.spritesAtlas.createSprite("clouds/cloud-" + index + ".png");
       cloud.setPosition(Math.random() * this.app.getWidth() * 2, Math.random() * this.app.getHeight() / 2);
       cloud.opacity = 0.05 + Math.random() * 0.03;
-      cloud.speedX = -Math.random() * 10;
+      cloud.speedX = 10 + -Math.random() * 30;
       cloud.parallaxFactor = [0.5, 0.1, 0.3][index];
       this.goddamnCloudsMan.push(cloud);
     }
@@ -10977,7 +10977,7 @@ BlockActor = (function(_super) {
     this.gridPosition = new LDFW.Vector2();
     this.defaultStyle = Math.floor(Math.random() * Config.block_styles);
     this.style = this.options.style || this.defaultStyle;
-    this.floatOffset = new LDFW.Vector2(0, 10);
+    this.floatOffset = new LDFW.Vector2(0, 0);
     this.randomize();
     this.randomizeBlockStyles();
     for (i = _i = 0, _ref = Math.round(Math.random() * 3); 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
@@ -12759,7 +12759,7 @@ Level = (function() {
   };
 
   Level.prototype.isBuildBlockBuildable = function() {
-    var block, buildable, buildableBlockMap, buildableBlockPosition, buildableSegment, map, offsetX, offsetY, position, row, segment, x, y, _i, _j, _k, _len, _len1, _len2, _ref;
+    var block, buildable, buildableBlockMap, buildableBlockPosition, buildableSegment, height, map, obstacle, offsetX, offsetY, platform, position, row, segment, width, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _m, _n, _o, _p, _q, _ref, _ref1, _ref2;
     buildable = true;
     buildableBlockMap = this.buildBlock.getMap();
     buildableBlockPosition = this.buildBlock.getGridPosition();
@@ -12785,6 +12785,74 @@ Level = (function() {
             if (buildableSegment !== 0) {
               buildable = false;
             }
+          }
+        }
+      }
+    }
+    _ref1 = this.platforms;
+    for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
+      platform = _ref1[_l];
+      position = platform.getPosition();
+      width = platform.getWidth();
+      height = platform.getHeight();
+      if (position.x * this.GRID_SIZE + width * this.GRID_SIZE - this.game.getScroll().x < 0) {
+        continue;
+      }
+      platform = {
+        top: position.y,
+        right: position.x + width,
+        bottom: position.y + height,
+        left: position.x
+      };
+      for (y = _m = 0, _len4 = buildableBlockMap.length; _m < _len4; y = ++_m) {
+        row = buildableBlockMap[y];
+        for (x = _n = 0, _len5 = row.length; _n < _len5; x = ++_n) {
+          segment = row[x];
+          if (segment === 0) {
+            continue;
+          }
+          segment = {
+            top: buildableBlockPosition.y + y,
+            right: buildableBlockPosition.x + x + 1,
+            bottom: buildableBlockPosition.y + y + 1,
+            left: buildableBlockPosition.x + x
+          };
+          if (!(platform.left >= segment.right || platform.right <= segment.left || platform.top >= segment.bottom || platform.bottom <= segment.top)) {
+            buildable = false;
+          }
+        }
+      }
+    }
+    _ref2 = this.obstacles;
+    for (_o = 0, _len6 = _ref2.length; _o < _len6; _o++) {
+      obstacle = _ref2[_o];
+      position = obstacle.getPosition();
+      width = obstacle.getWidth();
+      height = obstacle.getHeight();
+      if (position.x * this.GRID_SIZE + width * this.GRID_SIZE - this.game.getScroll().x < 0) {
+        continue;
+      }
+      obstacle = {
+        top: position.y,
+        right: position.x + width,
+        bottom: position.y + height,
+        left: position.x
+      };
+      for (y = _p = 0, _len7 = buildableBlockMap.length; _p < _len7; y = ++_p) {
+        row = buildableBlockMap[y];
+        for (x = _q = 0, _len8 = row.length; _q < _len8; x = ++_q) {
+          segment = row[x];
+          if (segment === 0) {
+            continue;
+          }
+          segment = {
+            top: buildableBlockPosition.y + y,
+            right: buildableBlockPosition.x + x + 1,
+            bottom: buildableBlockPosition.y + y + 1,
+            left: buildableBlockPosition.x + x
+          };
+          if (!(obstacle.left >= segment.right || obstacle.right <= segment.left || obstacle.top >= segment.bottom || obstacle.bottom <= segment.top)) {
+            buildable = false;
           }
         }
       }

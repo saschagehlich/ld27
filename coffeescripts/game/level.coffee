@@ -144,6 +144,62 @@ class Level
             if buildableSegment isnt 0
               buildable = false
 
+    # Collision with platforms
+    for platform in @platforms
+      position = platform.getPosition()
+      width    = platform.getWidth()
+      height   = platform.getHeight()
+
+      continue if position.x * @GRID_SIZE + width * @GRID_SIZE - @game.getScroll().x < 0
+
+      platform =
+        top: position.y
+        right: position.x + width
+        bottom: position.y + height
+        left: position.x
+
+      for row, y in buildableBlockMap
+        for segment, x in row
+          continue if segment is 0
+
+          segment =
+            top: buildableBlockPosition.y + y
+            right: buildableBlockPosition.x + x + 1
+            bottom: buildableBlockPosition.y + y + 1
+            left: buildableBlockPosition.x + x
+
+          unless (platform.left >= segment.right or platform.right <= segment.left or
+            platform.top >= segment.bottom or platform.bottom <= segment.top)
+              buildable = false
+
+    # Collision with obstacles
+    for obstacle in @obstacles
+      position = obstacle.getPosition()
+      width    = obstacle.getWidth()
+      height   = obstacle.getHeight()
+
+      continue if position.x * @GRID_SIZE + width * @GRID_SIZE - @game.getScroll().x < 0
+
+      obstacle =
+        top: position.y
+        right: position.x + width
+        bottom: position.y + height
+        left: position.x
+
+      for row, y in buildableBlockMap
+        for segment, x in row
+          continue if segment is 0
+
+          segment =
+            top: buildableBlockPosition.y + y
+            right: buildableBlockPosition.x + x + 1
+            bottom: buildableBlockPosition.y + y + 1
+            left: buildableBlockPosition.x + x
+
+          unless (obstacle.left >= segment.right or obstacle.right <= segment.left or
+            obstacle.top >= segment.bottom or obstacle.bottom <= segment.top)
+              buildable = false
+
     return buildable
 
   getBoundariesForPlayer: (player) ->
