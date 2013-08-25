@@ -6,7 +6,7 @@ Powerups =
 
   SLOW:
     id: 1
-    name: "HALT STOPP!"
+    name: "BLUE OR RED PILL?"
     sub: "SLOWMO"
 
   BROKEN_BLOCKS:
@@ -21,7 +21,7 @@ Powerups =
 
   LOW_GRAVITY:
     id: 4
-    name: "HEY NEIL"
+    name: "SMALL STEP FOR A MAN"
     sub: "LOW GRAVITY"
 
 module.exports = Powerups

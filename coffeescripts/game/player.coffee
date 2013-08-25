@@ -61,6 +61,8 @@ class Player
     # Don't let the player walk out of the left edge
     if aspiredPosition.getX() < @level.getScroll().x
       aspiredPosition.setX @level.getScroll().x
+    if aspiredPosition.getX() > @level.getScroll().x + @app.getWidth() - @getWidth()
+      aspiredPosition.setX @level.getScroll().x + @app.getWidth() - @getWidth()
 
     if aspiredPosition.getX() <= boundaries.x.min
       aspiredPosition.setX boundaries.x.min

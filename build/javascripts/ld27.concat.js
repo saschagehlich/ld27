@@ -12668,6 +12668,9 @@ Player = (function() {
     if (aspiredPosition.getX() < this.level.getScroll().x) {
       aspiredPosition.setX(this.level.getScroll().x);
     }
+    if (aspiredPosition.getX() > this.level.getScroll().x + this.app.getWidth() - this.getWidth()) {
+      aspiredPosition.setX(this.level.getScroll().x + this.app.getWidth() - this.getWidth());
+    }
     if (aspiredPosition.getX() <= boundaries.x.min) {
       return aspiredPosition.setX(boundaries.x.min);
     } else if (aspiredPosition.getX() + this.getWidth() >= boundaries.x.max) {
@@ -12753,7 +12756,7 @@ Powerups = {
   },
   SLOW: {
     id: 1,
-    name: "HALT STOPP!",
+    name: "BLUE OR RED PILL?",
     sub: "SLOWMO"
   },
   BROKEN_BLOCKS: {
@@ -12768,7 +12771,7 @@ Powerups = {
   },
   LOW_GRAVITY: {
     id: 4,
-    name: "HEY NEIL",
+    name: "SMALL STEP FOR A MAN",
     sub: "LOW GRAVITY"
   }
 };
