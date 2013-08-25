@@ -11237,22 +11237,69 @@ FuckingPiranhasActor = (function(_super) {
   __extends(FuckingPiranhasActor, _super);
 
   function FuckingPiranhasActor(app, game, options) {
+    var bubbleSprite, i, _i;
     this.app = app;
     this.game = game;
     this.options = options != null ? options : {};
     this.position = this.options.position || new LDFW.Vector2(0, 0);
     this.width = 6;
     this.height = 6;
+    this.waterTop = 54;
     this.spritesAtlas = this.app.getSpritesAtlas();
     this.backgroundSprite = this.spritesAtlas.createSprite("obstacles/fucking-piranhas/fucking-piranhas-background.png");
     this.glassSprite = this.spritesAtlas.createSprite("obstacles/fucking-piranhas/fucking-piranhas-glass.png");
+    this.ploppSprite = this.spritesAtlas.createSprite("obstacles/fucking-piranhas/fucking-piranhas-plopp.png");
+    this.bubbles = [];
+    for (i = _i = 0; _i < 50; i = ++_i) {
+      bubbleSprite = this.spritesAtlas.createSprite("obstacles/fucking-piranhas/fucking-piranhas-bubble.png");
+      this.randomizePosition(bubbleSprite);
+      bubbleSprite.ploppedAt = null;
+      this.bubbles.push(bubbleSprite);
+    }
   }
 
-  FuckingPiranhasActor.prototype.update = function() {};
+  FuckingPiranhasActor.prototype.randomizePosition = function(bubbleSprite) {
+    return bubbleSprite.setPosition(Math.random() * (this.backgroundSprite.getWidth() - bubbleSprite.getWidth()), this.waterTop + Math.random() * (this.backgroundSprite.getHeight() - this.waterTop));
+  };
+
+  FuckingPiranhasActor.prototype.update = function(delta) {
+    var bubble, curY, newY, pos, _i, _len, _ref, _results;
+    _ref = this.bubbles;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      bubble = _ref[_i];
+      pos = bubble.getPosition();
+      curY = pos.getY();
+      newY = curY - 40 * delta;
+      pos.setY(newY);
+      if (pos.getY() <= this.waterTop && !bubble.ploppedAt) {
+        _results.push(bubble.ploppedAt = Date.now());
+      } else if (bubble.ploppedAt && Date.now() - bubble.ploppedAt > 500) {
+        this.randomizePosition(bubble);
+        _results.push(bubble.ploppedAt = null);
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
 
   FuckingPiranhasActor.prototype.draw = function(context, x, y) {
+    var bubble, pos, _i, _len, _ref, _results;
     this.backgroundSprite.draw(context, x, y);
     this.glassSprite.draw(context, x, y);
+    _ref = this.bubbles;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      bubble = _ref[_i];
+      pos = bubble.getPosition();
+      if (pos.getY() > this.waterTop) {
+        _results.push(bubble.draw(context, x + pos.getX(), y + pos.getY()));
+      } else {
+        _results.push(this.ploppSprite.draw(context, x + pos.getX(), y + this.waterTop - this.ploppSprite.getHeight()));
+      }
+    }
+    return _results;
   };
 
   FuckingPiranhasActor.prototype.getWidth = function() {

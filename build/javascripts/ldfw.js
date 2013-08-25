@@ -418,8 +418,8 @@ Sprite = (function(_super) {
     dw = this.frame.frame.w * this.scale.x;
     dh = this.frame.frame.h * this.scale.y;
     context.save();
-    tx = (drawX | this.position.x) + this.origin.x + Sprite.renderOffset.x;
-    ty = (drawY | this.position.y) + this.origin.y + Sprite.renderOffset.y;
+    tx = (drawX || this.position.x) + this.origin.x + Sprite.renderOffset.x;
+    ty = (drawY || this.position.y) + this.origin.y + Sprite.renderOffset.y;
     if (mirrored) {
       context.translate(tx + dw, ty);
       context.scale(-1, 1);

@@ -37,8 +37,8 @@ class Sprite extends Node
 
     context.save()
 
-    tx = (drawX | @position.x) + @origin.x + Sprite.renderOffset.x
-    ty = (drawY | @position.y) + @origin.y + Sprite.renderOffset.y
+    tx = (drawX || @position.x) + @origin.x + Sprite.renderOffset.x
+    ty = (drawY || @position.y) + @origin.y + Sprite.renderOffset.y
 
     if mirrored
       context.translate tx + dw, ty
