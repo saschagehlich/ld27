@@ -10,7 +10,6 @@ class BlockActor extends LDFW.Actor
 
     # Represents the block's structure
     @map = null
-    @rotation = Math.round(Math.random() * 3)
 
     @gridPosition = new LDFW.Vector2()
 
@@ -19,6 +18,9 @@ class BlockActor extends LDFW.Actor
 
     @randomize()
     @randomizeBlockStyles()
+
+    for i in [0...Math.round(Math.random() * 3)]
+      @rotate()
 
     @loadSprites()
 
@@ -78,38 +80,20 @@ class BlockActor extends LDFW.Actor
   setGridPosition: -> @gridPosition.set.apply @gridPosition, arguments
 
   rotate: ->
-    @rotation += 1
-    @rotation %= 4
+    newMap = []
+    newBlockStyles = []
+    for i in [@map.length-1..0]
+      for j in [0...@map[i].length]
+        unless newMap.hasOwnProperty(j)
+          newMap[j] = []
+          newBlockStyles[j] = []
+        newMap[j].push @map[i][j]
+        newBlockStyles[j].push @blockStyles[i][j]
+    @map = newMap
+    @blockStyles = newBlockStyles
 
-  getMap: ->
-    map = @map
-    for i in [0...@rotation]
-      newData = []
-      for i in [map.length-1..0]
-        for j in [0...map[i].length]
-          unless newData.hasOwnProperty(j)
-            newData[j] = []
-          newData[j].push map[i][j]
-      map = newData
-
-    return map
-
-  getBlockStyles: ->
-    styles = @blockStyles
-
-    for i in [0...@rotation]
-      newData = []
-      for i in [styles.length-1..0]
-        for j in [0...styles[i].length]
-          unless newData.hasOwnProperty(j)
-            newData[j] = []
-          newData[j].push styles[i][j]
-      styles = newData
-
-    return styles
-
-
-  getRotation: -> @rotation
+  getMap: -> @map
+  getBlockStyles: -> @blockStyles
 
   inBuildMode: -> @buildMode
   setBuildMode: (buildMode) -> @buildMode = buildMode
@@ -143,6 +127,8 @@ class BlockActor extends LDFW.Actor
       .multiply(@level.GRID_SIZE)
       .substract(scroll)
 
+    buildBlockBuildable = @level.isBuildBlockBuildable()
+
     map = @getMap()
     blockStyles = @getBlockStyles()
     for row, y in map
@@ -152,14 +138,20 @@ class BlockActor extends LDFW.Actor
         spriteIndex = blockStyles[y][x]
         sprite = @blockSprites[@style][spriteIndex]
 
-        if not @level.isBuildBlockBuildable() and @buildMode
+        if not buildBlockBuildable and @buildMode
           sprite = @blockSprites[@style].unbuildable
+
+        rx = position.x + x * @level.GRID_SIZE
+        ry = position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
+
+        continue if rx > @app.getWidth() or
+          rx + sprite.getWidth() < 0
+
         if @buildMode
           context.globalAlpha = 0.5
 
         sprite.draw context,
-          position.x + x * @level.GRID_SIZE,
-          position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
+          rx, ry
 
         drawGrass = true
         unless y is 0
@@ -183,5 +175,6 @@ class BlockActor extends LDFW.Actor
             position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
 
     context.restore()
+    return stats
 
 module.exports = BlockActor

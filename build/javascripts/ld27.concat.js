@@ -10903,6 +10903,7 @@ BlockActor = (function(_super) {
   BlockActor.prototype.availableBlocks = require("../config/available_blocks.json");
 
   function BlockActor(app, game, level, options) {
+    var i, _i, _ref;
     this.app = app;
     this.game = game;
     this.level = level;
@@ -10910,12 +10911,14 @@ BlockActor = (function(_super) {
     this.buildMode = this.options.buildMode || false;
     this.spritesAtlas = this.app.getSpritesAtlas();
     this.map = null;
-    this.rotation = Math.round(Math.random() * 3);
     this.gridPosition = new LDFW.Vector2();
     this.defaultStyle = Math.floor(Math.random() * Config.block_styles);
     this.style = this.options.style || this.defaultStyle;
     this.randomize();
     this.randomizeBlockStyles();
+    for (i = _i = 0, _ref = Math.round(Math.random() * 3); 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      this.rotate();
+    }
     this.loadSprites();
   }
 
@@ -11004,48 +11007,29 @@ BlockActor = (function(_super) {
   };
 
   BlockActor.prototype.rotate = function() {
-    this.rotation += 1;
-    return this.rotation %= 4;
+    var i, j, newBlockStyles, newMap, _i, _j, _ref, _ref1;
+    newMap = [];
+    newBlockStyles = [];
+    for (i = _i = _ref = this.map.length - 1; _ref <= 0 ? _i <= 0 : _i >= 0; i = _ref <= 0 ? ++_i : --_i) {
+      for (j = _j = 0, _ref1 = this.map[i].length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
+        if (!newMap.hasOwnProperty(j)) {
+          newMap[j] = [];
+          newBlockStyles[j] = [];
+        }
+        newMap[j].push(this.map[i][j]);
+        newBlockStyles[j].push(this.blockStyles[i][j]);
+      }
+    }
+    this.map = newMap;
+    return this.blockStyles = newBlockStyles;
   };
 
   BlockActor.prototype.getMap = function() {
-    var i, j, map, newData, _i, _j, _k, _ref, _ref1, _ref2;
-    map = this.map;
-    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-      newData = [];
-      for (i = _j = _ref1 = map.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
-        for (j = _k = 0, _ref2 = map[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
-          if (!newData.hasOwnProperty(j)) {
-            newData[j] = [];
-          }
-          newData[j].push(map[i][j]);
-        }
-      }
-      map = newData;
-    }
-    return map;
+    return this.map;
   };
 
   BlockActor.prototype.getBlockStyles = function() {
-    var i, j, newData, styles, _i, _j, _k, _ref, _ref1, _ref2;
-    styles = this.blockStyles;
-    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-      newData = [];
-      for (i = _j = _ref1 = styles.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
-        for (j = _k = 0, _ref2 = styles[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
-          if (!newData.hasOwnProperty(j)) {
-            newData[j] = [];
-          }
-          newData[j].push(styles[i][j]);
-        }
-      }
-      styles = newData;
-    }
-    return styles;
-  };
-
-  BlockActor.prototype.getRotation = function() {
-    return this.rotation;
+    return this.blockStyles;
   };
 
   BlockActor.prototype.inBuildMode = function() {
@@ -11110,10 +11094,11 @@ BlockActor = (function(_super) {
   };
 
   BlockActor.prototype.draw = function(context) {
-    var blockStyles, drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, x, y, _i, _j, _len, _len1;
+    var blockStyles, buildBlockBuildable, drawGrass, grassSprite, grassXOffset, map, position, row, rx, ry, scroll, segment, sprite, spriteIndex, x, y, _i, _j, _len, _len1;
     scroll = this.level.getScroll();
     context.save();
     position = this.gridPosition.clone().multiply(this.level.GRID_SIZE).substract(scroll);
+    buildBlockBuildable = this.level.isBuildBlockBuildable();
     map = this.getMap();
     blockStyles = this.getBlockStyles();
     for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
@@ -11125,13 +11110,18 @@ BlockActor = (function(_super) {
         }
         spriteIndex = blockStyles[y][x];
         sprite = this.blockSprites[this.style][spriteIndex];
-        if (!this.level.isBuildBlockBuildable() && this.buildMode) {
+        if (!buildBlockBuildable && this.buildMode) {
           sprite = this.blockSprites[this.style].unbuildable;
+        }
+        rx = position.x + x * this.level.GRID_SIZE;
+        ry = position.y + y * this.level.GRID_SIZE + segment.getOffset().getY();
+        if (rx > this.app.getWidth() || rx + sprite.getWidth() < 0) {
+          continue;
         }
         if (this.buildMode) {
           context.globalAlpha = 0.5;
         }
-        sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE + segment.getOffset().getY());
+        sprite.draw(context, rx, ry);
         drawGrass = true;
         if (y !== 0) {
           if (map[y - 1][x] !== 0) {
@@ -11154,7 +11144,8 @@ BlockActor = (function(_super) {
         }
       }
     }
-    return context.restore();
+    context.restore();
+    return stats;
   };
 
   return BlockActor;
@@ -11322,29 +11313,33 @@ LevelActor = (function(_super) {
     this.backgroundSprite.draw(context);
     this.drawPlatforms(context);
     this.drawBlocks(context);
-    this.drawBuildBlock(context);
     this.drawObstacles(context);
+    this.drawBuildBlock(context);
     return context.restore();
   };
 
   LevelActor.prototype.drawObstacles = function(context) {
-    var obstacle, obstacles, position, scroll, _i, _len, _results;
+    var obstacle, obstacles, obstaclesRendered, position, scroll, _i, _len;
     obstacles = this.level.getObstacles();
     scroll = this.level.getScroll();
-    _results = [];
+    obstaclesRendered = 0;
     for (_i = 0, _len = obstacles.length; _i < _len; _i++) {
       obstacle = obstacles[_i];
       position = obstacle.getPosition().clone().multiply(this.level.GRID_SIZE);
-      _results.push(obstacle.draw(context, position.x - scroll.getX(), position.y - scroll.getY()));
+      obstacle.draw(context, position.x - scroll.getX(), position.y - scroll.getY());
+      obstaclesRendered++;
     }
-    return _results;
+    return {
+      obstacles: obstaclesRendered
+    };
   };
 
   LevelActor.prototype.drawPlatforms = function(context) {
-    var grassSprite, grassXOffset, height, platform, platforms, position, scroll, spriteIndex, stylesMap, tileSprite, width, x, y, _i, _j, _k, _len, _ref, _ref1, _results;
+    var grassRendered, grassSprite, grassXOffset, height, platform, platforms, position, rx, ry, scroll, spriteIndex, stylesMap, tileSprite, tilesRendered, width, x, y, _i, _j, _k, _l, _len, _ref, _ref1, _ref2;
+    tilesRendered = 0;
+    grassRendered = 0;
     platforms = this.level.getPlatforms();
     scroll = this.level.getScroll();
-    _results = [];
     for (_i = 0, _len = platforms.length; _i < _len; _i++) {
       platform = platforms[_i];
       stylesMap = platform.getStylesMap();
@@ -11361,30 +11356,40 @@ LevelActor = (function(_super) {
           if (x === platform.getWidth() - 1) {
             tileSprite = this.tileSprites.end;
           }
-          tileSprite.draw(context, position.x + x * this.level.GRID_SIZE - scroll.getX(), position.y + y * this.level.GRID_SIZE - scroll.getY());
+          rx = position.x + x * this.level.GRID_SIZE - scroll.getX();
+          ry = position.y + y * this.level.GRID_SIZE - scroll.getY();
+          if (rx + tileSprite.getWidth() < 0 || rx > this.app.getWidth()) {
+            continue;
+          }
+          tilesRendered++;
+          tileSprite.draw(context, rx, ry);
         }
       }
-      _results.push((function() {
-        var _l, _ref2, _results1;
-        _results1 = [];
-        for (x = _l = 0, _ref2 = platform.width; 0 <= _ref2 ? _l < _ref2 : _l > _ref2; x = 0 <= _ref2 ? ++_l : --_l) {
-          grassSprite = this.grassSprites[0];
-          grassXOffset = 0;
-          if (platform.width === 1) {
-            grassSprite = this.grassSprites.single;
-            grassXOffset = -2;
-          } else if (x === 0) {
-            grassSprite = this.grassSprites.start;
-            grassXOffset = -2;
-          } else if (x === platform.width - 1) {
-            grassSprite = this.grassSprites.end;
-          }
-          _results1.push(grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset - scroll.getX(), position.y - scroll.getY()));
+      for (x = _l = 0, _ref2 = platform.width; 0 <= _ref2 ? _l < _ref2 : _l > _ref2; x = 0 <= _ref2 ? ++_l : --_l) {
+        grassSprite = this.grassSprites[0];
+        grassXOffset = 0;
+        if (platform.width === 1) {
+          grassSprite = this.grassSprites.single;
+          grassXOffset = -2;
+        } else if (x === 0) {
+          grassSprite = this.grassSprites.start;
+          grassXOffset = -2;
+        } else if (x === platform.width - 1) {
+          grassSprite = this.grassSprites.end;
         }
-        return _results1;
-      }).call(this));
+        rx = position.x + x * this.level.GRID_SIZE + grassXOffset - scroll.getX();
+        ry = position.y - scroll.getY();
+        if (rx + grassSprite.getWidth() < 0 || rx > this.app.getWidth()) {
+          continue;
+        }
+        grassRendered++;
+        grassSprite.draw(context, rx, ry);
+      }
     }
-    return _results;
+    return {
+      tiles: tilesRendered,
+      grass: grassRendered
+    };
   };
 
   LevelActor.prototype.drawBuildBlock = function(context) {
@@ -12005,6 +12010,8 @@ FuckingPiranhasActor = require("./actors/fuckingpiranhasactor.coffee");
 Level = (function() {
   Level.prototype.GRID_SIZE = 32;
 
+  Level.prototype.BUILDMODE_COOLDOWN = 300;
+
   function Level(app, game) {
     var appTileHeight;
     this.app = app;
@@ -12066,14 +12073,18 @@ Level = (function() {
     this.buildMode = false;
     this.blocks.push(this.buildBlock);
     this.buildBlock = null;
-    this.buildMode = true;
-    return this.buildBlock = new BlockActor(this.app, this.game, this, {
+    this.buildMode = false;
+    this.buildBlock = new BlockActor(this.app, this.game, this, {
       buildMode: true
     });
+    return this.buildModeCooldownStart = Date.now();
   };
 
   Level.prototype.update = function(delta) {
     var blockMap, gridPosition, mousePosition, obstacle, _i, _len, _ref, _results;
+    if (Date.now() - this.buildModeCooldownStart > this.BUILDMODE_COOLDOWN) {
+      this.buildMode = true;
+    }
     if (this.game.getActivePowerup() === Powerups.BROKEN_BLOCKS && this.buildMode) {
       this.buildBlock.setStyle("broken");
     } else {
@@ -12116,7 +12127,7 @@ Level = (function() {
   };
 
   Level.prototype.isBuildBlockBuildable = function() {
-    var block, buildable, buildableBlockMap, buildableBlockPosition, buildableSegment, map, offset, position, row, segment, x, y, _i, _j, _k, _len, _len1, _len2, _ref;
+    var block, buildable, buildableBlockMap, buildableBlockPosition, buildableSegment, map, offsetX, offsetY, position, row, segment, x, y, _i, _j, _k, _len, _len1, _len2, _ref;
     buildable = true;
     buildableBlockMap = this.buildBlock.getMap();
     buildableBlockPosition = this.buildBlock.getGridPosition();
@@ -12125,6 +12136,9 @@ Level = (function() {
       block = _ref[_i];
       map = block.getMap();
       position = block.getGridPosition();
+      if (position.x * this.GRID_SIZE + map[0].length * this.GRID_SIZE - this.game.getScroll().x < 0) {
+        continue;
+      }
       for (y = _j = 0, _len1 = map.length; _j < _len1; y = ++_j) {
         row = map[y];
         for (x = _k = 0, _len2 = row.length; _k < _len2; x = ++_k) {
@@ -12132,9 +12146,10 @@ Level = (function() {
           if (segment === 0) {
             continue;
           }
-          offset = new LDFW.Vector2(position.getX() + x - buildableBlockPosition.getX(), position.getY() + y - buildableBlockPosition.getY());
-          if ((buildableBlockMap[offset.y] != null) && (buildableBlockMap[offset.y][offset.x] != null)) {
-            buildableSegment = buildableBlockMap[offset.y][offset.x];
+          offsetX = position.x + x - buildableBlockPosition.x;
+          offsetY = position.y + y - buildableBlockPosition.y;
+          if ((buildableBlockMap[offsetY] != null) && (buildableBlockMap[offsetY][offsetX] != null)) {
+            buildableSegment = buildableBlockMap[offsetY][offsetX];
             if (buildableSegment !== 0) {
               buildable = false;
             }

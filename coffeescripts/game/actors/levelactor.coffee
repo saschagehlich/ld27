@@ -48,14 +48,16 @@ class LevelActor extends LDFW.Actor
 
     @drawPlatforms  context
     @drawBlocks     context
-    @drawBuildBlock context
     @drawObstacles  context
+
+    @drawBuildBlock context
 
     context.restore()
 
   drawObstacles: (context) ->
     obstacles = @level.getObstacles()
     scroll    = @level.getScroll()
+    obstaclesRendered = 0
     for obstacle in obstacles
       position = obstacle.getPosition()
         .clone()
@@ -64,8 +66,14 @@ class LevelActor extends LDFW.Actor
       obstacle.draw context,
         position.x - scroll.getX(),
         position.y - scroll.getY()
+      obstaclesRendered++
+
+    return { obstacles: obstaclesRendered }
 
   drawPlatforms: (context) ->
+    tilesRendered = 0
+    grassRendered = 0
+
     platforms = @level.getPlatforms()
     scroll    = @level.getScroll()
 
@@ -81,6 +89,7 @@ class LevelActor extends LDFW.Actor
       # Draw tiles
       for y in [0...platform.getHeight()]
         for x in [0...platform.getWidth()]
+
           spriteIndex = stylesMap[y][x]
           tileSprite = @tileSprites[spriteIndex]
           if x is 0
@@ -88,9 +97,16 @@ class LevelActor extends LDFW.Actor
           if x is platform.getWidth() - 1
             tileSprite = @tileSprites.end
 
+          rx = position.x + x * @level.GRID_SIZE - scroll.getX()
+          ry = position.y + y * @level.GRID_SIZE - scroll.getY()
+
+          continue if rx + tileSprite.getWidth() < 0 or
+            rx > @app.getWidth()
+
+          tilesRendered++
           tileSprite.draw context,
-            position.x + x * @level.GRID_SIZE - scroll.getX(),
-            position.y + y * @level.GRID_SIZE - scroll.getY()
+            rx,
+            ry
 
       # Draw grass
       for x in [0...platform.width]
@@ -105,9 +121,17 @@ class LevelActor extends LDFW.Actor
         else if x is platform.width - 1
           grassSprite = @grassSprites.end
 
+        rx = position.x + x * @level.GRID_SIZE + grassXOffset - scroll.getX()
+        ry = position.y - scroll.getY()
+
+        continue if rx + grassSprite.getWidth() < 0 or
+            rx > @app.getWidth()
+
+        grassRendered++
         grassSprite.draw context,
-          position.x + x * @level.GRID_SIZE + grassXOffset - scroll.getX(),
-          position.y - scroll.getY()
+          rx, ry
+
+    return { tiles: tilesRendered, grass: grassRendered }
 
   drawBuildBlock: (context) ->
     return unless @level.inBuildMode()

@@ -9,6 +9,7 @@ FuckingPiranhasActor = require "./actors/fuckingpiranhasactor.coffee"
 
 class Level
   GRID_SIZE: 32
+  BUILDMODE_COOLDOWN: 300
   constructor: (@app, @game) ->
     @renderOffset = new LDFW.Vector2(0, Config.ui_minimap_height)
 
@@ -60,10 +61,15 @@ class Level
     @blocks.push @buildBlock
     @buildBlock = null
 
-    @buildMode = true
+    @buildMode = false
     @buildBlock = new BlockActor @app, @game, this, buildMode: true
 
+    @buildModeCooldownStart = Date.now()
+
   update: (delta) ->
+    if Date.now() - @buildModeCooldownStart > @BUILDMODE_COOLDOWN
+      @buildMode = true
+
     if @game.getActivePowerup() == Powerups.BROKEN_BLOCKS and @buildMode
       @buildBlock.setStyle "broken"
     else
@@ -116,17 +122,17 @@ class Level
       map      = block.getMap()
       position = block.getGridPosition()
 
+      continue if position.x * @GRID_SIZE + map[0].length * @GRID_SIZE - @game.getScroll().x < 0
+
       for row, y in map
         for segment, x in row
           continue if segment is 0
 
-          offset = new LDFW.Vector2(
-            position.getX() + x - buildableBlockPosition.getX(),
-            position.getY() + y - buildableBlockPosition.getY()
-          )
+          offsetX = position.x + x - buildableBlockPosition.x
+          offsetY = position.y + y - buildableBlockPosition.y
 
-          if buildableBlockMap[offset.y]? and buildableBlockMap[offset.y][offset.x]?
-            buildableSegment = buildableBlockMap[offset.y][offset.x]
+          if buildableBlockMap[offsetY]? and buildableBlockMap[offsetY][offsetX]?
+            buildableSegment = buildableBlockMap[offsetY][offsetX]
             if buildableSegment isnt 0
               buildable = false
 
