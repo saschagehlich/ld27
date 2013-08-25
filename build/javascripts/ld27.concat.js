@@ -11077,7 +11077,7 @@ BlockActor = (function(_super) {
         _results1 = [];
         for (y = _j = 0, _len1 = map.length; _j < _len1; y = ++_j) {
           row = map[y];
-          if (map[y][i] == null) {
+          if (!map[y][i]) {
             continue;
           }
           _results1.push(map[y][i].setFalling(true));

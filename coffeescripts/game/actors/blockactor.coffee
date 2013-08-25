@@ -125,7 +125,7 @@ class BlockActor extends LDFW.Actor
     map = @getMap()
     for i in [segmentOffset, segmentEnd]
       for row, y in map
-        continue unless map[y][i]?
+        continue unless map[y][i]
 
         map[y][i].setFalling true
 
