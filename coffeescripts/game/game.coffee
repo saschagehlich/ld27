@@ -4,9 +4,13 @@ Keyboard = require "./utilities/keyboard.coffee"
 Mouse    = require "./utilities/mouse.coffee"
 Powerups = require "./powerups.coffee"
 
-class Game
+{EventEmitter} = require "events"
+
+class Game extends EventEmitter
   powerupDuration: 10000
   constructor: (@app) ->
+    @gameover = false
+
     @defaultScrollSpeed = 200
     @scrollSpeed = @defaultScrollSpeed
 
@@ -30,20 +34,28 @@ class Game
       firstPlatform.getPosition().y * @level.GRID_SIZE - 100
     )
 
+  endGame: ->
+    @gameover = true
+    @player.getVelocity().setX 0
+
+    @emit "gameover"
+
   update: (delta) ->
-    @scroll.setX Math.round(@scroll.getX() + @scrollSpeed * delta)
+    unless @gameover
+      @scroll.setX Math.round(@scroll.getX() + @scrollSpeed * delta)
 
-    if @getScore() > @increaseScrollSpeedAfter
-      @defaultScrollSpeed += 50
-      @setDefaultScrollSpeed()
+      if @getScore() > @increaseScrollSpeedAfter
+        @defaultScrollSpeed += 50
+        @setDefaultScrollSpeed()
 
-      @increaseScrollSpeedAfter += @scrollSpeedIncreaseFactor
-      @scrollSpeedIncreaseFactor += 50
+        @increaseScrollSpeedAfter += @scrollSpeedIncreaseFactor
+        @scrollSpeedIncreaseFactor += 50
 
-    @level.update delta
+      @level.update delta
+
     @player.update delta
 
-    if +new Date() - @powerupStart >= @powerupDuration
+    if +new Date() - @powerupStart >= @powerupDuration and not @gameover
       @activePowerup = @getRandomPowerup()
       @powerupStart = +new Date()
 
@@ -66,5 +78,6 @@ class Game
   getPlayer: -> @player
   getKeyboard: -> @keyboard
   getMouse: -> @mouse
+  isOver: -> @gameover
 
 module.exports = Game

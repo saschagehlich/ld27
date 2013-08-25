@@ -1,5 +1,13 @@
 {"frames": {
 
+"pixel-16-red.png":
+{
+	"frame": {"x":776,"y":2,"w":256,"h":256},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
+	"sourceSize": {"w":256,"h":256}
+},
 "pixel-16-white.png":
 {
 	"frame": {"x":518,"y":2,"w":256,"h":256},
@@ -29,8 +37,8 @@
 	"version": "1.0",
 	"image": "fonts.png",
 	"format": "RGBA8888",
-	"size": {"w":776,"h":260},
+	"size": {"w":1034,"h":260},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:93ebb226daa1951534a50bcaed9812ee:1/1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:1ebb27f0c031c227a67dbf0bdd97955f:1/1$"
 }
 }

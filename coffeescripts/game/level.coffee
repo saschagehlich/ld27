@@ -48,10 +48,12 @@ class Level
       @buildBlock.rotate()
 
   onRightClick: (position) =>
+    return if @game.isOver()
     return unless @buildMode
     @buildBlock.rotate()
 
   onClick: (position) =>
+    return if @game.isOver()
     return unless @buildMode
     return unless @isBuildBlockBuildable()
 
@@ -109,7 +111,7 @@ class Level
 
     for obstacle in @obstacles
       if @game.getPlayer().collidesWithObstacle obstacle
-        console.log "u dead."
+        @game.endGame()
 
   isBuildBlockBuildable: ->
     # Does the building block overlap any
@@ -227,6 +229,7 @@ class Level
   getObstacles: -> @obstacles
   getGravity: -> @gravity
   inBuildMode: -> @buildMode
+  setBuildMode: (@buildMode) -> return
   getBuildBlock: -> @buildBlock
   getScrollSpeed: -> @scrollSpeed
 

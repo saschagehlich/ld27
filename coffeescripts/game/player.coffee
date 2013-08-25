@@ -27,15 +27,21 @@ class Player
   getVelocity: -> @velocity
 
   update: (delta) ->
-    @handleKeyboard()
+    unless @game.isOver()
+      @handleKeyboard()
 
     aspiredPosition = @getAspiredPosition delta
-    boundaries      = @level.getBoundariesForPlayer this
 
-    @handleXMovement aspiredPosition, boundaries
-    @handleYMovement aspiredPosition, boundaries
+    unless @game.isOver()
+      boundaries      = @level.getBoundariesForPlayer this
+
+      @handleXMovement aspiredPosition, boundaries
+      @handleYMovement aspiredPosition, boundaries
 
     @position.set aspiredPosition
+
+    if @position.getY() > @app.getHeight() + @height
+      @game.endGame()
 
   getAspiredPosition: (delta) ->
     gravity = @level.getGravity().clone()

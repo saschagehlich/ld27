@@ -343,7 +343,7 @@ BitmapFont = (function() {
         continue;
       }
       char = this.chars[charCode];
-      this.textureRegion.draw(context, char.x, char.y, char.width, char.height, x + xOffset, y);
+      this.textureRegion.draw(context, char.x, char.y, char.width, char.height, x + xOffset + char.xoffset || 0, y + char.yoffset || 0);
       _results.push(xOffset += char.xadvance);
     }
     return _results;

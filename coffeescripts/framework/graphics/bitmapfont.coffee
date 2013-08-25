@@ -55,7 +55,7 @@ class BitmapFont
       @textureRegion.draw context,
         char.x, char.y,
         char.width, char.height,
-        x + xOffset, y
+        x + xOffset + char.xoffset or 0, y + char.yoffset or 0
       xOffset += char.xadvance
 
 module.exports = BitmapFont
