@@ -12325,7 +12325,7 @@ Level = (function() {
     this.blocks = [];
     appTileHeight = Math.round(this.app.getHeight() / this.GRID_SIZE);
     this.obstacles = [];
-    this.generator.generate(2, 10);
+    this.generator.generate(10);
   }
 
   Level.prototype.onKeyDown = function(event) {
@@ -13151,58 +13151,51 @@ FuckingPiranhas = require("../actors/fuckingpiranhasactor.coffee");
 
 LevelGenerator = (function() {
   function LevelGenerator(app, game, level) {
+    var screenTilesX, screenTilesY;
     this.app = app;
     this.game = game;
     this.level = level;
-    return;
+    screenTilesX = Math.round(this.app.getWidth() / this.level.GRID_SIZE);
+    screenTilesY = Math.round(this.app.getHeight() / this.level.GRID_SIZE);
+    this.xOffset = screenTilesX;
   }
 
-  /*
-    1 long platform per 5 screens
-    1 short platform per 5 screens
-    1 big obstacle per 5 screens (what exactly? a gear? a saw?)
-    1 small obstacle per 5 screens
-  */
-
-
-  LevelGenerator.prototype.generate = function(screenOffset, screens) {
-    var i, longPlatformMaxWidth, longPlatformMinWidth, piranhas, platform, platformWidth, platformX, platformY, screenAreaWidth, screenOffsetX, screenTilesX, screenTilesY, _i, _ref, _results;
-    if (screenOffset == null) {
-      screenOffset = 1;
-    }
+  LevelGenerator.prototype.generate = function(screens) {
+    var gapSize, maxGapSize, maxPlatformWidth, minGapSize, minPlatformWidth, newMaxOffset, obstacle, placedWidth, platform, screenTilesX, screenTilesY, _results;
     if (screens == null) {
       screens = 10;
     }
     screenTilesX = Math.round(this.app.getWidth() / this.level.GRID_SIZE);
     screenTilesY = Math.round(this.app.getHeight() / this.level.GRID_SIZE);
-    longPlatformMaxWidth = screenTilesX;
-    longPlatformMinWidth = Math.round(screenTilesX / 2);
+    newMaxOffset = this.xOffset + screenTilesX * screens;
+    minGapSize = screenTilesX / 2;
+    maxGapSize = screenTilesX * 2;
     _results = [];
-    for (i = _i = screenOffset, _ref = screenOffset + Math.floor(screens / 5); screenOffset <= _ref ? _i < _ref : _i > _ref; i = screenOffset <= _ref ? ++_i : --_i) {
-      screenAreaWidth = screenTilesX * 5;
-      screenOffsetX = screenTilesX * i;
-      /*
-        Generate long platform
-      */
-
-      platformWidth = Math.round(longPlatformMinWidth + Math.random() * (longPlatformMaxWidth - longPlatformMinWidth));
-      platformX = screenOffsetX + Math.round(Math.random() * (screenAreaWidth - platformWidth));
-      platformY = Math.round(screenTilesY / 2 + Math.random() * (screenTilesY / 2));
-      platform = new Platform(this.app, this.game, {
-        position: new LDFW.Vector2(platformX, platformY),
-        width: platformWidth,
-        height: screenTilesY - platformY
-      });
-      this.level.addPlatform(platform);
-      /*
-        Generate fucking piranhas
-        (generate them in front of the platform)
-      */
-
-      piranhas = new FuckingPiranhas(this.app, this.game, {
-        position: new LDFW.Vector2(platformX - 10, screenTilesY - 6)
-      });
-      _results.push(this.level.addObstacle(piranhas));
+    while (this.xOffset < newMaxOffset) {
+      placedWidth = 0;
+      gapSize = minGapSize + Math.round(Math.random() * (maxGapSize - minGapSize));
+      this.xOffset += gapSize;
+      switch (Math.floor(Math.random() * 2)) {
+        case 0:
+          obstacle = new FuckingPiranhas(this.app, this.game, {
+            position: new LDFW.Vector2(this.xOffset, screenTilesY - 6)
+          });
+          this.level.addObstacle(obstacle);
+          placedWidth = 6;
+          break;
+        case 1:
+          minPlatformWidth = 4;
+          maxPlatformWidth = 13;
+          placedWidth = minPlatformWidth + Math.round(Math.random() * (maxPlatformWidth - minPlatformWidth));
+          platform = new Platform(this.app, this.game, {
+            position: new LDFW.Vector2(this.xOffset, 10),
+            width: placedWidth,
+            height: screenTilesY - 10
+          });
+          this.level.addPlatform(platform);
+          placedWidth = 10;
+      }
+      _results.push(this.xOffset += placedWidth);
     }
     return _results;
   };

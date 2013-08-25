@@ -3,50 +3,47 @@ FuckingPiranhas = require "../actors/fuckingpiranhasactor.coffee"
 
 class LevelGenerator
   constructor: (@app, @game, @level) ->
-    return
-
-  ###
-    1 long platform per 5 screens
-    1 short platform per 5 screens
-    1 big obstacle per 5 screens (what exactly? a gear? a saw?)
-    1 small obstacle per 5 screens
-  ###
-  generate: (screenOffset=1, screens=10) ->
     screenTilesX = Math.round(@app.getWidth()  / @level.GRID_SIZE)
     screenTilesY = Math.round(@app.getHeight() / @level.GRID_SIZE)
 
-    longPlatformMaxWidth = screenTilesX
-    longPlatformMinWidth = Math.round(screenTilesX / 2)
+    @xOffset = screenTilesX
 
-    for i in [screenOffset...screenOffset + Math.floor(screens / 5)]
-      screenAreaWidth = screenTilesX * 5
-      screenOffsetX = screenTilesX * i
+  generate: (screens=10) ->
+    screenTilesX = Math.round(@app.getWidth()  / @level.GRID_SIZE)
+    screenTilesY = Math.round(@app.getHeight() / @level.GRID_SIZE)
 
-      ###
-        Generate long platform
-      ###
-      platformWidth = Math.round(
-        longPlatformMinWidth +
-        Math.random() * (longPlatformMaxWidth - longPlatformMinWidth)
-      )
+    newMaxOffset = @xOffset + screenTilesX * screens
+    minGapSize   = screenTilesX / 2
+    maxGapSize   = screenTilesX*2
 
-      platformX = screenOffsetX + Math.round(Math.random() * (screenAreaWidth - platformWidth))
-      platformY = Math.round(screenTilesY / 2 + Math.random() * (screenTilesY / 2))
+    while @xOffset < newMaxOffset
+      placedWidth = 0
+      gapSize = minGapSize + Math.round(Math.random() * (maxGapSize - minGapSize))
+      @xOffset += gapSize
 
-      platform = new Platform @app, @game,
-        position: new LDFW.Vector2(platformX, platformY)
-        width: platformWidth
-        height: screenTilesY - platformY
+      switch Math.floor(Math.random() * 2)
+        when 0
+          obstacle = new FuckingPiranhas @app, @game,
+            position: new LDFW.Vector2(@xOffset, screenTilesY - 6)
+          @level.addObstacle obstacle
 
-      @level.addPlatform platform
+          placedWidth = 6
+        when 1
+          # Place a platform
+          minPlatformWidth = 4
+          maxPlatformWidth = 13
+          placedWidth = minPlatformWidth + Math.round(Math.random() * (maxPlatformWidth - minPlatformWidth))
+          platform = new Platform @app, @game,
+            position: new LDFW.Vector2(@xOffset, 10)
+            width: placedWidth
+            height: screenTilesY - 10
 
-      ###
-        Generate fucking piranhas
-        (generate them in front of the platform)
-      ###
-      piranhas = new FuckingPiranhas @app, @game,
-        position: new LDFW.Vector2(platformX - 10, screenTilesY - 6)
+          @level.addPlatform platform
 
-      @level.addObstacle piranhas
+          placedWidth = 10
+
+      @xOffset += placedWidth
+
+
 
 module.exports = LevelGenerator

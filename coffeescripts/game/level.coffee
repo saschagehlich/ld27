@@ -40,7 +40,7 @@ class Level
     appTileHeight = Math.round @app.getHeight() / @GRID_SIZE
     @obstacles = []
 
-    @generator.generate 2, 10
+    @generator.generate 10
 
   onKeyDown: (event) =>
     return unless @buildMode
