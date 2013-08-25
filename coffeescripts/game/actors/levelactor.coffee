@@ -62,6 +62,7 @@ class LevelActor extends LDFW.Actor
       position = obstacle.getPosition()
         .clone()
         .multiply(@level.GRID_SIZE)
+        .add(@game.globalRenderOffset)
 
       obstacle.draw context,
         position.x - scroll.getX(),
@@ -83,6 +84,7 @@ class LevelActor extends LDFW.Actor
       position = platform.getPosition()
         .clone()
         .multiply(@level.GRID_SIZE)
+        .add(@game.globalRenderOffset)
       width = platform.getWidth() * @level.GRID_SIZE
       height = platform.getHeight() * @level.GRID_SIZE
 

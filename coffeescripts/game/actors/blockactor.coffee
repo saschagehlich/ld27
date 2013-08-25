@@ -144,6 +144,9 @@ class BlockActor extends LDFW.Actor
         rx = position.x + x * @level.GRID_SIZE
         ry = position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
 
+        rx += @game.globalRenderOffset.x
+        ry += @game.globalRenderOffset.y
+
         continue if rx > @app.getWidth() or
           rx + sprite.getWidth() < 0
 
@@ -170,9 +173,14 @@ class BlockActor extends LDFW.Actor
           else if not row[x+1]
             grassSprite = @grassSprites.end
 
+          rx = position.x + x * @level.GRID_SIZE + grassXOffset
+          ry = position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
+
+          rx += @game.globalRenderOffset.x
+          ry += @game.globalRenderOffset.y
+
           grassSprite.draw context,
-            position.x + x * @level.GRID_SIZE + grassXOffset,
-            position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
+            rx, ry
 
     context.restore()
 

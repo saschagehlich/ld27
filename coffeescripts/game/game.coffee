@@ -14,6 +14,8 @@ class Game extends EventEmitter
     @defaultScrollSpeed = 200
     @scrollSpeed = @defaultScrollSpeed
 
+    @globalRenderingOffset = new LDFW.Vector2(0, 0)
+
     @increaseScrollSpeedAfter  = 100
     @scrollSpeedIncreaseFactor = 100
 
@@ -25,7 +27,7 @@ class Game extends EventEmitter
     @level = new Level @app, this
     @player = new Player @app, this
 
-    @activePowerup = null
+    @activePowerup = Powerups.EARTHQUAKE
     @powerupStart  = +new Date()
 
     firstPlatform = @level.getPlatforms()[0]

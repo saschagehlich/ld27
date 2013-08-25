@@ -83,9 +83,9 @@ class Level
       @gravity.setY @defaultGravity.getY()
 
     if @game.getActivePowerup() == Powerups.EARTHQUAKE
-      LDFW.Sprite.renderOffset = new LDFW.Vector2(-10 + Math.random() * 20, -10 + Math.random() * 20)
+      @game.globalRenderOffset = new LDFW.Vector2(-10 + Math.random() * 20, -10 + Math.random() * 20)
     else
-      LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0)
+      @game.globalRenderOffset = new LDFW.Vector2(0, 0)
 
     if @game.getActivePowerup() == Powerups.BOOST
       @game.setScrollSpeed @game.getDefaultScrollSpeed() * 1.5

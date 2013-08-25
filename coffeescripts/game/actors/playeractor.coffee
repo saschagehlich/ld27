@@ -25,6 +25,9 @@ class PlayerActor extends LDFW.Actor
     rx = playerPosition.x - scroll.getX()
     ry = playerPosition.y - @idleSprite.getHeight() - scroll.getY()
 
+    rx += @game.globalRenderOffset.x
+    ry += @game.globalRenderOffset.y
+
     mirrored = @player.getDirection() == -1
 
     unless @player.isOnGround()

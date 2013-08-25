@@ -11143,6 +11143,8 @@ BlockActor = (function(_super) {
         }
         rx = position.x + x * this.level.GRID_SIZE;
         ry = position.y + y * this.level.GRID_SIZE + segment.getOffset().getY();
+        rx += this.game.globalRenderOffset.x;
+        ry += this.game.globalRenderOffset.y;
         if (rx > this.app.getWidth() || rx + sprite.getWidth() < 0) {
           continue;
         }
@@ -11168,7 +11170,11 @@ BlockActor = (function(_super) {
           } else if (!row[x + 1]) {
             grassSprite = this.grassSprites.end;
           }
-          grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y + y * this.level.GRID_SIZE + segment.getOffset().getY());
+          rx = position.x + x * this.level.GRID_SIZE + grassXOffset;
+          ry = position.y + y * this.level.GRID_SIZE + segment.getOffset().getY();
+          rx += this.game.globalRenderOffset.x;
+          ry += this.game.globalRenderOffset.y;
+          grassSprite.draw(context, rx, ry);
         }
       }
     }
@@ -11394,7 +11400,7 @@ LevelActor = (function(_super) {
     obstaclesRendered = 0;
     for (_i = 0, _len = obstacles.length; _i < _len; _i++) {
       obstacle = obstacles[_i];
-      position = obstacle.getPosition().clone().multiply(this.level.GRID_SIZE);
+      position = obstacle.getPosition().clone().multiply(this.level.GRID_SIZE).add(this.game.globalRenderOffset);
       obstacle.draw(context, position.x - scroll.getX(), position.y - scroll.getY());
       obstaclesRendered++;
     }
@@ -11412,7 +11418,7 @@ LevelActor = (function(_super) {
     for (_i = 0, _len = platforms.length; _i < _len; _i++) {
       platform = platforms[_i];
       stylesMap = platform.getStylesMap();
-      position = platform.getPosition().clone().multiply(this.level.GRID_SIZE);
+      position = platform.getPosition().clone().multiply(this.level.GRID_SIZE).add(this.game.globalRenderOffset);
       width = platform.getWidth() * this.level.GRID_SIZE;
       height = platform.getHeight() * this.level.GRID_SIZE;
       for (y = _j = 0, _ref = platform.getHeight(); 0 <= _ref ? _j < _ref : _j > _ref; y = 0 <= _ref ? ++_j : --_j) {
@@ -11870,6 +11876,8 @@ PlayerActor = (function(_super) {
     scroll = this.level.getScroll();
     rx = playerPosition.x - scroll.getX();
     ry = playerPosition.y - this.idleSprite.getHeight() - scroll.getY();
+    rx += this.game.globalRenderOffset.x;
+    ry += this.game.globalRenderOffset.y;
     mirrored = this.player.getDirection() === -1;
     if (!this.player.isOnGround()) {
       return this.offgroundAnimSprite.draw(context, rx, ry, mirrored);
@@ -12136,6 +12144,7 @@ Game = (function(_super) {
     this.gameover = false;
     this.defaultScrollSpeed = 200;
     this.scrollSpeed = this.defaultScrollSpeed;
+    this.globalRenderingOffset = new LDFW.Vector2(0, 0);
     this.increaseScrollSpeedAfter = 100;
     this.scrollSpeedIncreaseFactor = 100;
     this.scroll = new LDFW.Vector2(0, 0);
@@ -12143,7 +12152,7 @@ Game = (function(_super) {
     this.mouse = new Mouse(this.app);
     this.level = new Level(this.app, this);
     this.player = new Player(this.app, this);
-    this.activePowerup = null;
+    this.activePowerup = Powerups.EARTHQUAKE;
     this.powerupStart = +new Date();
     firstPlatform = this.level.getPlatforms()[0];
     this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE + firstPlatform.getWidth() * this.level.GRID_SIZE / 2, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);
@@ -12427,9 +12436,9 @@ Level = (function() {
       this.gravity.setY(this.defaultGravity.getY());
     }
     if (this.game.getActivePowerup() === Powerups.EARTHQUAKE) {
-      LDFW.Sprite.renderOffset = new LDFW.Vector2(-10 + Math.random() * 20, -10 + Math.random() * 20);
+      this.game.globalRenderOffset = new LDFW.Vector2(-10 + Math.random() * 20, -10 + Math.random() * 20);
     } else {
-      LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0);
+      this.game.globalRenderOffset = new LDFW.Vector2(0, 0);
     }
     if (this.game.getActivePowerup() === Powerups.BOOST) {
       this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 1.5);
