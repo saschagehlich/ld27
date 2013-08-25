@@ -10,6 +10,9 @@ class Game
     @defaultScrollSpeed = 200
     @scrollSpeed = @defaultScrollSpeed
 
+    @increaseScrollSpeedAfter  = 100
+    @scrollSpeedIncreaseFactor = 100
+
     @scroll   = new LDFW.Vector2(0, 0) # actually, this is the score...
 
     @keyboard = new Keyboard()
@@ -29,6 +32,13 @@ class Game
 
   update: (delta) ->
     @scroll.setX Math.round(@scroll.getX() + @scrollSpeed * delta)
+
+    if @getScore() > @increaseScrollSpeedAfter
+      @defaultScrollSpeed += 50
+      @setDefaultScrollSpeed()
+
+      @increaseScrollSpeedAfter += @scrollSpeedIncreaseFactor
+      @scrollSpeedIncreaseFactor += 50
 
     @level.update delta
     @player.update delta

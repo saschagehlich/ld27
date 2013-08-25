@@ -11559,6 +11559,8 @@ Game = (function() {
     this.app = app;
     this.defaultScrollSpeed = 200;
     this.scrollSpeed = this.defaultScrollSpeed;
+    this.increaseScrollSpeedAfter = 100;
+    this.scrollSpeedIncreaseFactor = 100;
     this.scroll = new LDFW.Vector2(0, 0);
     this.keyboard = new Keyboard();
     this.mouse = new Mouse(this.app);
@@ -11572,6 +11574,12 @@ Game = (function() {
 
   Game.prototype.update = function(delta) {
     this.scroll.setX(Math.round(this.scroll.getX() + this.scrollSpeed * delta));
+    if (this.getScore() > this.increaseScrollSpeedAfter) {
+      this.defaultScrollSpeed += 50;
+      this.setDefaultScrollSpeed();
+      this.increaseScrollSpeedAfter += this.scrollSpeedIncreaseFactor;
+      this.scrollSpeedIncreaseFactor += 50;
+    }
     this.level.update(delta);
     this.player.update(delta);
     if (+new Date() - this.powerupStart >= this.powerupDuration) {
