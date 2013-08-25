@@ -14,6 +14,7 @@ class Player
     @height = 0
 
     @onGround = false
+    @onGroundObject = false
 
     @direction = 1
 
@@ -24,6 +25,7 @@ class Player
   getHeight: -> @height
   getDirection: -> @direction
   isOnGround: -> @onGround
+  getOnGroundObject: -> @onGroundObject
   getVelocity: -> @velocity
 
   update: (delta) ->
@@ -81,12 +83,15 @@ class Player
       @onGround = false
 
     if @onGround and boundaries.y.object instanceof BlockActor
+      @onGroundObject = boundaries.y.object
       obj = boundaries.y.object
       obj.steppedOn(
         aspiredPosition.getX() -
         obj.getGridPosition().getX() * @level.GRID_SIZE,
         @getWidth()
       )
+    else if @onGround
+      @onGroundObject = false
 
   collidesWithObstacle: (obstacle) ->
     obstaclePosition = obstacle.getPosition()

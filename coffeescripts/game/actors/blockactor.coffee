@@ -123,9 +123,9 @@ class BlockActor extends LDFW.Actor
       for segment, x in row when segment isnt 0
         segment.update delta
 
-    # unless @buildMode
-    #   @totalDelta += delta
-    #   @floatOffset.setY Math.sin(@totalDelta * 2) * 10
+    unless @buildMode
+      @totalDelta += delta
+      @floatOffset.setY Math.sin(@totalDelta * 2) * 10
 
   draw: (context) ->
     scroll   = @level.getScroll()

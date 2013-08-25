@@ -32,6 +32,11 @@ class PlayerActor extends LDFW.Actor
 
     mirrored = @player.getDirection() == -1
 
+    if @player.isOnGround()
+      onGroundObject = @player.getOnGroundObject()
+      if offset = onGroundObject.getFloatOffset?()
+        ry += offset.y
+
     unless @player.isOnGround()
       @offgroundAnimSprite.draw context, rx, ry, mirrored
     else if @player.getVelocity().getX() isnt 0

@@ -252,24 +252,21 @@ BlockActor = (function(_super) {
   };
 
   BlockActor.prototype.update = function(delta) {
-    var row, segment, x, y, _i, _len, _ref, _results;
+    var row, segment, x, y, _i, _j, _len, _len1, _ref;
     _ref = this.map;
-    _results = [];
     for (y = _i = 0, _len = _ref.length; _i < _len; y = ++_i) {
       row = _ref[y];
-      _results.push((function() {
-        var _j, _len1, _results1;
-        _results1 = [];
-        for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
-          segment = row[x];
-          if (segment !== 0) {
-            _results1.push(segment.update(delta));
-          }
+      for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
+        segment = row[x];
+        if (segment !== 0) {
+          segment.update(delta);
         }
-        return _results1;
-      })());
+      }
     }
-    return _results;
+    if (!this.buildMode) {
+      this.totalDelta += delta;
+      return this.floatOffset.setY(Math.sin(this.totalDelta * 2) * 10);
+    }
   };
 
   BlockActor.prototype.draw = function(context) {
@@ -1215,7 +1212,7 @@ PlayerActor = (function(_super) {
   };
 
   PlayerActor.prototype.draw = function(context) {
-    var mirrored, playerPosition, rx, ry, scroll;
+    var mirrored, offset, onGroundObject, playerPosition, rx, ry, scroll;
     playerPosition = this.player.getPosition();
     scroll = this.level.getScroll();
     rx = playerPosition.x - scroll.getX();
@@ -1223,6 +1220,12 @@ PlayerActor = (function(_super) {
     rx += this.game.globalRenderOffset.x;
     ry += this.game.globalRenderOffset.y;
     mirrored = this.player.getDirection() === -1;
+    if (this.player.isOnGround()) {
+      onGroundObject = this.player.getOnGroundObject();
+      if (offset = typeof onGroundObject.getFloatOffset === "function" ? onGroundObject.getFloatOffset() : void 0) {
+        ry += offset.y;
+      }
+    }
     if (!this.player.isOnGround()) {
       this.offgroundAnimSprite.draw(context, rx, ry, mirrored);
     } else if (this.player.getVelocity().getX() !== 0) {
@@ -2023,7 +2026,7 @@ Level = (function() {
           if (segment === 0) {
             continue;
           }
-          yOffset = segment.getOffset().getY() + block.getFloatOffset().getY();
+          yOffset = segment.getOffset().getY();
           segment = {
             left: position.getX() + x * this.GRID_SIZE,
             right: position.getX() + (x + 1) * this.GRID_SIZE,
@@ -2118,6 +2121,7 @@ Player = (function() {
     this.width = 0;
     this.height = 0;
     this.onGround = false;
+    this.onGroundObject = false;
     this.direction = 1;
   }
 
@@ -2148,6 +2152,10 @@ Player = (function() {
 
   Player.prototype.isOnGround = function() {
     return this.onGround;
+  };
+
+  Player.prototype.getOnGroundObject = function() {
+    return this.onGroundObject;
   };
 
   Player.prototype.getVelocity = function() {
@@ -2212,8 +2220,11 @@ Player = (function() {
       this.onGround = false;
     }
     if (this.onGround && boundaries.y.object instanceof BlockActor) {
+      this.onGroundObject = boundaries.y.object;
       obj = boundaries.y.object;
       return obj.steppedOn(aspiredPosition.getX() - obj.getGridPosition().getX() * this.level.GRID_SIZE, this.getWidth());
+    } else if (this.onGround) {
+      return this.onGroundObject = false;
     }
   };
 
