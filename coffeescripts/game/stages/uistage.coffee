@@ -1,6 +1,6 @@
 MinimapActor = require "../actors/minimapactor.coffee"
 HeadlineActor = require "../actors/headlineactor.coffee"
-BoostActor = require "../actors/boostactor.coffee"
+PowerupActor = require "../actors/powerupactor.coffee"
 
 class UIStage extends LDFW.Stage
   constructor: (@app, @game) ->
@@ -12,7 +12,7 @@ class UIStage extends LDFW.Stage
     @headlineActor = new HeadlineActor @app, @game
     @addActor @headlineActor
 
-    @boostActor = new BoostActor @app, @game
-    @addActor @boostActor
+    @powerupActor = new PowerupActor @app, @game
+    @addActor @powerupActor
 
 module.exports = UIStage

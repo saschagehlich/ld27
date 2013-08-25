@@ -1,25 +1,4 @@
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BoostActor,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-BoostActor = (function(_super) {
-  __extends(BoostActor, _super);
-
-  function BoostActor(app, game) {
-    this.app = app;
-    this.game = game;
-    BoostActor.__super__.constructor.call(this, this.game);
-  }
-
-  return BoostActor;
-
-})(LDFW.Actor);
-
-module.exports = BoostActor;
-
-
-},{}],2:[function(require,module,exports){
 var Config, FuckingPiranhasActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -63,7 +42,7 @@ FuckingPiranhasActor = (function(_super) {
 module.exports = FuckingPiranhasActor;
 
 
-},{"../config/config.json":9}],3:[function(require,module,exports){
+},{"../config/config.json":9}],2:[function(require,module,exports){
 var HeadlineActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -115,7 +94,7 @@ HeadlineActor = (function(_super) {
 module.exports = HeadlineActor;
 
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var Config, LevelActor, Powerups,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -336,7 +315,7 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{"../config/config.json":9,"../powerups.coffee":16}],5:[function(require,module,exports){
+},{"../config/config.json":9,"../powerups.coffee":16}],4:[function(require,module,exports){
 var MinimapActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -366,7 +345,7 @@ MinimapActor = (function(_super) {
 module.exports = MinimapActor;
 
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -403,6 +382,42 @@ PlayerActor = (function(_super) {
 })(LDFW.Actor);
 
 module.exports = PlayerActor;
+
+
+},{}],6:[function(require,module,exports){
+var PowerupActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+PowerupActor = (function(_super) {
+  __extends(PowerupActor, _super);
+
+  function PowerupActor(app, game) {
+    this.app = app;
+    this.game = game;
+    PowerupActor.__super__.constructor.call(this, this.game);
+    this.fontsAtlas = this.app.getFontsAtlas();
+    this.powerupFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-white.fnt"), this.fontsAtlas.findRegion("pixel-16-white.png"));
+    this.subFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-white.fnt"), this.fontsAtlas.findRegion("pixel-8-white.png"));
+  }
+
+  PowerupActor.prototype.draw = function(context) {
+    var powerup, powerupBounds, subBounds;
+    powerup = this.game.getActivePowerup();
+    if (powerup == null) {
+      return;
+    }
+    powerupBounds = this.powerupFont.getBounds(powerup.name);
+    this.powerupFont.drawText(context, powerup.name, this.app.getWidth() / 2 - powerupBounds.width / 2, 50);
+    subBounds = this.subFont.getBounds(powerup.sub);
+    return this.subFont.drawText(context, powerup.sub, this.app.getWidth() / 2 - subBounds.width / 2, 50 + powerupBounds.height + 4);
+  };
+
+  return PowerupActor;
+
+})(LDFW.Actor);
+
+module.exports = PowerupActor;
 
 
 },{}],7:[function(require,module,exports){
@@ -659,7 +674,7 @@ Game = (function() {
     this.mouse = new Mouse(this.app);
     this.level = new Level(this.app, this);
     this.player = new Player(this.app, this);
-    this.activePowerup = Powerups.BROKEN_BLOCKS;
+    this.activePowerup = null;
     this.powerupStart = +new Date();
     firstPlatform = this.level.getPlatforms()[0];
     this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE + firstPlatform.getWidth() * this.level.GRID_SIZE / 2, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);
@@ -1081,7 +1096,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./actors/fuckingpiranhasactor.coffee":2,"./config/config.json":9,"./entities/block.coffee":10,"./entities/platform.coffee":11,"./powerups.coffee":16,"./utilities/levelgenerator.coffee":21}],15:[function(require,module,exports){
+},{"./actors/fuckingpiranhasactor.coffee":1,"./config/config.json":9,"./entities/block.coffee":10,"./entities/platform.coffee":11,"./powerups.coffee":16,"./utilities/levelgenerator.coffee":21}],15:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -1203,23 +1218,28 @@ var Powerups;
 Powerups = {
   BOOST: {
     id: 0,
-    name: "RUN FOREST!"
+    name: "RUN FOREST!",
+    sub: "SPEED BOOST"
   },
   SLOW: {
     id: 1,
-    name: "HALT STOPP!"
+    name: "HALT STOPP!",
+    sub: "SLOWMO"
   },
   BROKEN_BLOCKS: {
     id: 2,
-    name: "DON'T BREAK IT!"
+    name: "DON'T BREAK IT!",
+    sub: "BROKEN BLOCKS"
   },
   EARTHQUAKE: {
     id: 3,
-    name: "WAAAAH!"
+    name: "WAAAAH!",
+    sub: "EARTHQUAKE"
   },
   LOW_GRAVITY: {
     id: 4,
-    name: "HEY NEIL"
+    name: "HEY NEIL",
+    sub: "LOW GRAVITY"
   }
 };
 
@@ -1295,8 +1315,8 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":4,"../actors/playeractor.coffee":6}],19:[function(require,module,exports){
-var BoostActor, HeadlineActor, MinimapActor, UIStage,
+},{"../actors/levelactor.coffee":3,"../actors/playeractor.coffee":5}],19:[function(require,module,exports){
+var HeadlineActor, MinimapActor, PowerupActor, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1304,7 +1324,7 @@ MinimapActor = require("../actors/minimapactor.coffee");
 
 HeadlineActor = require("../actors/headlineactor.coffee");
 
-BoostActor = require("../actors/boostactor.coffee");
+PowerupActor = require("../actors/powerupactor.coffee");
 
 UIStage = (function(_super) {
   __extends(UIStage, _super);
@@ -1317,8 +1337,8 @@ UIStage = (function(_super) {
     this.addActor(this.minimapActor);
     this.headlineActor = new HeadlineActor(this.app, this.game);
     this.addActor(this.headlineActor);
-    this.boostActor = new BoostActor(this.app, this.game);
-    this.addActor(this.boostActor);
+    this.powerupActor = new PowerupActor(this.app, this.game);
+    this.addActor(this.powerupActor);
   }
 
   return UIStage;
@@ -1328,7 +1348,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{"../actors/boostactor.coffee":1,"../actors/headlineactor.coffee":3,"../actors/minimapactor.coffee":5}],20:[function(require,module,exports){
+},{"../actors/headlineactor.coffee":2,"../actors/minimapactor.coffee":4,"../actors/powerupactor.coffee":6}],20:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -1472,7 +1492,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../actors/fuckingpiranhasactor.coffee":2,"../entities/platform.coffee":11}],22:[function(require,module,exports){
+},{"../actors/fuckingpiranhasactor.coffee":1,"../entities/platform.coffee":11}],22:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
