@@ -87,11 +87,13 @@ BlockActor = (function(_super) {
     this.gridPosition = new LDFW.Vector2();
     this.defaultStyle = Math.floor(Math.random() * Config.block_styles);
     this.style = this.options.style || this.defaultStyle;
+    this.floatOffset = new LDFW.Vector2(0, 10);
     this.randomize();
     this.randomizeBlockStyles();
     for (i = _i = 0, _ref = Math.round(Math.random() * 3); 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
       this.rotate();
     }
+    this.totalDelta = 0;
     this.loadSprites();
   }
 
@@ -217,6 +219,10 @@ BlockActor = (function(_super) {
     return this.style;
   };
 
+  BlockActor.prototype.getFloatOffset = function() {
+    return this.floatOffset;
+  };
+
   BlockActor.prototype.steppedOn = function(x, width) {
     var i, map, row, segmentEnd, segmentOffset, y, _i, _len, _ref, _results;
     if (this.getStyle() !== "broken") {
@@ -290,6 +296,10 @@ BlockActor = (function(_super) {
         ry = position.y + y * this.level.GRID_SIZE + segment.getOffset().getY();
         rx += this.game.globalRenderOffset.x;
         ry += this.game.globalRenderOffset.y;
+        if (!this.buildMode) {
+          rx += this.floatOffset.x;
+          ry += this.floatOffset.y;
+        }
         if (rx > this.app.getWidth() || rx + sprite.getWidth() < 0) {
           continue;
         }
@@ -319,6 +329,10 @@ BlockActor = (function(_super) {
           ry = position.y + y * this.level.GRID_SIZE + segment.getOffset().getY();
           rx += this.game.globalRenderOffset.x;
           ry += this.game.globalRenderOffset.y;
+          if (!this.buildMode) {
+            rx += this.floatOffset.x;
+            ry += this.floatOffset.y;
+          }
           grassSprite.draw(context, rx, ry);
         }
       }
@@ -1931,7 +1945,7 @@ Level = (function() {
           if (segment === 0) {
             continue;
           }
-          yOffset = segment.getOffset().getY();
+          yOffset = segment.getOffset().getY() + block.getFloatOffset().getY();
           segment = {
             left: position.getX() + x * this.GRID_SIZE,
             right: position.getX() + (x + 1) * this.GRID_SIZE,

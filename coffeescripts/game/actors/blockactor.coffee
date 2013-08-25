@@ -16,11 +16,15 @@ class BlockActor extends LDFW.Actor
     @defaultStyle = Math.floor(Math.random() * Config.block_styles)
     @style = @options.style || @defaultStyle
 
+    @floatOffset = new LDFW.Vector2(0, 10)
+
     @randomize()
     @randomizeBlockStyles()
 
     for i in [0...Math.round(Math.random() * 3)]
       @rotate()
+
+    @totalDelta = 0
 
     @loadSprites()
 
@@ -99,6 +103,7 @@ class BlockActor extends LDFW.Actor
   setBuildMode: (buildMode) -> @buildMode = buildMode
 
   getStyle: -> @style
+  getFloatOffset: -> @floatOffset
 
   steppedOn: (x, width) ->
     return unless @getStyle() is "broken"
@@ -117,6 +122,10 @@ class BlockActor extends LDFW.Actor
     for row, y in @map
       for segment, x in row when segment isnt 0
         segment.update delta
+
+    # unless @buildMode
+    #   @totalDelta += delta
+    #   @floatOffset.setY Math.sin(@totalDelta * 2) * 10
 
   draw: (context) ->
     scroll   = @level.getScroll()
@@ -146,6 +155,10 @@ class BlockActor extends LDFW.Actor
 
         rx += @game.globalRenderOffset.x
         ry += @game.globalRenderOffset.y
+
+        unless @buildMode
+          rx += @floatOffset.x
+          ry += @floatOffset.y
 
         continue if rx > @app.getWidth() or
           rx + sprite.getWidth() < 0
@@ -178,6 +191,10 @@ class BlockActor extends LDFW.Actor
 
           rx += @game.globalRenderOffset.x
           ry += @game.globalRenderOffset.y
+
+          unless @buildMode
+            rx += @floatOffset.x
+            ry += @floatOffset.y
 
           grassSprite.draw context,
             rx, ry

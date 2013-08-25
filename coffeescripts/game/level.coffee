@@ -194,7 +194,7 @@ class Level
         for segment, x in row
           continue if segment is 0
 
-          yOffset = segment.getOffset().getY()
+          yOffset = segment.getOffset().getY() + block.getFloatOffset().getY()
           segment =
             left: position.getX() + x * @GRID_SIZE
             right: position.getX() + (x + 1) * @GRID_SIZE
