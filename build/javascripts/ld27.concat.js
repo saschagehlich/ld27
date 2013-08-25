@@ -12658,7 +12658,8 @@ Level = (function() {
     this.blocks = [];
     appTileHeight = Math.round(this.app.getHeight() / this.GRID_SIZE);
     this.obstacles = [];
-    this.generator.generate(10);
+    this.pregeneratedScreensAmount = 10;
+    this.generator.generate(this.pregeneratedScreensAmount);
   }
 
   Level.prototype.onKeyDown = function(event) {
@@ -12703,7 +12704,12 @@ Level = (function() {
   };
 
   Level.prototype.update = function(delta) {
-    var blockMap, gridPosition, mousePosition, obstacle, _i, _len, _ref, _results;
+    var blockMap, gridPosition, mousePosition, obstacle, tilesXPerScreen, xOffset, _i, _len, _ref, _results;
+    xOffset = this.generator.xOffset;
+    tilesXPerScreen = this.app.getWidth() / this.GRID_SIZE;
+    if (this.game.getScroll().getX() / this.GRID_SIZE > xOffset - 5 * tilesXPerScreen) {
+      this.generator.generate(this.pregeneratedScreensAmount);
+    }
     if (Date.now() - this.buildModeCooldownStart > this.BUILDMODE_COOLDOWN) {
       this.buildMode = true;
     }
@@ -13772,7 +13778,7 @@ LevelGenerator = (function() {
   }
 
   LevelGenerator.prototype.generate = function(screens) {
-    var gapSize, maxGapSize, maxPlatformWidth, minGapSize, minPlatformWidth, newMaxOffset, obstacle, placedWidth, platform, screenTilesX, screenTilesY, _results;
+    var gapSize, maxGapSize, maxPlatformWidth, minGapSize, minPlatformWidth, newMaxOffset, obstacle, placedWidth, platform, screenTilesX, screenTilesY;
     if (screens == null) {
       screens = 10;
     }
@@ -13781,7 +13787,6 @@ LevelGenerator = (function() {
     newMaxOffset = this.xOffset + screenTilesX * screens;
     minGapSize = screenTilesX / 2;
     maxGapSize = screenTilesX * 2;
-    _results = [];
     while (this.xOffset < newMaxOffset) {
       placedWidth = 0;
       gapSize = minGapSize + Math.round(Math.random() * (maxGapSize - minGapSize));
@@ -13806,9 +13811,8 @@ LevelGenerator = (function() {
           this.level.addPlatform(platform);
           placedWidth = 10;
       }
-      _results.push(this.xOffset += placedWidth);
     }
-    return _results;
+    return this.xOffset += placedWidth;
   };
 
   return LevelGenerator;

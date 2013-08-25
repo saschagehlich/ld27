@@ -42,8 +42,6 @@ class LevelGenerator
 
           placedWidth = 10
 
-      @xOffset += placedWidth
-
-
+    @xOffset += placedWidth
 
 module.exports = LevelGenerator

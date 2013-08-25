@@ -40,7 +40,8 @@ class Level
     appTileHeight = Math.round @app.getHeight() / @GRID_SIZE
     @obstacles = []
 
-    @generator.generate 10
+    @pregeneratedScreensAmount = 10
+    @generator.generate @pregeneratedScreensAmount
 
   onKeyDown: (event) =>
     return unless @buildMode
@@ -69,6 +70,11 @@ class Level
     @buildModeCooldownStart = Date.now()
 
   update: (delta) ->
+    xOffset = @generator.xOffset
+    tilesXPerScreen = @app.getWidth() / @GRID_SIZE
+    if @game.getScroll().getX() / @GRID_SIZE > xOffset - 5 * tilesXPerScreen
+      @generator.generate @pregeneratedScreensAmount
+
     if Date.now() - @buildModeCooldownStart > @BUILDMODE_COOLDOWN
       @buildMode = true
 
