@@ -917,7 +917,7 @@ MenuActor = (function(_super) {
 module.exports = MenuActor;
 
 
-},{"../utilities/keyboard.coffee":30}],10:[function(require,module,exports){
+},{"../utilities/keyboard.coffee":32}],10:[function(require,module,exports){
 var FuckingPiranhasActor, MinimapActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1545,8 +1545,8 @@ Game = (function(_super) {
 module.exports = Game;
 
 
-},{"./level.coffee":21,"./player.coffee":22,"./powerups.coffee":23,"./utilities/keyboard.coffee":30,"./utilities/mouse.coffee":32,"events":33}],20:[function(require,module,exports){
-var Config, GameScreen, HighScoreScreen, Keyboard, LD27, Mouse, SplashScreen,
+},{"./level.coffee":21,"./player.coffee":22,"./powerups.coffee":23,"./utilities/keyboard.coffee":32,"./utilities/mouse.coffee":34,"events":35}],20:[function(require,module,exports){
+var AboutScreen, Config, GameScreen, HighScoreScreen, Keyboard, LD27, Mouse, SplashScreen, TutorialScreen,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1555,6 +1555,10 @@ GameScreen = require("./screens/gamescreen.coffee");
 SplashScreen = require("./screens/splashscreen.coffee");
 
 HighScoreScreen = require("./screens/highscorescreen.coffee");
+
+AboutScreen = require("./screens/aboutscreen.coffee");
+
+TutorialScreen = require("./screens/tutorialscreen.coffee");
 
 Mouse = require("./utilities/mouse.coffee");
 
@@ -1588,16 +1592,24 @@ LD27 = (function(_super) {
   }
 
   LD27.prototype.switchToGameScreen = function() {
-    return this.screen = new GameScreen(this);
+    this.screen = new GameScreen(this);
+    return this.scoreShared = false;
   };
 
   LD27.prototype.switchToSplashScreen = function() {
     return this.screen = new SplashScreen(this);
   };
 
+  LD27.prototype.switchToAboutScreen = function() {
+    return this.screen = new AboutScreen(this);
+  };
+
   LD27.prototype.switchToHighScoreScreen = function() {
-    this.screen = new HighScoreScreen(this);
-    return this.scoreShared = false;
+    return this.screen = new HighScoreScreen(this);
+  };
+
+  LD27.prototype.switchToTutorialScreen = function() {
+    return this.screen = new TutorialScreen(this);
   };
 
   LD27.prototype.shareScore = function(score) {
@@ -1655,7 +1667,7 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./config/config.json":16,"./screens/gamescreen.coffee":24,"./screens/highscorescreen.coffee":25,"./screens/splashscreen.coffee":26,"./utilities/keyboard.coffee":30,"./utilities/mouse.coffee":32}],21:[function(require,module,exports){
+},{"./config/config.json":16,"./screens/aboutscreen.coffee":24,"./screens/gamescreen.coffee":25,"./screens/highscorescreen.coffee":26,"./screens/splashscreen.coffee":27,"./screens/tutorialscreen.coffee":28,"./utilities/keyboard.coffee":32,"./utilities/mouse.coffee":34}],21:[function(require,module,exports){
 var BlockActor, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform, Powerups,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -1960,7 +1972,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./actors/blockactor.coffee":2,"./actors/fuckingpiranhasactor.coffee":4,"./config/config.json":16,"./entities/platform.coffee":17,"./powerups.coffee":23,"./utilities/levelgenerator.coffee":31}],22:[function(require,module,exports){
+},{"./actors/blockactor.coffee":2,"./actors/fuckingpiranhasactor.coffee":4,"./config/config.json":16,"./entities/platform.coffee":17,"./powerups.coffee":23,"./utilities/levelgenerator.coffee":33}],22:[function(require,module,exports){
 var BlockActor, JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -2161,6 +2173,97 @@ module.exports = Powerups;
 
 
 },{}],24:[function(require,module,exports){
+var AboutScreen, BackgroundActor,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BackgroundActor = require("../actors/backgroundactor.coffee");
+
+AboutScreen = (function(_super) {
+  __extends(AboutScreen, _super);
+
+  function AboutScreen(app) {
+    this.app = app;
+    this.onKeyDown = __bind(this.onKeyDown, this);
+    AboutScreen.__super__.constructor.call(this, this.app);
+    this.backgroundActor = new BackgroundActor(this.app);
+    this.fontsAtlas = this.app.getFontsAtlas();
+    this.textFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-white.fnt"), this.fontsAtlas.findRegion("pixel-8-white.png"));
+    this.headlineFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-24-white.fnt"), this.fontsAtlas.findRegion("pixel-24-white.png"));
+    this.redFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-red.fnt"), this.fontsAtlas.findRegion("pixel-8-red.png"));
+    this.blockInput = false;
+    this.keyboard = this.app.getKeyboard();
+    this.keyboard.removeAllListeners("keydown");
+    this.keyboard.on("keydown", this.onKeyDown);
+  }
+
+  AboutScreen.prototype.onKeyDown = function(e) {
+    var blockInput;
+    if (this.blockInput) {
+      return;
+    }
+    if (e.keyCode === this.keyboard.Keys.ESC) {
+      this.game.switchToSplashScreen();
+      return blockInput = true;
+    }
+  };
+
+  AboutScreen.prototype.update = function(delta) {
+    this.backgroundActor.update(delta);
+  };
+
+  AboutScreen.prototype.drawAboutHeadline = function(context) {
+    var headlineBounds, headlineText;
+    headlineText = "ABOUT RUNTRIS";
+    headlineBounds = this.headlineFont.getBounds(headlineText);
+    return this.headlineFont.drawText(context, headlineText, this.app.getWidth() / 2 - headlineBounds.getWidth() / 2, 60);
+  };
+
+  AboutScreen.prototype.drawQuitMessage = function(context) {
+    var escText, fullBounds, fullQuitText, quitText, rBounds;
+    escText = "PRESS ESC ";
+    quitText = "TO QUIT TO MENU";
+    fullQuitText = escText + quitText;
+    rBounds = this.textFont.getBounds(escText);
+    fullBounds = this.redFont.getBounds(fullQuitText);
+    this.redFont.drawText(context, escText, this.app.getWidth() / 2 - fullBounds.width / 2, 400);
+    return this.textFont.drawText(context, quitText, this.app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 400);
+  };
+
+  AboutScreen.prototype.drawAboutText = function(context) {
+    var line, lineHeight, text, yOffset, _i, _len, _results;
+    text = ["Runtris has been created by Sascha Gehlich within", "less than 48 hours during the 27th \"Ludum Dare\" ", "game development competition in August 2013.", "", "Tools used: Adobe Photoshop, TexturePacker, Sublime", "Text, Google Chrome, bmGlyph, CoffeeScript, node.js", "and Redis"];
+    yOffset = 150;
+    lineHeight = 20;
+    _results = [];
+    for (_i = 0, _len = text.length; _i < _len; _i++) {
+      line = text[_i];
+      this.textFont.drawText(context, line, 100, yOffset);
+      _results.push(yOffset += lineHeight);
+    }
+    return _results;
+  };
+
+  AboutScreen.prototype.draw = function(context) {
+    context.save();
+    context.fillStyle = "rgba(0, 0, 0, 0.8)";
+    this.backgroundActor.draw(context);
+    context.fillRect(0, 0, this.app.getWidth(), this.app.getHeight());
+    this.drawAboutHeadline(context);
+    this.drawAboutText(context);
+    this.drawQuitMessage(context);
+    return context.restore();
+  };
+
+  return AboutScreen;
+
+})(LDFW.Screen);
+
+module.exports = AboutScreen;
+
+
+},{"../actors/backgroundactor.coffee":1}],25:[function(require,module,exports){
 var Game, GameOverStage, GameScreen, GameStage, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2210,7 +2313,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":19,"../stages/gameoverstage.coffee":27,"../stages/gamestage.coffee":28,"../stages/uistage.coffee":29}],25:[function(require,module,exports){
+},{"../game.coffee":19,"../stages/gameoverstage.coffee":29,"../stages/gamestage.coffee":30,"../stages/uistage.coffee":31}],26:[function(require,module,exports){
 var BackgroundActor, Config, HighscoreActor, HighscoreScreen,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2258,7 +2361,7 @@ HighscoreScreen = (function(_super) {
 module.exports = HighscoreScreen;
 
 
-},{"../actors/backgroundactor.coffee":1,"../actors/highscoreactor.coffee":6,"../config/config.json":16}],26:[function(require,module,exports){
+},{"../actors/backgroundactor.coffee":1,"../actors/highscoreactor.coffee":6,"../config/config.json":16}],27:[function(require,module,exports){
 var BackgroundActor, FooterActor, LogoActor, MenuActor, SplashScreen,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2296,11 +2399,15 @@ SplashScreen = (function(_super) {
     if (e.keyCode === this.keyboard.Keys.ENTER) {
       switch (this.menuActor.getSelectedIndex()) {
         case 0:
-          this.app.switchToGameScreen();
+          this.app.switchToTutorialScreen();
           this.blockInput = true;
           return;
         case 1:
           this.app.switchToHighScoreScreen();
+          this.blockInput = true;
+          return;
+        case 2:
+          this.app.switchToAboutScreen();
           this.blockInput = true;
           return;
       }
@@ -2329,7 +2436,97 @@ SplashScreen = (function(_super) {
 module.exports = SplashScreen;
 
 
-},{"../actors/backgroundactor.coffee":1,"../actors/footeractor.coffee":3,"../actors/logoactor.coffee":8,"../actors/menuactor.coffee":9}],27:[function(require,module,exports){
+},{"../actors/backgroundactor.coffee":1,"../actors/footeractor.coffee":3,"../actors/logoactor.coffee":8,"../actors/menuactor.coffee":9}],28:[function(require,module,exports){
+var BackgroundActor, TutorialScreen,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BackgroundActor = require("../actors/backgroundactor.coffee");
+
+TutorialScreen = (function(_super) {
+  __extends(TutorialScreen, _super);
+
+  function TutorialScreen(app) {
+    this.app = app;
+    this.onKeyDown = __bind(this.onKeyDown, this);
+    TutorialScreen.__super__.constructor.call(this, this.app);
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.stepIndex = 0;
+    this.steps = [
+      {
+        title: "MOVING AROUND",
+        sprite: this.spritesAtlas.createSprite("tutorial/tutorial-moving.png")
+      }, {
+        title: "BUILDING BLOCKS",
+        sprite: this.spritesAtlas.createSprite("tutorial/tutorial-building.png")
+      }, {
+        title: "BEWARE OF POWERUPS",
+        sprite: this.spritesAtlas.createSprite("tutorial/tutorial-powerups.png")
+      }
+    ];
+    this.backgroundActor = new BackgroundActor(this.app);
+    this.fontsAtlas = this.app.getFontsAtlas();
+    this.headlineFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-24-white.fnt"), this.fontsAtlas.findRegion("pixel-24-white.png"));
+    this.subFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-red.fnt"), this.fontsAtlas.findRegion("pixel-16-red.png"));
+    this.blockInput = false;
+    this.keyboard = this.app.getKeyboard();
+    this.keyboard.removeAllListeners("keydown");
+    this.keyboard.on("keydown", this.onKeyDown);
+  }
+
+  TutorialScreen.prototype.onKeyDown = function(e) {
+    if (this.blockInput) {
+      return;
+    }
+    if (e.keyCode === this.keyboard.Keys.ENTER) {
+      this.stepIndex++;
+      if (this.stepIndex > this.steps.length - 1) {
+        this.blockInput = true;
+        return this.app.switchToGameScreen();
+      }
+    }
+  };
+
+  TutorialScreen.prototype.update = function(delta) {
+    this.backgroundActor.update(delta);
+  };
+
+  TutorialScreen.prototype.drawAboutHeadline = function(context) {
+    var headlineBounds, headlineText;
+    headlineText = "TUTORIAL";
+    headlineBounds = this.headlineFont.getBounds(headlineText);
+    return this.headlineFont.drawText(context, headlineText, this.app.getWidth() / 2 - headlineBounds.getWidth() / 2, 50);
+  };
+
+  TutorialScreen.prototype.drawTutorialStep = function(context) {
+    var sprite, step, titleBounds, titleText;
+    step = this.steps[this.stepIndex];
+    titleText = step.title;
+    titleBounds = this.subFont.getBounds(titleText);
+    this.subFont.drawText(context, titleText, this.app.getWidth() / 2 - titleBounds.getWidth() / 2, 106);
+    sprite = step.sprite;
+    return sprite.draw(context, this.app.getWidth() / 2 - sprite.getWidth() / 2, 160);
+  };
+
+  TutorialScreen.prototype.draw = function(context) {
+    context.save();
+    context.fillStyle = "rgba(0, 0, 0, 0.8)";
+    this.backgroundActor.draw(context);
+    context.fillRect(0, 0, this.app.getWidth(), this.app.getHeight());
+    this.drawAboutHeadline(context);
+    this.drawTutorialStep(context);
+    return context.restore();
+  };
+
+  return TutorialScreen;
+
+})(LDFW.Screen);
+
+module.exports = TutorialScreen;
+
+
+},{"../actors/backgroundactor.coffee":1}],29:[function(require,module,exports){
 var GameOverStage,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2454,7 +2651,7 @@ GameOverStage = (function(_super) {
 module.exports = GameOverStage;
 
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2483,7 +2680,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":7,"../actors/playeractor.coffee":11}],29:[function(require,module,exports){
+},{"../actors/levelactor.coffee":7,"../actors/playeractor.coffee":11}],31:[function(require,module,exports){
 var HeadlineActor, MinimapActor, PowerupActor, TimerActor, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2526,7 +2723,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{"../actors/headlineactor.coffee":5,"../actors/minimapactor.coffee":10,"../actors/powerupactor.coffee":12,"../actors/timeractor.coffee":13}],30:[function(require,module,exports){
+},{"../actors/headlineactor.coffee":5,"../actors/minimapactor.coffee":10,"../actors/powerupactor.coffee":12,"../actors/timeractor.coffee":13}],32:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2599,7 +2796,7 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":33}],31:[function(require,module,exports){
+},{"events":35}],33:[function(require,module,exports){
 var FuckingPiranhas, LevelGenerator, Platform;
 
 Platform = require("../entities/platform.coffee");
@@ -2664,7 +2861,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../actors/fuckingpiranhasactor.coffee":4,"../entities/platform.coffee":17}],32:[function(require,module,exports){
+},{"../actors/fuckingpiranhasactor.coffee":4,"../entities/platform.coffee":17}],34:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2715,7 +2912,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":33}],33:[function(require,module,exports){
+},{"events":35}],35:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -2911,7 +3108,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":34}],34:[function(require,module,exports){
+},{"__browserify_process":36}],36:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

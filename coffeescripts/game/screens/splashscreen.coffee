@@ -24,11 +24,15 @@ class SplashScreen extends LDFW.Screen
     if e.keyCode is @keyboard.Keys.ENTER
       switch @menuActor.getSelectedIndex()
         when 0
-          @app.switchToGameScreen()
+          @app.switchToTutorialScreen()
           @blockInput = true
           return
         when 1
           @app.switchToHighScoreScreen()
+          @blockInput = true
+          return
+        when 2
+          @app.switchToAboutScreen()
           @blockInput = true
           return
 

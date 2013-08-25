@@ -1,6 +1,8 @@
 GameScreen      = require "./screens/gamescreen.coffee"
 SplashScreen    = require "./screens/splashscreen.coffee"
 HighScoreScreen = require "./screens/highscorescreen.coffee"
+AboutScreen     = require "./screens/aboutscreen.coffee"
+TutorialScreen  = require "./screens/tutorialscreen.coffee"
 Mouse           = require "./utilities/mouse.coffee"
 Keyboard        = require "./utilities/keyboard.coffee"
 Config          = require "./config/config.json"
@@ -43,13 +45,19 @@ class LD27 extends LDFW.Game
 
   switchToGameScreen: ->
     @screen = new GameScreen this
+    @scoreShared = false
 
   switchToSplashScreen: ->
     @screen = new SplashScreen this
 
+  switchToAboutScreen: ->
+    @screen = new AboutScreen this
+
   switchToHighScoreScreen: ->
     @screen = new HighScoreScreen this
-    @scoreShared = false
+
+  switchToTutorialScreen: ->
+    @screen = new TutorialScreen this
 
   shareScore: (score) ->
     if @scoreShared
