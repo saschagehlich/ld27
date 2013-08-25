@@ -12,6 +12,12 @@ class MinimapActor extends LDFW.Actor
     @background = @spritesAtlas.createSprite "ui/minimap.png"
     @background.setPosition 0, @app.getHeight() - @background.getHeight()
 
+    @fontsAtlas = @app.getFontsAtlas()
+    @font = new LDFW.BitmapFont(
+      @app.getPreloader().get("assets/fonts/pixel-8-white.fnt"),
+      @fontsAtlas.findRegion("pixel-8-white.png")
+    )
+
   update: (delta) -> return
 
   draw: (context) ->
@@ -40,10 +46,34 @@ class MinimapActor extends LDFW.Actor
       .multiply(scale)
       .substract(@app.getWidth() / 2, 0)
 
+    if scroll.getX() * scale < drawOptions.width / 2
+      @drawStartIndicator context, scroll, drawOptions
+
     @drawPlayer context, player, scroll, drawOptions
     @drawPlatforms context, platforms, scroll, drawOptions
     @drawObstacles context, obstacles, scroll, drawOptions
     @drawBlocks context, blocks, scroll, drawOptions
+
+  drawStartIndicator: (context, scroll, options) ->
+    context.save()
+    context.globalAlpha = 0.03
+    context.fillStyle = "rgba(255, 255, 255)"
+
+    context.fillRect(
+      - scroll.getX(), options.offset.getY() + options.padding.getY(),
+      2, options.height
+    )
+
+    context.globalAlpha = 0.1
+
+    startText = "START >"
+    startBounds = @font.getBounds startText
+    @font.drawText context,
+      startText,
+      - scroll.getX() - startBounds.width - 8,
+      options.offset.getY() + options.padding.getY() + options.height / 2 - startBounds.getHeight() / 2
+
+    context.restore()
 
   drawPlayer: (context, player, scroll, options) ->
     context.save()

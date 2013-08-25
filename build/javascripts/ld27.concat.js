@@ -11686,6 +11686,8 @@ MinimapActor = (function(_super) {
     this.piranhasSprite = this.spritesAtlas.createSprite("ui/minimap-fucking-piranhas.png");
     this.background = this.spritesAtlas.createSprite("ui/minimap.png");
     this.background.setPosition(0, this.app.getHeight() - this.background.getHeight());
+    this.fontsAtlas = this.app.getFontsAtlas();
+    this.font = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-white.fnt"), this.fontsAtlas.findRegion("pixel-8-white.png"));
   }
 
   MinimapActor.prototype.update = function(delta) {};
@@ -11712,10 +11714,26 @@ MinimapActor = (function(_super) {
     drawOptions.scaledGridSize = Math.round(this.level.GRID_SIZE * scale);
     drawOptions.scale = scale;
     scroll = this.game.getScroll().clone().multiply(scale).substract(this.app.getWidth() / 2, 0);
+    if (scroll.getX() * scale < drawOptions.width / 2) {
+      this.drawStartIndicator(context, scroll, drawOptions);
+    }
     this.drawPlayer(context, player, scroll, drawOptions);
     this.drawPlatforms(context, platforms, scroll, drawOptions);
     this.drawObstacles(context, obstacles, scroll, drawOptions);
     return this.drawBlocks(context, blocks, scroll, drawOptions);
+  };
+
+  MinimapActor.prototype.drawStartIndicator = function(context, scroll, options) {
+    var startBounds, startText;
+    context.save();
+    context.globalAlpha = 0.03;
+    context.fillStyle = "rgba(255, 255, 255)";
+    context.fillRect(-scroll.getX(), options.offset.getY() + options.padding.getY(), 2, options.height);
+    context.globalAlpha = 0.1;
+    startText = "START >";
+    startBounds = this.font.getBounds(startText);
+    this.font.drawText(context, startText, -scroll.getX() - startBounds.width - 8, options.offset.getY() + options.padding.getY() + options.height / 2 - startBounds.getHeight() / 2);
+    return context.restore();
   };
 
   MinimapActor.prototype.drawPlayer = function(context, player, scroll, options) {
