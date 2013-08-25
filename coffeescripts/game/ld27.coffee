@@ -71,6 +71,7 @@ class LD27 extends LDFW.Game
         askForName()
 
     askForName()
+    return if name is null
 
     @scoreShared = true
     name = encodeURIComponent name

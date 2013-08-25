@@ -33,6 +33,10 @@ class TutorialScreen extends LDFW.Screen
       @app.getPreloader().get("assets/fonts/pixel-16-red.fnt"),
       @fontsAtlas.findRegion("pixel-16-red.png")
     )
+    @smallFont = new LDFW.BitmapFont(
+      @app.getPreloader().get("assets/fonts/pixel-8-white.fnt"),
+      @fontsAtlas.findRegion("pixel-8-white.png")
+    )
 
     @blockInput = false
     @keyboard = @app.getKeyboard()
@@ -46,6 +50,7 @@ class TutorialScreen extends LDFW.Screen
       @stepIndex++
       if @stepIndex > @steps.length - 1
         @blockInput = true
+        localStorage.setItem("seen_tutorial", true)
         @app.switchToGameScreen()
 
   update: (delta) ->
@@ -68,7 +73,18 @@ class TutorialScreen extends LDFW.Screen
     @subFont.drawText context,
       titleText,
       @app.getWidth() / 2 - titleBounds.getWidth() / 2,
-      106
+      94
+
+    if @stepIndex < @steps.length - 1
+      instructionText = "PRESS ENTER TO SEE THE NEXT TIP"
+    else
+      instructionText = "PRESS ENTER TO START THE GAME"
+
+    instructionBounds = @smallFont.getBounds instructionText
+    @smallFont.drawText context,
+      instructionText,
+      @app.getWidth() / 2 - instructionBounds.getWidth() / 2,
+      126
 
     sprite = step.sprite
     sprite.draw context,

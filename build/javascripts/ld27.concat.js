@@ -12517,6 +12517,9 @@ LD27 = (function(_super) {
       }
     };
     askForName();
+    if (name === null) {
+      return;
+    }
     this.scoreShared = true;
     name = encodeURIComponent(name);
     score = encodeURIComponent(score);
@@ -13289,7 +13292,11 @@ SplashScreen = (function(_super) {
     if (e.keyCode === this.keyboard.Keys.ENTER) {
       switch (this.menuActor.getSelectedIndex()) {
         case 0:
-          this.app.switchToTutorialScreen();
+          if (!localStorage.getItem("seen_tutorial")) {
+            this.app.switchToTutorialScreen();
+          } else {
+            this.app.switchToGameScreen();
+          }
           this.blockInput = true;
           return;
         case 1:
@@ -13359,6 +13366,7 @@ TutorialScreen = (function(_super) {
     this.fontsAtlas = this.app.getFontsAtlas();
     this.headlineFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-24-white.fnt"), this.fontsAtlas.findRegion("pixel-24-white.png"));
     this.subFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-red.fnt"), this.fontsAtlas.findRegion("pixel-16-red.png"));
+    this.smallFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-white.fnt"), this.fontsAtlas.findRegion("pixel-8-white.png"));
     this.blockInput = false;
     this.keyboard = this.app.getKeyboard();
     this.keyboard.removeAllListeners("keydown");
@@ -13373,6 +13381,7 @@ TutorialScreen = (function(_super) {
       this.stepIndex++;
       if (this.stepIndex > this.steps.length - 1) {
         this.blockInput = true;
+        localStorage.setItem("seen_tutorial", true);
         return this.app.switchToGameScreen();
       }
     }
@@ -13390,11 +13399,18 @@ TutorialScreen = (function(_super) {
   };
 
   TutorialScreen.prototype.drawTutorialStep = function(context) {
-    var sprite, step, titleBounds, titleText;
+    var instructionBounds, instructionText, sprite, step, titleBounds, titleText;
     step = this.steps[this.stepIndex];
     titleText = step.title;
     titleBounds = this.subFont.getBounds(titleText);
-    this.subFont.drawText(context, titleText, this.app.getWidth() / 2 - titleBounds.getWidth() / 2, 106);
+    this.subFont.drawText(context, titleText, this.app.getWidth() / 2 - titleBounds.getWidth() / 2, 94);
+    if (this.stepIndex < this.steps.length - 1) {
+      instructionText = "PRESS ENTER TO SEE THE NEXT TIP";
+    } else {
+      instructionText = "PRESS ENTER TO START THE GAME";
+    }
+    instructionBounds = this.smallFont.getBounds(instructionText);
+    this.smallFont.drawText(context, instructionText, this.app.getWidth() / 2 - instructionBounds.getWidth() / 2, 126);
     sprite = step.sprite;
     return sprite.draw(context, this.app.getWidth() / 2 - sprite.getWidth() / 2, 160);
   };
