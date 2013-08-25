@@ -1,4 +1,32 @@
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var BackgroundActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BackgroundActor = (function(_super) {
+  __extends(BackgroundActor, _super);
+
+  function BackgroundActor(app) {
+    this.app = app;
+    BackgroundActor.__super__.constructor.call(this, this.app);
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.backgroundSprite = this.spritesAtlas.createSprite("background.png");
+  }
+
+  BackgroundActor.prototype.update = function(delta) {};
+
+  BackgroundActor.prototype.draw = function(context) {
+    return this.backgroundSprite.draw(context);
+  };
+
+  return BackgroundActor;
+
+})(LDFW.Actor);
+
+module.exports = BackgroundActor;
+
+
+},{}],2:[function(require,module,exports){
 var BlockActor, Config, Segment,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -264,7 +292,45 @@ BlockActor = (function(_super) {
 module.exports = BlockActor;
 
 
-},{"../config/available_blocks.json":9,"../config/config.json":10,"../entities/segment.coffee":12}],2:[function(require,module,exports){
+},{"../config/available_blocks.json":13,"../config/config.json":14,"../entities/segment.coffee":16}],3:[function(require,module,exports){
+var BackgroundActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BackgroundActor = (function(_super) {
+  __extends(BackgroundActor, _super);
+
+  function BackgroundActor(app) {
+    this.app = app;
+    BackgroundActor.__super__.constructor.call(this, this.app);
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.footerSprite = this.spritesAtlas.createSprite("splash/footer.png");
+    this.initialY = this.app.getHeight();
+    this.finalY = this.app.getHeight() - this.footerSprite.getHeight();
+    this.setY(this.initialY);
+    this.deltaSum = 0;
+    this.animationDuration = 1;
+  }
+
+  BackgroundActor.prototype.update = function(delta) {
+    this.setY((this.finalY - this.initialY) * (-Math.pow(2, -10 * this.deltaSum / this.animationDuration) + 1) + this.initialY);
+    this.footerSprite.setPosition(this.position);
+    this.deltaSum += delta;
+    return this.deltaSum = Math.min(this.deltaSum, this.animationDuration);
+  };
+
+  BackgroundActor.prototype.draw = function(context) {
+    return this.footerSprite.draw(context);
+  };
+
+  return BackgroundActor;
+
+})(LDFW.Actor);
+
+module.exports = BackgroundActor;
+
+
+},{}],4:[function(require,module,exports){
 var Config, FuckingPiranhasActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -308,7 +374,7 @@ FuckingPiranhasActor = (function(_super) {
 module.exports = FuckingPiranhasActor;
 
 
-},{"../config/config.json":10}],3:[function(require,module,exports){
+},{"../config/config.json":14}],5:[function(require,module,exports){
 var HeadlineActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -360,7 +426,7 @@ HeadlineActor = (function(_super) {
 module.exports = HeadlineActor;
 
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var Config, LevelActor, Powerups,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -526,7 +592,182 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{"../config/config.json":10,"../powerups.coffee":17}],5:[function(require,module,exports){
+},{"../config/config.json":14,"../powerups.coffee":21}],7:[function(require,module,exports){
+var Char, LogoActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Char = (function() {
+  function Char(char, atlas) {
+    this.char = char;
+    this.sprite = atlas.createSprite("logo/" + char + ".png");
+    this.initialY = -this.sprite.getHeight();
+    this.toY = 110;
+    this.position = new LDFW.Vector2(0, this.initialY);
+    this.sumDelta = 0;
+    this.animDuration = 1.5;
+    this.delay = Math.random() * 0.5;
+    this.sprite.setPosition(this.position);
+  }
+
+  Char.prototype.update = function(delta) {
+    var overshoot, time, y;
+    this.sumDelta += delta;
+    if (this.sumDelta < this.delay) {
+      return;
+    }
+    overshoot = 1.70158;
+    if (this.sumDelta - this.delay < this.animDuration) {
+      y = (this.toY - this.initialY) * ((time = (this.sumDelta - this.delay) / this.animDuration - 1) * time * ((overshoot + 1) * time + overshoot) + 1) + this.initialY;
+    } else {
+      y = this.toY;
+    }
+    y += Math.sin((-this.sumDelta - this.delay) * 4) * 5;
+    this.position.setY(y);
+    return this.sprite.setPosition(this.position);
+  };
+
+  Char.prototype.draw = function(context) {
+    return this.sprite.draw(context);
+  };
+
+  return Char;
+
+})();
+
+LogoActor = (function(_super) {
+  __extends(LogoActor, _super);
+
+  function LogoActor(app) {
+    var char, charObj, i, sumWidth, totalWidth, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+    this.app = app;
+    LogoActor.__super__.constructor.call(this, this.app);
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.chars = [];
+    _ref = "runtris";
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      char = _ref[_i];
+      charObj = new Char(char, this.spritesAtlas);
+      this.chars.push(charObj);
+    }
+    totalWidth = 0;
+    _ref1 = this.chars;
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      char = _ref1[_j];
+      totalWidth += char.sprite.getWidth() + 10;
+    }
+    sumWidth = 0;
+    _ref2 = this.chars;
+    for (i = _k = 0, _len2 = _ref2.length; _k < _len2; i = ++_k) {
+      char = _ref2[i];
+      char.position.setX(this.app.getWidth() / 2 - totalWidth / 2 + sumWidth);
+      sumWidth += char.sprite.getWidth() + 10;
+    }
+  }
+
+  LogoActor.prototype.update = function(delta) {
+    var char, _i, _len, _ref, _results;
+    _ref = this.chars;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      char = _ref[_i];
+      _results.push(char.update(delta));
+    }
+    return _results;
+  };
+
+  LogoActor.prototype.draw = function(context) {
+    var char, _i, _len, _ref, _results;
+    _ref = this.chars;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      char = _ref[_i];
+      _results.push(char.draw(context));
+    }
+    return _results;
+  };
+
+  return LogoActor;
+
+})(LDFW.Actor);
+
+module.exports = LogoActor;
+
+
+},{}],8:[function(require,module,exports){
+var Keyboard, MenuActor,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Keyboard = require("../utilities/keyboard.coffee");
+
+MenuActor = (function(_super) {
+  __extends(MenuActor, _super);
+
+  function MenuActor(app) {
+    this.app = app;
+    this.onKeyDown = __bind(this.onKeyDown, this);
+    MenuActor.__super__.constructor.call(this, this.app);
+    this.fontsAtlas = this.app.getFontsAtlas();
+    this.opacity = 0;
+    this.menuFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-white.fnt"), this.fontsAtlas.findRegion("pixel-16-white.png"));
+    this.selectedIndex = 0;
+    this.options = ["START", "HIGHSCORE", "ABOUT"];
+  }
+
+  MenuActor.prototype.onKeyDown = function(e) {
+    var keyboard;
+    keyboard = this.app.getKeyboard();
+    if (e.keyCode === keyboard.Keys.UP) {
+      this.selectedIndex--;
+      if (this.selectedIndex < 0) {
+        return this.selectedIndex = this.options.length - 1;
+      }
+    } else if (e.keyCode === keyboard.Keys.DOWN) {
+      this.selectedIndex++;
+      if (this.selectedIndex > this.options.length - 1) {
+        return this.selectedIndex = 0;
+      }
+    }
+  };
+
+  MenuActor.prototype.update = function(delta) {
+    this.opacity += delta;
+    return this.opacity = Math.min(1, this.opacity);
+  };
+
+  MenuActor.prototype.draw = function(context) {
+    var i, lineHeight, option, optionBounds, optionText, yOffset, _i, _len, _ref;
+    context.save();
+    context.globalAlpha = this.opacity;
+    yOffset = 250;
+    lineHeight = 40;
+    _ref = this.options;
+    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+      option = _ref[i];
+      optionText = option;
+      if (this.selectedIndex === i) {
+        optionText = "[ " + option + " ]";
+      }
+      optionBounds = this.menuFont.getBounds(optionText);
+      this.menuFont.drawText(context, optionText, this.app.getWidth() / 2 - optionBounds.width / 2, yOffset + i * lineHeight);
+    }
+    return context.restore();
+  };
+
+  MenuActor.prototype.getSelectedIndex = function() {
+    return this.selectedIndex;
+  };
+
+  return MenuActor;
+
+})(LDFW.Actor);
+
+module.exports = MenuActor;
+
+
+},{"../utilities/keyboard.coffee":27}],9:[function(require,module,exports){
 var FuckingPiranhasActor, MinimapActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -703,7 +944,7 @@ MinimapActor = (function(_super) {
 module.exports = MinimapActor;
 
 
-},{"./fuckingpiranhasactor.coffee":2}],6:[function(require,module,exports){
+},{"./fuckingpiranhasactor.coffee":4}],10:[function(require,module,exports){
 var PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -752,7 +993,7 @@ PlayerActor = (function(_super) {
 module.exports = PlayerActor;
 
 
-},{}],7:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var PowerupActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -788,7 +1029,7 @@ PowerupActor = (function(_super) {
 module.exports = PowerupActor;
 
 
-},{}],8:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var LD27;
 
 LD27 = require("./ld27.coffee");
@@ -806,7 +1047,7 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":14}],9:[function(require,module,exports){
+},{"./ld27.coffee":18}],13:[function(require,module,exports){
 module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
@@ -837,7 +1078,7 @@ module.exports=module.exports=[
   ],
 ]
 
-},{}],10:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports=module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
@@ -845,7 +1086,7 @@ module.exports=module.exports={
   "ui_minimap_height": 74
 }
 
-},{}],11:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var Config, Platform;
 
 Config = require("../config/config.json");
@@ -891,7 +1132,7 @@ Platform = (function() {
 module.exports = Platform;
 
 
-},{"../config/config.json":10}],12:[function(require,module,exports){
+},{"../config/config.json":14}],16:[function(require,module,exports){
 var Segment;
 
 Segment = (function() {
@@ -935,7 +1176,7 @@ Segment = (function() {
 module.exports = Segment;
 
 
-},{}],13:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var EventEmitter, Game, Keyboard, Level, Mouse, Player, Powerups,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1066,12 +1307,14 @@ Game = (function(_super) {
 module.exports = Game;
 
 
-},{"./level.coffee":15,"./player.coffee":16,"./powerups.coffee":17,"./utilities/keyboard.coffee":22,"./utilities/mouse.coffee":24,"events":25}],14:[function(require,module,exports){
-var GameScreen, Keyboard, LD27, Mouse,
+},{"./level.coffee":19,"./player.coffee":20,"./powerups.coffee":21,"./utilities/keyboard.coffee":27,"./utilities/mouse.coffee":29,"events":30}],18:[function(require,module,exports){
+var GameScreen, Keyboard, LD27, Mouse, SplashScreen,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 GameScreen = require("./screens/gamescreen.coffee");
+
+SplashScreen = require("./screens/splashscreen.coffee");
 
 Mouse = require("./utilities/mouse.coffee");
 
@@ -1085,6 +1328,7 @@ LD27 = (function(_super) {
     LD27.__super__.constructor.apply(this, arguments);
     this.debugDiv = $("<div>").addClass("debug");
     this.debugDiv.appendTo(this.getWrapper());
+    this.keyboard = new Keyboard();
     this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png", "assets/fonts.json", "assets/fonts.png", "assets/fonts/pixel-8-white.fnt", "assets/fonts/pixel-8-red.fnt", "assets/fonts/pixel-16-white.fnt", "assets/fonts/pixel-16-red.fnt"]);
     this.preloader.on("done", function() {
       var fontsImage, fontsJSON, spritesImage, spritesJSON;
@@ -1094,12 +1338,19 @@ LD27 = (function(_super) {
       fontsJSON = _this.preloader.get("assets/fonts.json");
       fontsImage = _this.preloader.get("assets/fonts.png");
       _this.fontsAtlas = new LDFW.TextureAtlas(fontsJSON.frames, fontsImage);
-      _this.gameScreen = new GameScreen(_this);
-      _this.screen = _this.gameScreen;
+      _this.screen = new SplashScreen(_this);
       return _this.run();
     });
     this.preloader.load();
   }
+
+  LD27.prototype.switchToGameScreen = function() {
+    return this.screen = new GameScreen(this);
+  };
+
+  LD27.prototype.switchToSplashScreen = function() {
+    return this.screen = new SplashScreen(this);
+  };
 
   /*
    * Getters / setters
@@ -1118,6 +1369,10 @@ LD27 = (function(_super) {
     return this.preloader;
   };
 
+  LD27.prototype.getKeyboard = function() {
+    return this.keyboard;
+  };
+
   LD27.prototype.setDebugText = function(text) {
     return this.debugDiv.text(text);
   };
@@ -1129,7 +1384,7 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":18,"./utilities/keyboard.coffee":22,"./utilities/mouse.coffee":24}],15:[function(require,module,exports){
+},{"./screens/gamescreen.coffee":22,"./screens/splashscreen.coffee":23,"./utilities/keyboard.coffee":27,"./utilities/mouse.coffee":29}],19:[function(require,module,exports){
 var BlockActor, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform, Powerups,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -1434,7 +1689,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./actors/blockactor.coffee":1,"./actors/fuckingpiranhasactor.coffee":2,"./config/config.json":10,"./entities/platform.coffee":11,"./powerups.coffee":17,"./utilities/levelgenerator.coffee":23}],16:[function(require,module,exports){
+},{"./actors/blockactor.coffee":2,"./actors/fuckingpiranhasactor.coffee":4,"./config/config.json":14,"./entities/platform.coffee":15,"./powerups.coffee":21,"./utilities/levelgenerator.coffee":28}],20:[function(require,module,exports){
 var BlockActor, JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -1597,7 +1852,7 @@ Player = (function() {
 module.exports = Player;
 
 
-},{"./actors/blockactor.coffee":1}],17:[function(require,module,exports){
+},{"./actors/blockactor.coffee":2}],21:[function(require,module,exports){
 var Powerups;
 
 Powerups = {
@@ -1631,7 +1886,7 @@ Powerups = {
 module.exports = Powerups;
 
 
-},{}],18:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var Game, GameOverStage, GameScreen, GameStage, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1680,8 +1935,75 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":13,"../stages/gameoverstage.coffee":19,"../stages/gamestage.coffee":20,"../stages/uistage.coffee":21}],19:[function(require,module,exports){
+},{"../game.coffee":17,"../stages/gameoverstage.coffee":24,"../stages/gamestage.coffee":25,"../stages/uistage.coffee":26}],23:[function(require,module,exports){
+var BackgroundActor, FooterActor, LogoActor, MenuActor, SplashScreen,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BackgroundActor = require("../actors/backgroundactor.coffee");
+
+LogoActor = require("../actors/logoactor.coffee");
+
+FooterActor = require("../actors/footeractor.coffee");
+
+MenuActor = require("../actors/menuactor.coffee");
+
+SplashScreen = (function(_super) {
+  __extends(SplashScreen, _super);
+
+  function SplashScreen(app) {
+    this.app = app;
+    this.onKeyDown = __bind(this.onKeyDown, this);
+    SplashScreen.__super__.constructor.call(this, this.app);
+    this.backgroundActor = new BackgroundActor(this.app);
+    this.footerActor = new FooterActor(this.app);
+    this.logoActor = new LogoActor(this.app);
+    this.menuActor = new MenuActor(this.app);
+    this.blockInput = false;
+    this.keyboard = this.app.getKeyboard();
+    this.keyboard.on("keydown", this.onKeyDown);
+  }
+
+  SplashScreen.prototype.onKeyDown = function(e) {
+    if (this.blockInput) {
+      return;
+    }
+    if (e.keyCode === this.keyboard.Keys.ENTER) {
+      switch (this.menuActor.getSelectedIndex()) {
+        case 0:
+          this.app.switchToGameScreen();
+          this.blockInput = true;
+          return;
+      }
+    }
+    return this.menuActor.onKeyDown(e);
+  };
+
+  SplashScreen.prototype.update = function(delta) {
+    this.backgroundActor.update(delta);
+    this.footerActor.update(delta);
+    this.logoActor.update(delta);
+    return this.menuActor.update(delta);
+  };
+
+  SplashScreen.prototype.draw = function(context) {
+    this.backgroundActor.draw(context);
+    this.footerActor.draw(context);
+    this.logoActor.draw(context);
+    return this.menuActor.draw(context);
+  };
+
+  return SplashScreen;
+
+})(LDFW.Screen);
+
+module.exports = SplashScreen;
+
+
+},{"../actors/backgroundactor.coffee":1,"../actors/footeractor.coffee":3,"../actors/logoactor.coffee":7,"../actors/menuactor.coffee":8}],24:[function(require,module,exports){
 var GameOverStage,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1691,25 +2013,43 @@ GameOverStage = (function(_super) {
   function GameOverStage(app, game) {
     this.app = app;
     this.game = game;
+    this.onKeyDown = __bind(this.onKeyDown, this);
     GameOverStage.__super__.constructor.call(this, this.game);
     this.opacity = 0;
     this.toOpacity = 0;
     this.fontsAtlas = this.app.getFontsAtlas();
     this.booFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-red.fnt"), this.fontsAtlas.findRegion("pixel-16-red.png"));
     this.messageFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-white.fnt"), this.fontsAtlas.findRegion("pixel-8-white.png"));
+    this.redFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-red.fnt"), this.fontsAtlas.findRegion("pixel-8-red.png"));
     this.scoreFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-white.fnt"), this.fontsAtlas.findRegion("pixel-16-white.png"));
+    this.keyboard = this.app.getKeyboard();
+    this.keyboard.on("keydown", this.onKeyDown);
+    this.visible = false;
   }
+
+  GameOverStage.prototype.onKeyDown = function(e) {
+    if (!this.visible) {
+      return;
+    }
+    if (e.keyCode === this.keyboard.Keys.R) {
+      return this.app.switchToGameScreen();
+    } else if (e.keyCode === this.keyboard.Keys.ESC) {
+      return this.app.switchToSplashScreen();
+    }
+  };
 
   GameOverStage.prototype.update = function(delta) {
     return this.opacity += (this.toOpacity - this.opacity) / 10;
   };
 
   GameOverStage.prototype.show = function() {
-    return this.toOpacity = 1;
+    this.toOpacity = 1;
+    return this.visible = true;
   };
 
   GameOverStage.prototype.hide = function() {
-    return this.toOpacity = 0;
+    this.toOpacity = 0;
+    return this.visible = false;
   };
 
   GameOverStage.prototype.draw = function(context) {
@@ -1721,26 +2061,50 @@ GameOverStage = (function(_super) {
     context.fillStyle = "rgba(0, 0, 0, 0.8)";
     context.fillRect(0, 0, appWidth, appHeight);
     this.drawMessage(context);
+    this.drawScore(context);
+    this.drawInstructions(context);
     return context.restore();
   };
 
-  GameOverStage.prototype.drawMessage = function(context) {
-    var booBounds, booText, cantWinBounds, cantWinText, lostBounds, lostText, scoreBounds, scoreText, yourScoreBounds, yourScoreText;
-    booText = "BOO!";
-    booBounds = this.booFont.getBounds(booText);
-    this.booFont.drawText(context, booText, this.app.getWidth() / 2 - booBounds.width / 2, 150);
-    lostText = "YOU LOST THE GAME!";
-    lostBounds = this.messageFont.getBounds(lostText);
-    this.messageFont.drawText(context, lostText, this.app.getWidth() / 2 - lostBounds.width / 2, 200);
-    cantWinText = "ACTUALLY, YOU CAN'T WIN.";
-    cantWinBounds = this.messageFont.getBounds(cantWinText);
-    this.messageFont.drawText(context, cantWinText, this.app.getWidth() / 2 - cantWinBounds.width / 2, 222);
+  GameOverStage.prototype.drawScore = function(context) {
+    var scoreBounds, scoreText, yourScoreBounds, yourScoreText;
     yourScoreText = "YOUR SCORE:";
     yourScoreBounds = this.messageFont.getBounds(yourScoreText);
-    this.messageFont.drawText(context, yourScoreText, this.app.getWidth() / 2 - yourScoreBounds.width / 2, 270);
+    this.messageFont.drawText(context, yourScoreText, this.app.getWidth() / 2 - yourScoreBounds.width / 2, 240);
     scoreText = "" + (this.game.getScore()) + "m";
     scoreBounds = this.scoreFont.getBounds(scoreText);
-    return this.scoreFont.drawText(context, scoreText, this.app.getWidth() / 2 - scoreBounds.width / 2, 295);
+    return this.scoreFont.drawText(context, scoreText, this.app.getWidth() / 2 - scoreBounds.width / 2, 260);
+  };
+
+  GameOverStage.prototype.drawInstructions = function(context) {
+    var escText, fullBounds, fullQuitText, fullRetryText, quitText, rBounds, rText, retryText;
+    rText = "PRESS R ";
+    retryText = "TO TRY AGAIN";
+    fullRetryText = rText + retryText;
+    rBounds = this.messageFont.getBounds(rText);
+    fullBounds = this.redFont.getBounds(fullRetryText);
+    this.redFont.drawText(context, rText, this.app.getWidth() / 2 - fullBounds.width / 2, 330);
+    this.messageFont.drawText(context, retryText, this.app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 330);
+    escText = "PRESS ESC ";
+    quitText = "TO QUIT TO MENU";
+    fullQuitText = escText + quitText;
+    rBounds = this.messageFont.getBounds(escText);
+    fullBounds = this.redFont.getBounds(fullQuitText);
+    this.redFont.drawText(context, escText, this.app.getWidth() / 2 - fullBounds.width / 2, 350);
+    return this.messageFont.drawText(context, quitText, this.app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 350);
+  };
+
+  GameOverStage.prototype.drawMessage = function(context) {
+    var booBounds, booText, cantWinBounds, cantWinText, lostBounds, lostText;
+    booText = "BOO!";
+    booBounds = this.booFont.getBounds(booText);
+    this.booFont.drawText(context, booText, this.app.getWidth() / 2 - booBounds.width / 2, 110);
+    lostText = "YOU LOST THE GAME!";
+    lostBounds = this.messageFont.getBounds(lostText);
+    this.messageFont.drawText(context, lostText, this.app.getWidth() / 2 - lostBounds.width / 2, 166);
+    cantWinText = "ACTUALLY, YOU CAN'T WIN.";
+    cantWinBounds = this.messageFont.getBounds(cantWinText);
+    return this.messageFont.drawText(context, cantWinText, this.app.getWidth() / 2 - cantWinBounds.width / 2, 186);
   };
 
   return GameOverStage;
@@ -1750,7 +2114,7 @@ GameOverStage = (function(_super) {
 module.exports = GameOverStage;
 
 
-},{}],20:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1779,7 +2143,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":4,"../actors/playeractor.coffee":6}],21:[function(require,module,exports){
+},{"../actors/levelactor.coffee":6,"../actors/playeractor.coffee":10}],26:[function(require,module,exports){
 var HeadlineActor, MinimapActor, PowerupActor, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1812,7 +2176,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{"../actors/headlineactor.coffee":3,"../actors/minimapactor.coffee":5,"../actors/powerupactor.coffee":7}],22:[function(require,module,exports){
+},{"../actors/headlineactor.coffee":5,"../actors/minimapactor.coffee":9,"../actors/powerupactor.coffee":11}],27:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -1835,6 +2199,7 @@ Keyboard = (function(_super) {
     R: 82,
     SHIFT: 16,
     SPACE: 32,
+    ENTER: 13,
     ESC: 27
   };
 
@@ -1884,7 +2249,7 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":25}],23:[function(require,module,exports){
+},{"events":30}],28:[function(require,module,exports){
 var FuckingPiranhas, LevelGenerator, Platform;
 
 Platform = require("../entities/platform.coffee");
@@ -1956,7 +2321,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../actors/fuckingpiranhasactor.coffee":2,"../entities/platform.coffee":11}],24:[function(require,module,exports){
+},{"../actors/fuckingpiranhasactor.coffee":4,"../entities/platform.coffee":15}],29:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2007,7 +2372,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":25}],25:[function(require,module,exports){
+},{"events":30}],30:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -2203,7 +2568,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":26}],26:[function(require,module,exports){
+},{"__browserify_process":31}],31:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2257,5 +2622,5 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[8])
+},{}]},{},[12])
 ;

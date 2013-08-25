@@ -1,7 +1,7 @@
 GameScreen   = require "./screens/gamescreen.coffee"
+SplashScreen = require "./screens/splashscreen.coffee"
 Mouse        = require "./utilities/mouse.coffee"
 Keyboard     = require "./utilities/keyboard.coffee"
-
 
 class LD27 extends LDFW.Game
   constructor: ->
@@ -9,6 +9,8 @@ class LD27 extends LDFW.Game
 
     @debugDiv = $("<div>").addClass("debug")
     @debugDiv.appendTo @getWrapper()
+
+    @keyboard = new Keyboard()
 
     @preloader = new LDFW.Preloader [
       "assets/sprites.json",
@@ -29,11 +31,16 @@ class LD27 extends LDFW.Game
       fontsImage = @preloader.get "assets/fonts.png"
       @fontsAtlas   = new LDFW.TextureAtlas fontsJSON.frames, fontsImage
 
-      @gameScreen   = new GameScreen this
-      @screen       = @gameScreen
+      @screen       = new SplashScreen this
 
       @run()
     @preloader.load()
+
+  switchToGameScreen: ->
+    @screen = new GameScreen this
+
+  switchToSplashScreen: ->
+    @screen = new SplashScreen this
 
   ###
    * Getters / setters
@@ -41,6 +48,7 @@ class LD27 extends LDFW.Game
   getSpritesAtlas: -> return @spritesAtlas
   getFontsAtlas: -> return @fontsAtlas
   getPreloader: -> return @preloader
+  getKeyboard: -> return @keyboard
 
   setDebugText: (text) ->
     @debugDiv.text text

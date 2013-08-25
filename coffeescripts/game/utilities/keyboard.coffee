@@ -16,6 +16,7 @@ class Keyboard extends EventEmitter
 
     SHIFT: 16
     SPACE: 32
+    ENTER: 13
     ESC: 27
 
   constructor: ->
