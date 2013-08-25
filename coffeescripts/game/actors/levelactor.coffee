@@ -13,20 +13,6 @@ class LevelActor extends LDFW.Actor
     @level = @game.getLevel()
 
   prepareSprites: ->
-    @blockSprites = {}
-
-    styles = [0...Config.block_styles]
-    styles.push "broken"
-
-    for style in styles
-      @blockSprites[style] ?= {}
-      for spriteIndex in [0...Config.sprites_per_block_style]
-        sprite = @spritesAtlas.createSprite "blocks/#{style}-#{spriteIndex}.png"
-
-        @blockSprites[style][spriteIndex] = sprite
-
-      @blockSprites[style]["unbuildable"] = @spritesAtlas.createSprite "blocks/#{style}-unbuildable.png"
-
     @grassSprites = {}
     for spriteIndex in [0...Config.sprites_per_block_style]
       sprite = @spritesAtlas.createSprite "grass/grass-#{spriteIndex}.png"
@@ -122,66 +108,11 @@ class LevelActor extends LDFW.Actor
   drawBuildBlock: (context) ->
     return unless @level.inBuildMode()
 
-    scroll   = @level.getScroll()
-    blocks   = @level.getBlocks()
-    @drawBlock @level.getBuildBlock(), context, true
+    @level.getBuildBlock().draw context
 
   drawBlocks: (context) ->
-    scroll   = @level.getScroll()
     blocks   = @level.getBlocks()
     for block in blocks
-      @drawBlock block, context
-
-  drawBlock: (block, context, isBuildBlock=false) ->
-    scroll   = @level.getScroll()
-    map      = block.getMap()
-    style    = block.getStyle()
-    blockStyles = block.getBlockStyles()
-
-    context.save()
-    position = block
-      .getGridPosition()
-      .clone()
-      .multiply(@level.GRID_SIZE)
-      .substract(scroll)
-
-    for row, y in map
-      for segment, x in row
-        continue if segment is 0
-
-        spriteIndex = blockStyles[y][x]
-        sprite = @blockSprites[style][spriteIndex]
-
-        if not @level.isBuildBlockBuildable() and isBuildBlock
-          sprite = @blockSprites[style].unbuildable
-        if isBuildBlock
-          context.globalAlpha = 0.5
-
-        sprite.draw context,
-          position.x + x * @level.GRID_SIZE,
-          position.y + y * @level.GRID_SIZE
-
-        drawGrass = true
-        unless y is 0
-          if map[y - 1][x] is 1
-            drawGrass = false
-
-        if drawGrass and style isnt "broken"
-          grassSprite = @grassSprites[spriteIndex]
-          grassXOffset = 0
-          if not row[x-1] and not row[x+1]
-            grassSprite = @grassSprites.single
-            grassXOffset = -2
-          else if not row[x-1]
-            grassSprite = @grassSprites.start
-            grassXOffset = -2
-          else if not row[x+1]
-            grassSprite = @grassSprites.end
-
-          grassSprite.draw context,
-            position.x + x * @level.GRID_SIZE + grassXOffset,
-            position.y + y * @level.GRID_SIZE
-
-    context.restore()
+      block.draw context
 
 module.exports = LevelActor

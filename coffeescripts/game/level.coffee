@@ -1,9 +1,10 @@
 Config   = require "./config/config.json"
-Block    = require "./entities/block.coffee"
+
 Platform = require "./entities/platform.coffee"
 LevelGenerator = require "./utilities/levelgenerator.coffee"
 Powerups = require "./powerups.coffee"
 
+BlockActor = require "./actors/blockactor.coffee"
 FuckingPiranhasActor = require "./actors/fuckingpiranhasactor.coffee"
 
 class Level
@@ -12,7 +13,7 @@ class Level
     @renderOffset = new LDFW.Vector2(0, Config.ui_minimap_height)
 
     @buildMode = true
-    @buildBlock = new Block @app, @game, buildMode: true
+    @buildBlock = new BlockActor @app, @game, this, buildMode: true
 
     @keyboard = @game.getKeyboard()
     @keyboard.on "keydown", @onKeyDown
@@ -61,7 +62,7 @@ class Level
 
     # for development
     @buildMode = true
-    @buildBlock = new Block @app, @game, buildMode: true
+    @buildBlock = new BlockActor @app, @game, this, buildMode: true
 
   update: (delta) ->
     if @game.getActivePowerup() == Powerups.BROKEN_BLOCKS and @buildMode

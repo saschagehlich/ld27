@@ -1,4 +1,214 @@
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var BlockActor, Config,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Config = require("../config/config.json");
+
+BlockActor = (function(_super) {
+  __extends(BlockActor, _super);
+
+  BlockActor.prototype.availableBlocks = require("../config/available_blocks.json");
+
+  function BlockActor(app, game, level, options) {
+    this.app = app;
+    this.game = game;
+    this.level = level;
+    this.options = options != null ? options : {};
+    this.buildMode = this.options.buildMode || false;
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.map = null;
+    this.rotation = Math.round(Math.random() * 3);
+    this.gridPosition = new LDFW.Vector2();
+    this.randomize();
+    this.defaultStyle = Math.floor(Math.random() * Config.block_styles);
+    this.style = this.defaultStyle;
+    this.randomizeBlockStyles();
+    this.loadSprites();
+  }
+
+  BlockActor.prototype.loadSprites = function() {
+    var sprite, spriteIndex, style, styles, _base, _i, _j, _k, _l, _len, _ref, _ref1, _ref2, _results;
+    this.blockSprites = {};
+    styles = (function() {
+      _results = [];
+      for (var _i = 0, _ref = Config.block_styles; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
+      return _results;
+    }).apply(this);
+    styles.push("broken");
+    for (_j = 0, _len = styles.length; _j < _len; _j++) {
+      style = styles[_j];
+      if ((_base = this.blockSprites)[style] == null) {
+        _base[style] = {};
+      }
+      for (spriteIndex = _k = 0, _ref1 = Config.sprites_per_block_style; 0 <= _ref1 ? _k < _ref1 : _k > _ref1; spriteIndex = 0 <= _ref1 ? ++_k : --_k) {
+        sprite = this.spritesAtlas.createSprite("blocks/" + style + "-" + spriteIndex + ".png");
+        this.blockSprites[style][spriteIndex] = sprite;
+      }
+      this.blockSprites[style]["unbuildable"] = this.spritesAtlas.createSprite("blocks/" + style + "-unbuildable.png");
+    }
+    this.grassSprites = {};
+    for (spriteIndex = _l = 0, _ref2 = Config.sprites_per_block_style; 0 <= _ref2 ? _l < _ref2 : _l > _ref2; spriteIndex = 0 <= _ref2 ? ++_l : --_l) {
+      sprite = this.spritesAtlas.createSprite("grass/grass-" + spriteIndex + ".png");
+      this.grassSprites[spriteIndex] = sprite;
+    }
+    this.grassSprites["start"] = this.spritesAtlas.createSprite("grass/grass-start.png");
+    this.grassSprites["end"] = this.spritesAtlas.createSprite("grass/grass-end.png");
+    return this.grassSprites["single"] = this.spritesAtlas.createSprite("grass/grass-single.png");
+  };
+
+  BlockActor.prototype.setStyle = function(style) {
+    this.style = style;
+  };
+
+  BlockActor.prototype.setDefaultStyle = function() {
+    return this.style = this.defaultStyle;
+  };
+
+  BlockActor.prototype.randomizeBlockStyles = function() {
+    var col, r, row, _i, _j, _len, _len1, _ref, _results;
+    this.blockStyles = [];
+    _ref = this.map;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      row = _ref[_i];
+      r = [];
+      for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
+        col = row[_j];
+        r.push(Math.floor(Math.random() * Config.sprites_per_block_style));
+      }
+      _results.push(this.blockStyles.push(r));
+    }
+    return _results;
+  };
+
+  BlockActor.prototype.randomize = function() {
+    var index;
+    index = Math.floor(Math.random() * this.availableBlocks.length);
+    return this.map = this.availableBlocks[index];
+  };
+
+  BlockActor.prototype.getGridPosition = function() {
+    return this.gridPosition;
+  };
+
+  BlockActor.prototype.setGridPosition = function() {
+    return this.gridPosition.set.apply(this.gridPosition, arguments);
+  };
+
+  BlockActor.prototype.rotate = function() {
+    this.rotation += 1;
+    return this.rotation %= 4;
+  };
+
+  BlockActor.prototype.getMap = function() {
+    var i, j, map, newData, _i, _j, _k, _ref, _ref1, _ref2;
+    map = this.map;
+    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      newData = [];
+      for (i = _j = _ref1 = map.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
+        for (j = _k = 0, _ref2 = map[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
+          if (!newData.hasOwnProperty(j)) {
+            newData[j] = [];
+          }
+          newData[j].push(map[i][j]);
+        }
+      }
+      map = newData;
+    }
+    return map;
+  };
+
+  BlockActor.prototype.getBlockStyles = function() {
+    var i, j, newData, styles, _i, _j, _k, _ref, _ref1, _ref2;
+    styles = this.blockStyles;
+    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      newData = [];
+      for (i = _j = _ref1 = styles.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
+        for (j = _k = 0, _ref2 = styles[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
+          if (!newData.hasOwnProperty(j)) {
+            newData[j] = [];
+          }
+          newData[j].push(styles[i][j]);
+        }
+      }
+      styles = newData;
+    }
+    return styles;
+  };
+
+  BlockActor.prototype.getRotation = function() {
+    return this.rotation;
+  };
+
+  BlockActor.prototype.inBuildMode = function() {
+    return this.buildMode;
+  };
+
+  BlockActor.prototype.setBuildMode = function(buildMode) {
+    return this.buildMode = buildMode;
+  };
+
+  BlockActor.prototype.getStyle = function() {
+    return this.style;
+  };
+
+  BlockActor.prototype.draw = function(context) {
+    var blockStyles, drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, x, y, _i, _j, _len, _len1;
+    scroll = this.level.getScroll();
+    context.save();
+    position = this.gridPosition.clone().multiply(this.level.GRID_SIZE).substract(scroll);
+    map = this.getMap();
+    blockStyles = this.getBlockStyles();
+    for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
+      row = map[y];
+      for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
+        segment = row[x];
+        if (segment === 0) {
+          continue;
+        }
+        spriteIndex = blockStyles[y][x];
+        sprite = this.blockSprites[this.style][spriteIndex];
+        if (!this.level.isBuildBlockBuildable() && this.buildMode) {
+          sprite = this.blockSprites[this.style].unbuildable;
+        }
+        if (this.buildMode) {
+          context.globalAlpha = 0.5;
+        }
+        sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
+        drawGrass = true;
+        if (y !== 0) {
+          if (map[y - 1][x] === 1) {
+            drawGrass = false;
+          }
+        }
+        if (drawGrass && this.style !== "broken") {
+          grassSprite = this.grassSprites[spriteIndex];
+          grassXOffset = 0;
+          if (!row[x - 1] && !row[x + 1]) {
+            grassSprite = this.grassSprites.single;
+            grassXOffset = -2;
+          } else if (!row[x - 1]) {
+            grassSprite = this.grassSprites.start;
+            grassXOffset = -2;
+          } else if (!row[x + 1]) {
+            grassSprite = this.grassSprites.end;
+          }
+          grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y + y * this.level.GRID_SIZE);
+        }
+      }
+    }
+    return context.restore();
+  };
+
+  return BlockActor;
+
+})(LDFW.Actor);
+
+module.exports = BlockActor;
+
+
+},{"../config/available_blocks.json":9,"../config/config.json":10}],2:[function(require,module,exports){
 var Config, FuckingPiranhasActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -42,7 +252,7 @@ FuckingPiranhasActor = (function(_super) {
 module.exports = FuckingPiranhasActor;
 
 
-},{"../config/config.json":9}],2:[function(require,module,exports){
+},{"../config/config.json":10}],3:[function(require,module,exports){
 var HeadlineActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -94,7 +304,7 @@ HeadlineActor = (function(_super) {
 module.exports = HeadlineActor;
 
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var Config, LevelActor, Powerups,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -117,27 +327,9 @@ LevelActor = (function(_super) {
   }
 
   LevelActor.prototype.prepareSprites = function() {
-    var sprite, spriteIndex, style, styles, _base, _i, _j, _k, _l, _len, _m, _ref, _ref1, _ref2, _ref3, _results;
-    this.blockSprites = {};
-    styles = (function() {
-      _results = [];
-      for (var _i = 0, _ref = Config.block_styles; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
-      return _results;
-    }).apply(this);
-    styles.push("broken");
-    for (_j = 0, _len = styles.length; _j < _len; _j++) {
-      style = styles[_j];
-      if ((_base = this.blockSprites)[style] == null) {
-        _base[style] = {};
-      }
-      for (spriteIndex = _k = 0, _ref1 = Config.sprites_per_block_style; 0 <= _ref1 ? _k < _ref1 : _k > _ref1; spriteIndex = 0 <= _ref1 ? ++_k : --_k) {
-        sprite = this.spritesAtlas.createSprite("blocks/" + style + "-" + spriteIndex + ".png");
-        this.blockSprites[style][spriteIndex] = sprite;
-      }
-      this.blockSprites[style]["unbuildable"] = this.spritesAtlas.createSprite("blocks/" + style + "-unbuildable.png");
-    }
+    var sprite, spriteIndex, _i, _j, _ref, _ref1;
     this.grassSprites = {};
-    for (spriteIndex = _l = 0, _ref2 = Config.sprites_per_block_style; 0 <= _ref2 ? _l < _ref2 : _l > _ref2; spriteIndex = 0 <= _ref2 ? ++_l : --_l) {
+    for (spriteIndex = _i = 0, _ref = Config.sprites_per_block_style; 0 <= _ref ? _i < _ref : _i > _ref; spriteIndex = 0 <= _ref ? ++_i : --_i) {
       sprite = this.spritesAtlas.createSprite("grass/grass-" + spriteIndex + ".png");
       this.grassSprites[spriteIndex] = sprite;
     }
@@ -145,7 +337,7 @@ LevelActor = (function(_super) {
     this.grassSprites["end"] = this.spritesAtlas.createSprite("grass/grass-end.png");
     this.grassSprites["single"] = this.spritesAtlas.createSprite("grass/grass-single.png");
     this.tileSprites = {};
-    for (spriteIndex = _m = 0, _ref3 = Config.sprites_per_block_style; 0 <= _ref3 ? _m < _ref3 : _m > _ref3; spriteIndex = 0 <= _ref3 ? ++_m : --_m) {
+    for (spriteIndex = _j = 0, _ref1 = Config.sprites_per_block_style; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; spriteIndex = 0 <= _ref1 ? ++_j : --_j) {
       sprite = this.spritesAtlas.createSprite("platform/platform-" + spriteIndex + ".png");
       this.tileSprites[spriteIndex] = sprite;
     }
@@ -235,77 +427,21 @@ LevelActor = (function(_super) {
   };
 
   LevelActor.prototype.drawBuildBlock = function(context) {
-    var blocks, scroll;
     if (!this.level.inBuildMode()) {
       return;
     }
-    scroll = this.level.getScroll();
-    blocks = this.level.getBlocks();
-    return this.drawBlock(this.level.getBuildBlock(), context, true);
+    return this.level.getBuildBlock().draw(context);
   };
 
   LevelActor.prototype.drawBlocks = function(context) {
-    var block, blocks, scroll, _i, _len, _results;
-    scroll = this.level.getScroll();
+    var block, blocks, _i, _len, _results;
     blocks = this.level.getBlocks();
     _results = [];
     for (_i = 0, _len = blocks.length; _i < _len; _i++) {
       block = blocks[_i];
-      _results.push(this.drawBlock(block, context));
+      _results.push(block.draw(context));
     }
     return _results;
-  };
-
-  LevelActor.prototype.drawBlock = function(block, context, isBuildBlock) {
-    var blockStyles, drawGrass, grassSprite, grassXOffset, map, position, row, scroll, segment, sprite, spriteIndex, style, x, y, _i, _j, _len, _len1;
-    if (isBuildBlock == null) {
-      isBuildBlock = false;
-    }
-    scroll = this.level.getScroll();
-    map = block.getMap();
-    style = block.getStyle();
-    blockStyles = block.getBlockStyles();
-    context.save();
-    position = block.getGridPosition().clone().multiply(this.level.GRID_SIZE).substract(scroll);
-    for (y = _i = 0, _len = map.length; _i < _len; y = ++_i) {
-      row = map[y];
-      for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
-        segment = row[x];
-        if (segment === 0) {
-          continue;
-        }
-        spriteIndex = blockStyles[y][x];
-        sprite = this.blockSprites[style][spriteIndex];
-        if (!this.level.isBuildBlockBuildable() && isBuildBlock) {
-          sprite = this.blockSprites[style].unbuildable;
-        }
-        if (isBuildBlock) {
-          context.globalAlpha = 0.5;
-        }
-        sprite.draw(context, position.x + x * this.level.GRID_SIZE, position.y + y * this.level.GRID_SIZE);
-        drawGrass = true;
-        if (y !== 0) {
-          if (map[y - 1][x] === 1) {
-            drawGrass = false;
-          }
-        }
-        if (drawGrass && style !== "broken") {
-          grassSprite = this.grassSprites[spriteIndex];
-          grassXOffset = 0;
-          if (!row[x - 1] && !row[x + 1]) {
-            grassSprite = this.grassSprites.single;
-            grassXOffset = -2;
-          } else if (!row[x - 1]) {
-            grassSprite = this.grassSprites.start;
-            grassXOffset = -2;
-          } else if (!row[x + 1]) {
-            grassSprite = this.grassSprites.end;
-          }
-          grassSprite.draw(context, position.x + x * this.level.GRID_SIZE + grassXOffset, position.y + y * this.level.GRID_SIZE);
-        }
-      }
-    }
-    return context.restore();
   };
 
   return LevelActor;
@@ -315,7 +451,7 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{"../config/config.json":9,"../powerups.coffee":16}],4:[function(require,module,exports){
+},{"../config/config.json":10,"../powerups.coffee":16}],5:[function(require,module,exports){
 var MinimapActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -345,7 +481,7 @@ MinimapActor = (function(_super) {
 module.exports = MinimapActor;
 
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -384,7 +520,7 @@ PlayerActor = (function(_super) {
 module.exports = PlayerActor;
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var PowerupActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -420,7 +556,7 @@ PowerupActor = (function(_super) {
 module.exports = PowerupActor;
 
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var LD27;
 
 LD27 = require("./ld27.coffee");
@@ -438,7 +574,7 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":13}],8:[function(require,module,exports){
+},{"./ld27.coffee":13}],9:[function(require,module,exports){
 module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
@@ -469,7 +605,7 @@ module.exports=module.exports=[
   ],
 ]
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 module.exports=module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
@@ -477,132 +613,7 @@ module.exports=module.exports={
   "ui_minimap_height": 74
 }
 
-},{}],10:[function(require,module,exports){
-var Block, Config;
-
-Config = require("../config/config.json");
-
-Block = (function() {
-  Block.prototype.availableBlocks = require("../config/available_blocks.json");
-
-  function Block(app, game, options) {
-    this.app = app;
-    this.game = game;
-    this.options = options != null ? options : {};
-    this.buildMode = this.options.buildMode || false;
-    this.map = null;
-    this.rotation = Math.round(Math.random() * 3);
-    this.gridPosition = new LDFW.Vector2();
-    this.randomize();
-    this.defaultStyle = Math.floor(Math.random() * Config.block_styles);
-    this.style = this.defaultStyle;
-    this.randomizeBlockStyles();
-  }
-
-  Block.prototype.setStyle = function(style) {
-    this.style = style;
-  };
-
-  Block.prototype.setDefaultStyle = function() {
-    return this.style = this.defaultStyle;
-  };
-
-  Block.prototype.randomizeBlockStyles = function() {
-    var col, r, row, _i, _j, _len, _len1, _ref, _results;
-    this.blockStyles = [];
-    _ref = this.map;
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      row = _ref[_i];
-      r = [];
-      for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
-        col = row[_j];
-        r.push(Math.floor(Math.random() * Config.sprites_per_block_style));
-      }
-      _results.push(this.blockStyles.push(r));
-    }
-    return _results;
-  };
-
-  Block.prototype.randomize = function() {
-    var index;
-    index = Math.floor(Math.random() * this.availableBlocks.length);
-    return this.map = this.availableBlocks[index];
-  };
-
-  Block.prototype.getGridPosition = function() {
-    return this.gridPosition;
-  };
-
-  Block.prototype.setGridPosition = function() {
-    return this.gridPosition.set.apply(this.gridPosition, arguments);
-  };
-
-  Block.prototype.rotate = function() {
-    this.rotation += 1;
-    return this.rotation %= 4;
-  };
-
-  Block.prototype.getMap = function() {
-    var i, j, map, newData, _i, _j, _k, _ref, _ref1, _ref2;
-    map = this.map;
-    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-      newData = [];
-      for (i = _j = _ref1 = map.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
-        for (j = _k = 0, _ref2 = map[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
-          if (!newData.hasOwnProperty(j)) {
-            newData[j] = [];
-          }
-          newData[j].push(map[i][j]);
-        }
-      }
-      map = newData;
-    }
-    return map;
-  };
-
-  Block.prototype.getBlockStyles = function() {
-    var i, j, newData, styles, _i, _j, _k, _ref, _ref1, _ref2;
-    styles = this.blockStyles;
-    for (i = _i = 0, _ref = this.rotation; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-      newData = [];
-      for (i = _j = _ref1 = styles.length - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; i = _ref1 <= 0 ? ++_j : --_j) {
-        for (j = _k = 0, _ref2 = styles[i].length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
-          if (!newData.hasOwnProperty(j)) {
-            newData[j] = [];
-          }
-          newData[j].push(styles[i][j]);
-        }
-      }
-      styles = newData;
-    }
-    return styles;
-  };
-
-  Block.prototype.getRotation = function() {
-    return this.rotation;
-  };
-
-  Block.prototype.inBuildMode = function() {
-    return this.buildMode;
-  };
-
-  Block.prototype.setBuildMode = function(buildMode) {
-    return this.buildMode = buildMode;
-  };
-
-  Block.prototype.getStyle = function() {
-    return this.style;
-  };
-
-  return Block;
-
-})();
-
-module.exports = Block;
-
-
-},{"../config/available_blocks.json":8,"../config/config.json":9}],11:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var Config, Platform;
 
 Config = require("../config/config.json");
@@ -648,7 +659,7 @@ Platform = (function() {
 module.exports = Platform;
 
 
-},{"../config/config.json":9}],12:[function(require,module,exports){
+},{"../config/config.json":10}],12:[function(require,module,exports){
 var Game, Keyboard, Level, Mouse, Player, Powerups;
 
 Level = require("./level.coffee");
@@ -824,18 +835,18 @@ module.exports = LD27;
 
 
 },{"./screens/gamescreen.coffee":17,"./utilities/keyboard.coffee":20,"./utilities/mouse.coffee":22}],14:[function(require,module,exports){
-var Block, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform, Powerups,
+var BlockActor, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform, Powerups,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Config = require("./config/config.json");
-
-Block = require("./entities/block.coffee");
 
 Platform = require("./entities/platform.coffee");
 
 LevelGenerator = require("./utilities/levelgenerator.coffee");
 
 Powerups = require("./powerups.coffee");
+
+BlockActor = require("./actors/blockactor.coffee");
 
 FuckingPiranhasActor = require("./actors/fuckingpiranhasactor.coffee");
 
@@ -851,7 +862,7 @@ Level = (function() {
     this.onKeyDown = __bind(this.onKeyDown, this);
     this.renderOffset = new LDFW.Vector2(0, Config.ui_minimap_height);
     this.buildMode = true;
-    this.buildBlock = new Block(this.app, this.game, {
+    this.buildBlock = new BlockActor(this.app, this.game, this, {
       buildMode: true
     });
     this.keyboard = this.game.getKeyboard();
@@ -904,7 +915,7 @@ Level = (function() {
     this.blocks.push(this.buildBlock);
     this.buildBlock = null;
     this.buildMode = true;
-    return this.buildBlock = new Block(this.app, this.game, {
+    return this.buildBlock = new BlockActor(this.app, this.game, this, {
       buildMode: true
     });
   };
@@ -1104,7 +1115,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./actors/fuckingpiranhasactor.coffee":1,"./config/config.json":9,"./entities/block.coffee":10,"./entities/platform.coffee":11,"./powerups.coffee":16,"./utilities/levelgenerator.coffee":21}],15:[function(require,module,exports){
+},{"./actors/blockactor.coffee":1,"./actors/fuckingpiranhasactor.coffee":2,"./config/config.json":10,"./entities/platform.coffee":11,"./powerups.coffee":16,"./utilities/levelgenerator.coffee":21}],15:[function(require,module,exports){
 var JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -1323,7 +1334,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":3,"../actors/playeractor.coffee":5}],19:[function(require,module,exports){
+},{"../actors/levelactor.coffee":4,"../actors/playeractor.coffee":6}],19:[function(require,module,exports){
 var HeadlineActor, MinimapActor, PowerupActor, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1356,7 +1367,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{"../actors/headlineactor.coffee":2,"../actors/minimapactor.coffee":4,"../actors/powerupactor.coffee":6}],20:[function(require,module,exports){
+},{"../actors/headlineactor.coffee":3,"../actors/minimapactor.coffee":5,"../actors/powerupactor.coffee":7}],20:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -1500,7 +1511,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../actors/fuckingpiranhasactor.coffee":1,"../entities/platform.coffee":11}],22:[function(require,module,exports){
+},{"../actors/fuckingpiranhasactor.coffee":2,"../entities/platform.coffee":11}],22:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -1801,5 +1812,5 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[7])
+},{}]},{},[8])
 ;
