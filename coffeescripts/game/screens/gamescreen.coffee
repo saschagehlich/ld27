@@ -5,7 +5,7 @@ Game      = require "../game.coffee"
 class GameScreen extends LDFW.Screen
   constructor: (@app) ->
     super @app
-    @game = new Game @game
+    @game = new Game @app
 
     @uiStage   = new UIStage @app, @game
     @gameStage = new GameStage @app, @game

@@ -3,7 +3,7 @@ PLAYER_HEIGHT = 64
 
 class PlayerActor extends LDFW.Actor
   constructor: (@app, game) ->
-    super @app
+    super @game
 
     @game  = game
     @level = @game.getLevel()

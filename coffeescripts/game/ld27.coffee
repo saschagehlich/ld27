@@ -15,8 +15,9 @@ class LD27 extends LDFW.Game
       "assets/sprites.png",
       "assets/fonts.json",
       "assets/fonts.png",
-      "assets/fonts/museo-8-white.fnt",
-      "assets/fonts/museo-8-red.fnt"
+      "assets/fonts/pixel-8-white.fnt",
+      "assets/fonts/pixel-8-red.fnt",
+      "assets/fonts/pixel-16-white.fnt"
     ]
     @preloader.on "done", =>
       spritesJSON = @preloader.get "assets/sprites.json"
