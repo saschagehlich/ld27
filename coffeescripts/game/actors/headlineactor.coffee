@@ -18,26 +18,29 @@ class HeadlineActor extends LDFW.Actor
       @fontsAtlas.findRegion("pixel-8-red.png")
     )
 
-  drawPowerupCountdown: (context) ->
-    powerupText = "NEXT POWERUP IN "
-    powerupBounds = @font.getBounds powerupText
-    @font.drawText context, powerupText, @fontOffset.getX(), @fontOffset.getY()
-
-    powerupTimeLeft = Math.ceil(@game.getPowerupTimeleft() / 1000).toString()
-    if powerupTimeLeft.length is 1
-      powerupTimeLeft = "0" + powerupTimeLeft
-
-    @redFont.drawText context, "0:#{powerupTimeLeft}", @fontOffset.getX() + powerupBounds.width, @fontOffset.getY()
-
   drawScore: (context) ->
     scoreText = "#{@game.getScore()}m"
     scoreBounds = @font.getBounds scoreText
     @font.drawText context, scoreText, @app.getWidth() - @fontOffset.getX() - scoreBounds.getWidth(), @fontOffset.getY()
 
+  drawPowerup: (context) ->
+    ### Draw powerup ###
+    if powerup = @game.getActivePowerup()
+      captionText = "CURRENT POWERUP: "
+      powerupText = powerup.sub
+
+      fullText = captionText + powerupText
+      fullBounds = @redFont.getBounds fullText
+
+      captionBounds = @font.getBounds captionText
+      powerupBounds = @redFont.getBounds powerupText
+      @font.drawText context, captionText, @app.getWidth() / 2 - fullBounds.getWidth() / 2, @fontOffset.getY()
+      @redFont.drawText context, powerupText, @app.getWidth() / 2 - fullBounds.getWidth() / 2 + captionBounds.getWidth(), @fontOffset.getY()
+
   draw: (context) ->
     @background.draw context
 
-    @drawPowerupCountdown context
     @drawScore context
+    @drawPowerup context
 
 module.exports = HeadlineActor

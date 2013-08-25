@@ -292,7 +292,7 @@ BlockActor = (function(_super) {
 module.exports = BlockActor;
 
 
-},{"../config/available_blocks.json":13,"../config/config.json":14,"../entities/segment.coffee":16}],3:[function(require,module,exports){
+},{"../config/available_blocks.json":14,"../config/config.json":15,"../entities/segment.coffee":17}],3:[function(require,module,exports){
 var BackgroundActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -374,7 +374,7 @@ FuckingPiranhasActor = (function(_super) {
 module.exports = FuckingPiranhasActor;
 
 
-},{"../config/config.json":14}],5:[function(require,module,exports){
+},{"../config/config.json":15}],5:[function(require,module,exports){
 var HeadlineActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -394,18 +394,6 @@ HeadlineActor = (function(_super) {
     this.redFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-red.fnt"), this.fontsAtlas.findRegion("pixel-8-red.png"));
   }
 
-  HeadlineActor.prototype.drawPowerupCountdown = function(context) {
-    var powerupBounds, powerupText, powerupTimeLeft;
-    powerupText = "NEXT POWERUP IN ";
-    powerupBounds = this.font.getBounds(powerupText);
-    this.font.drawText(context, powerupText, this.fontOffset.getX(), this.fontOffset.getY());
-    powerupTimeLeft = Math.ceil(this.game.getPowerupTimeleft() / 1000).toString();
-    if (powerupTimeLeft.length === 1) {
-      powerupTimeLeft = "0" + powerupTimeLeft;
-    }
-    return this.redFont.drawText(context, "0:" + powerupTimeLeft, this.fontOffset.getX() + powerupBounds.width, this.fontOffset.getY());
-  };
-
   HeadlineActor.prototype.drawScore = function(context) {
     var scoreBounds, scoreText;
     scoreText = "" + (this.game.getScore()) + "m";
@@ -413,10 +401,26 @@ HeadlineActor = (function(_super) {
     return this.font.drawText(context, scoreText, this.app.getWidth() - this.fontOffset.getX() - scoreBounds.getWidth(), this.fontOffset.getY());
   };
 
+  HeadlineActor.prototype.drawPowerup = function(context) {
+    /* Draw powerup*/
+
+    var captionBounds, captionText, fullBounds, fullText, powerup, powerupBounds, powerupText;
+    if (powerup = this.game.getActivePowerup()) {
+      captionText = "CURRENT POWERUP: ";
+      powerupText = powerup.sub;
+      fullText = captionText + powerupText;
+      fullBounds = this.redFont.getBounds(fullText);
+      captionBounds = this.font.getBounds(captionText);
+      powerupBounds = this.redFont.getBounds(powerupText);
+      this.font.drawText(context, captionText, this.app.getWidth() / 2 - fullBounds.getWidth() / 2, this.fontOffset.getY());
+      return this.redFont.drawText(context, powerupText, this.app.getWidth() / 2 - fullBounds.getWidth() / 2 + captionBounds.getWidth(), this.fontOffset.getY());
+    }
+  };
+
   HeadlineActor.prototype.draw = function(context) {
     this.background.draw(context);
-    this.drawPowerupCountdown(context);
-    return this.drawScore(context);
+    this.drawScore(context);
+    return this.drawPowerup(context);
   };
 
   return HeadlineActor;
@@ -592,7 +596,7 @@ LevelActor = (function(_super) {
 module.exports = LevelActor;
 
 
-},{"../config/config.json":14,"../powerups.coffee":21}],7:[function(require,module,exports){
+},{"../config/config.json":15,"../powerups.coffee":22}],7:[function(require,module,exports){
 var Char, LogoActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -767,7 +771,7 @@ MenuActor = (function(_super) {
 module.exports = MenuActor;
 
 
-},{"../utilities/keyboard.coffee":27}],9:[function(require,module,exports){
+},{"../utilities/keyboard.coffee":28}],9:[function(require,module,exports){
 var FuckingPiranhasActor, MinimapActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1030,6 +1034,44 @@ module.exports = PowerupActor;
 
 
 },{}],12:[function(require,module,exports){
+var TimerActor,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+TimerActor = (function(_super) {
+  __extends(TimerActor, _super);
+
+  function TimerActor(app, game) {
+    this.app = app;
+    this.game = game;
+    TimerActor.__super__.constructor.call(this, this.game);
+    this.fontsAtlas = this.app.getFontsAtlas();
+    this.timerFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-white.fnt"), this.fontsAtlas.findRegion("pixel-16-white.png"));
+    this.textFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-8-white.fnt"), this.fontsAtlas.findRegion("pixel-8-white.png"));
+  }
+
+  TimerActor.prototype.drawPowerupCountdown = function(context) {
+    var powerupTimeLeft, timeleftBounds, untilBounds, untilText;
+    powerupTimeLeft = Math.ceil(this.game.getPowerupTimeleft() / 1000).toString() + " SECONDS";
+    timeleftBounds = this.timerFont.getBounds(powerupTimeLeft);
+    this.timerFont.drawText(context, powerupTimeLeft, this.app.getWidth() / 2 - timeleftBounds.getWidth() / 2, 340);
+    untilText = "UNTIL THE NEXT POWERUP";
+    untilBounds = this.textFont.getBounds(untilText);
+    return this.textFont.drawText(context, untilText, this.app.getWidth() / 2 - untilBounds.getWidth() / 2, 370);
+  };
+
+  TimerActor.prototype.draw = function(context) {
+    return this.drawPowerupCountdown(context);
+  };
+
+  return TimerActor;
+
+})(LDFW.Actor);
+
+module.exports = TimerActor;
+
+
+},{}],13:[function(require,module,exports){
 var LD27;
 
 LD27 = require("./ld27.coffee");
@@ -1047,7 +1089,7 @@ $(function() {
 });
 
 
-},{"./ld27.coffee":18}],13:[function(require,module,exports){
+},{"./ld27.coffee":19}],14:[function(require,module,exports){
 module.exports=module.exports=[
   [
     [ 1, 1, 1, 1 ]
@@ -1078,7 +1120,7 @@ module.exports=module.exports=[
   ],
 ]
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports=module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
@@ -1086,7 +1128,7 @@ module.exports=module.exports={
   "ui_minimap_height": 74
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var Config, Platform;
 
 Config = require("../config/config.json");
@@ -1132,7 +1174,7 @@ Platform = (function() {
 module.exports = Platform;
 
 
-},{"../config/config.json":14}],16:[function(require,module,exports){
+},{"../config/config.json":15}],17:[function(require,module,exports){
 var Segment;
 
 Segment = (function() {
@@ -1176,7 +1218,7 @@ Segment = (function() {
 module.exports = Segment;
 
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var EventEmitter, Game, Keyboard, Level, Mouse, Player, Powerups,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1307,7 +1349,7 @@ Game = (function(_super) {
 module.exports = Game;
 
 
-},{"./level.coffee":19,"./player.coffee":20,"./powerups.coffee":21,"./utilities/keyboard.coffee":27,"./utilities/mouse.coffee":29,"events":30}],18:[function(require,module,exports){
+},{"./level.coffee":20,"./player.coffee":21,"./powerups.coffee":22,"./utilities/keyboard.coffee":28,"./utilities/mouse.coffee":30,"events":31}],19:[function(require,module,exports){
 var GameScreen, Keyboard, LD27, Mouse, SplashScreen,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1329,7 +1371,7 @@ LD27 = (function(_super) {
     this.debugDiv = $("<div>").addClass("debug");
     this.debugDiv.appendTo(this.getWrapper());
     this.keyboard = new Keyboard();
-    this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png", "assets/fonts.json", "assets/fonts.png", "assets/fonts/pixel-8-white.fnt", "assets/fonts/pixel-8-red.fnt", "assets/fonts/pixel-16-white.fnt", "assets/fonts/pixel-16-red.fnt"]);
+    this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png", "assets/fonts.json", "assets/fonts.png", "assets/fonts/pixel-8-white.fnt", "assets/fonts/pixel-8-red.fnt", "assets/fonts/pixel-16-white.fnt", "assets/fonts/pixel-16-red.fnt", "assets/fonts/pixel-24-white.fnt"]);
     this.preloader.on("done", function() {
       var fontsImage, fontsJSON, spritesImage, spritesJSON;
       spritesJSON = _this.preloader.get("assets/sprites.json");
@@ -1384,7 +1426,7 @@ LD27 = (function(_super) {
 module.exports = LD27;
 
 
-},{"./screens/gamescreen.coffee":22,"./screens/splashscreen.coffee":23,"./utilities/keyboard.coffee":27,"./utilities/mouse.coffee":29}],19:[function(require,module,exports){
+},{"./screens/gamescreen.coffee":23,"./screens/splashscreen.coffee":24,"./utilities/keyboard.coffee":28,"./utilities/mouse.coffee":30}],20:[function(require,module,exports){
 var BlockActor, Config, FuckingPiranhasActor, Level, LevelGenerator, Platform, Powerups,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -1689,7 +1731,7 @@ Level = (function() {
 module.exports = Level;
 
 
-},{"./actors/blockactor.coffee":2,"./actors/fuckingpiranhasactor.coffee":4,"./config/config.json":14,"./entities/platform.coffee":15,"./powerups.coffee":21,"./utilities/levelgenerator.coffee":28}],20:[function(require,module,exports){
+},{"./actors/blockactor.coffee":2,"./actors/fuckingpiranhasactor.coffee":4,"./config/config.json":15,"./entities/platform.coffee":16,"./powerups.coffee":22,"./utilities/levelgenerator.coffee":29}],21:[function(require,module,exports){
 var BlockActor, JUMP_FORCE, Player;
 
 JUMP_FORCE = -700;
@@ -1855,7 +1897,7 @@ Player = (function() {
 module.exports = Player;
 
 
-},{"./actors/blockactor.coffee":2}],21:[function(require,module,exports){
+},{"./actors/blockactor.coffee":2}],22:[function(require,module,exports){
 var Powerups;
 
 Powerups = {
@@ -1889,7 +1931,7 @@ Powerups = {
 module.exports = Powerups;
 
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var Game, GameOverStage, GameScreen, GameStage, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1938,7 +1980,7 @@ GameScreen = (function(_super) {
 module.exports = GameScreen;
 
 
-},{"../game.coffee":17,"../stages/gameoverstage.coffee":24,"../stages/gamestage.coffee":25,"../stages/uistage.coffee":26}],23:[function(require,module,exports){
+},{"../game.coffee":18,"../stages/gameoverstage.coffee":25,"../stages/gamestage.coffee":26,"../stages/uistage.coffee":27}],24:[function(require,module,exports){
 var BackgroundActor, FooterActor, LogoActor, MenuActor, SplashScreen,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2004,7 +2046,7 @@ SplashScreen = (function(_super) {
 module.exports = SplashScreen;
 
 
-},{"../actors/backgroundactor.coffee":1,"../actors/footeractor.coffee":3,"../actors/logoactor.coffee":7,"../actors/menuactor.coffee":8}],24:[function(require,module,exports){
+},{"../actors/backgroundactor.coffee":1,"../actors/footeractor.coffee":3,"../actors/logoactor.coffee":7,"../actors/menuactor.coffee":8}],25:[function(require,module,exports){
 var GameOverStage,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2117,7 +2159,7 @@ GameOverStage = (function(_super) {
 module.exports = GameOverStage;
 
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 var GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2146,8 +2188,8 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":6,"../actors/playeractor.coffee":10}],26:[function(require,module,exports){
-var HeadlineActor, MinimapActor, PowerupActor, UIStage,
+},{"../actors/levelactor.coffee":6,"../actors/playeractor.coffee":10}],27:[function(require,module,exports){
+var HeadlineActor, MinimapActor, PowerupActor, TimerActor, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2156,6 +2198,8 @@ MinimapActor = require("../actors/minimapactor.coffee");
 HeadlineActor = require("../actors/headlineactor.coffee");
 
 PowerupActor = require("../actors/powerupactor.coffee");
+
+TimerActor = require("../actors/timeractor.coffee");
 
 UIStage = (function(_super) {
   __extends(UIStage, _super);
@@ -2168,9 +2212,17 @@ UIStage = (function(_super) {
     this.addActor(this.minimapActor);
     this.headlineActor = new HeadlineActor(this.app, this.game);
     this.addActor(this.headlineActor);
-    this.powerupActor = new PowerupActor(this.app, this.game);
-    this.addActor(this.powerupActor);
+    this.timerActor = new TimerActor(this.app, this.game);
+    this.addActor(this.timerActor);
   }
+
+  UIStage.prototype.draw = function(context) {
+    this.minimapActor.draw(context);
+    this.headlineActor.draw(context);
+    if (!this.game.isOver()) {
+      return this.timerActor.draw(context);
+    }
+  };
 
   return UIStage;
 
@@ -2179,7 +2231,7 @@ UIStage = (function(_super) {
 module.exports = UIStage;
 
 
-},{"../actors/headlineactor.coffee":5,"../actors/minimapactor.coffee":9,"../actors/powerupactor.coffee":11}],27:[function(require,module,exports){
+},{"../actors/headlineactor.coffee":5,"../actors/minimapactor.coffee":9,"../actors/powerupactor.coffee":11,"../actors/timeractor.coffee":12}],28:[function(require,module,exports){
 var EventEmitter, Keyboard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2252,7 +2304,7 @@ Keyboard = (function(_super) {
 module.exports = Keyboard;
 
 
-},{"events":30}],28:[function(require,module,exports){
+},{"events":31}],29:[function(require,module,exports){
 var FuckingPiranhas, LevelGenerator, Platform;
 
 Platform = require("../entities/platform.coffee");
@@ -2317,7 +2369,7 @@ LevelGenerator = (function() {
 module.exports = LevelGenerator;
 
 
-},{"../actors/fuckingpiranhasactor.coffee":4,"../entities/platform.coffee":15}],29:[function(require,module,exports){
+},{"../actors/fuckingpiranhasactor.coffee":4,"../entities/platform.coffee":16}],30:[function(require,module,exports){
 var EventEmitter, Mouse,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -2368,7 +2420,7 @@ Mouse = (function(_super) {
 module.exports = Mouse;
 
 
-},{"events":30}],30:[function(require,module,exports){
+},{"events":31}],31:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -2564,7 +2616,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":31}],31:[function(require,module,exports){
+},{"__browserify_process":32}],32:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2618,5 +2670,5 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[12])
+},{}]},{},[13])
 ;
