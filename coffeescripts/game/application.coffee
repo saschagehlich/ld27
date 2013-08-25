@@ -11,4 +11,4 @@ window.requestAnimFrame = (->
 $ ->
   wrapper = $(".canvas-wrapper")
 
-  game = new LD27(wrapper)
+  game = new LD27(wrapper, false)

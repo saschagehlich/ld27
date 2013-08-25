@@ -34,6 +34,9 @@ class GameOverStage extends LDFW.Stage
     if e.keyCode is @keyboard.Keys.R
       @app.switchToGameScreen()
     else if e.keyCode is @keyboard.Keys.ESC
+      # Make sure this sound is turned off :)
+      soundManager.stop "earthquake"
+
       @app.switchToSplashScreen()
     else if e.keyCode is @keyboard.Keys.ENTER
       @app.shareScore @game.getScore()

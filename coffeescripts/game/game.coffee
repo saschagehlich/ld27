@@ -37,8 +37,12 @@ class Game extends EventEmitter
     )
 
   endGame: ->
+    return if @gameover
+
     @gameover = true
     @player.getVelocity().setX 0
+
+    soundManager.play "wilhelm"
 
     @emit "gameover"
 
@@ -59,6 +63,11 @@ class Game extends EventEmitter
 
     if +new Date() - @powerupStart >= @powerupDuration and not @gameover
       @activePowerup = @getRandomPowerup()
+
+      soundManager.play "powerup"
+      if @activePowerup is Powerups.EARTHQUAKE
+        soundManager.play "earthquake", volume: 50
+
       @powerupStart = +new Date()
 
   getRandomPowerup: ->

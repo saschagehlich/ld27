@@ -13,6 +13,10 @@ class Player
     @width = 0
     @height = 0
 
+    @lastAudioPlay = Date.now()
+    @audioStepInterval = 100
+    @stepSoundIndex = 0
+
     @onGround = false
     @onGroundObject = false
 
@@ -42,8 +46,23 @@ class Player
 
     @position.set aspiredPosition
 
+    if @onGround and @velocity.getX() isnt 0 and Date.now() - @lastAudioPlay > @audioStepInterval
+      @playStepSound()
+      @lastAudioPlay = Date.now()
+
     if @position.getY() > @app.getHeight() + @height
       @game.endGame()
+
+  playStepSound: ->
+    audioStyle = "grass"
+
+    if @onGroundObject and @onGroundObject.getStyle() is "broken"
+      audioStyle = "block"
+
+    soundManager.play audioStyle + "-" + @stepSoundIndex,
+      volume: 30
+    @stepSoundIndex++
+    @stepSoundIndex %= 2
 
   getAspiredPosition: (delta) ->
     gravity = @level.getGravity().clone()
@@ -72,11 +91,17 @@ class Player
       aspiredPosition.setX boundaries.x.max - @getWidth()
 
   handleYMovement: (aspiredPosition, boundaries) ->
+    playSound = false
+
     if aspiredPosition.getY() > boundaries.y.max
       aspiredPosition.setY boundaries.y.max
 
     if aspiredPosition.getY() >= boundaries.y.max
       @jumping = false
+
+      unless @onGround
+        playSound = true
+
       @onGround = true
       @velocity.setY 0
     else
@@ -92,6 +117,8 @@ class Player
       )
     else if @onGround
       @onGroundObject = false
+
+    @playStepSound() if playSound
 
   collidesWithObstacle: (obstacle) ->
     obstaclePosition = obstacle.getPosition()

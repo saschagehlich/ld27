@@ -12223,7 +12223,7 @@ window.requestAnimFrame = (function() {
 $(function() {
   var game, wrapper;
   wrapper = $(".canvas-wrapper");
-  return game = new LD27(wrapper);
+  return game = new LD27(wrapper, false);
 });
 
 
@@ -12259,7 +12259,7 @@ module.exports=module.exports=[
 ]
 
 },{}],16:[function(require,module,exports){
-module.exports={
+module.exports=module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
 
@@ -12400,8 +12400,12 @@ Game = (function(_super) {
   }
 
   Game.prototype.endGame = function() {
+    if (this.gameover) {
+      return;
+    }
     this.gameover = true;
     this.player.getVelocity().setX(0);
+    soundManager.play("wilhelm");
     return this.emit("gameover");
   };
 
@@ -12419,6 +12423,12 @@ Game = (function(_super) {
     this.player.update(delta);
     if (+new Date() - this.powerupStart >= this.powerupDuration && !this.gameover) {
       this.activePowerup = this.getRandomPowerup();
+      soundManager.play("powerup");
+      if (this.activePowerup === Powerups.EARTHQUAKE) {
+        soundManager.play("earthquake", {
+          volume: 50
+        });
+      }
       return this.powerupStart = +new Date();
     }
   };
@@ -12516,24 +12526,68 @@ LD27 = (function(_super) {
   function LD27() {
     var _this = this;
     LD27.__super__.constructor.apply(this, arguments);
-    this.debugDiv = $("<div>").addClass("debug");
-    this.debugDiv.appendTo(this.getWrapper());
+    if (this.debug) {
+      this.debugDiv = $("<div>").addClass("debug");
+      this.debugDiv.appendTo(this.getWrapper());
+    }
     this.scoreShared = false;
     this.keyboard = new Keyboard();
-    this.preloader = new LDFW.Preloader(["assets/sprites.json", "assets/sprites.png", "assets/fonts.json", "assets/fonts.png", "assets/fonts/pixel-8-white.fnt", "assets/fonts/pixel-8-red.fnt", "assets/fonts/pixel-16-white.fnt", "assets/fonts/pixel-16-red.fnt", "assets/fonts/pixel-24-white.fnt"]);
-    this.preloader.on("done", function() {
-      var fontsImage, fontsJSON, spritesImage, spritesJSON;
-      spritesJSON = _this.preloader.get("assets/sprites.json");
-      spritesImage = _this.preloader.get("assets/sprites.png");
-      _this.spritesAtlas = new LDFW.TextureAtlas(spritesJSON.frames, spritesImage);
-      fontsJSON = _this.preloader.get("assets/fonts.json");
-      fontsImage = _this.preloader.get("assets/fonts.png");
-      _this.fontsAtlas = new LDFW.TextureAtlas(fontsJSON.frames, fontsImage);
-      _this.screen = new SplashScreen(_this);
-      return _this.run();
+    soundManager.setup({
+      url: "swf",
+      preferFlash: false,
+      onready: function() {
+        _this.createSounds();
+        _this.preloader = new LDFW.Preloader(_this, ["assets/sprites.json", "assets/sprites.png", "assets/fonts.json", "assets/fonts.png", "assets/fonts/pixel-8-white.fnt", "assets/fonts/pixel-8-red.fnt", "assets/fonts/pixel-16-white.fnt", "assets/fonts/pixel-16-red.fnt", "assets/fonts/pixel-24-white.fnt"]);
+        _this.preloader.on("done", function() {
+          var fontsImage, fontsJSON, spritesImage, spritesJSON;
+          spritesJSON = _this.preloader.get("assets/sprites.json");
+          spritesImage = _this.preloader.get("assets/sprites.png");
+          _this.spritesAtlas = new LDFW.TextureAtlas(spritesJSON.frames, spritesImage);
+          fontsJSON = _this.preloader.get("assets/fonts.json");
+          fontsImage = _this.preloader.get("assets/fonts.png");
+          _this.fontsAtlas = new LDFW.TextureAtlas(fontsJSON.frames, fontsImage);
+          _this.screen = new SplashScreen(_this);
+          return _this.run();
+        });
+        return _this.preloader.load();
+      }
     });
-    this.preloader.load();
   }
+
+  LD27.prototype.playBackground = function() {
+    var _this = this;
+    return soundManager.play("background", {
+      onfinish: function() {
+        console.log("finish");
+        return _this.playBackground();
+      }
+    });
+  };
+
+  LD27.prototype.createSounds = function() {
+    var self, sounds, _i, _len, _results, _sound;
+    self = this;
+    sounds = ["block-0", "block-1", "grass-0", "grass-1", "build", "earthquake", "background", "powerup", "wilhelm"];
+    _results = [];
+    for (_i = 0, _len = sounds.length; _i < _len; _i++) {
+      _sound = sounds[_i];
+      _results.push((function() {
+        var sound;
+        sound = _sound;
+        return soundManager.createSound({
+          id: sound,
+          url: ["assets/audio/" + sound + ".m4a", "assets/audio/" + sound + ".mp3", "assets/audio/" + sound + ".ogg"],
+          onload: (function() {
+            if (sound === "background") {
+              return self.playBackground();
+            }
+          }),
+          autoLoad: true
+        });
+      })());
+    }
+    return _results;
+  };
 
   LD27.prototype.switchToGameScreen = function() {
     this.screen = new GameScreen(this);
@@ -12604,7 +12658,9 @@ LD27 = (function(_super) {
   };
 
   LD27.prototype.setDebugText = function(text) {
-    return this.debugDiv.text(text);
+    if (this.debug) {
+      return this.debugDiv.text(text);
+    }
   };
 
   return LD27;
@@ -12699,6 +12755,7 @@ Level = (function() {
     if (!this.isBuildBlockBuildable()) {
       return;
     }
+    soundManager.play("build");
     this.buildBlock.setBuildMode(false);
     this.buildMode = false;
     this.blocks.push(this.buildBlock);
@@ -13013,6 +13070,9 @@ Player = (function() {
     this.level = this.game.getLevel();
     this.width = 0;
     this.height = 0;
+    this.lastAudioPlay = Date.now();
+    this.audioStepInterval = 100;
+    this.stepSoundIndex = 0;
     this.onGround = false;
     this.onGroundObject = false;
     this.direction = 1;
@@ -13067,9 +13127,26 @@ Player = (function() {
       this.handleYMovement(aspiredPosition, boundaries);
     }
     this.position.set(aspiredPosition);
+    if (this.onGround && this.velocity.getX() !== 0 && Date.now() - this.lastAudioPlay > this.audioStepInterval) {
+      this.playStepSound();
+      this.lastAudioPlay = Date.now();
+    }
     if (this.position.getY() > this.app.getHeight() + this.height) {
       return this.game.endGame();
     }
+  };
+
+  Player.prototype.playStepSound = function() {
+    var audioStyle;
+    audioStyle = "grass";
+    if (this.onGroundObject && this.onGroundObject.getStyle() === "broken") {
+      audioStyle = "block";
+    }
+    soundManager.play(audioStyle + "-" + this.stepSoundIndex, {
+      volume: 30
+    });
+    this.stepSoundIndex++;
+    return this.stepSoundIndex %= 2;
   };
 
   Player.prototype.getAspiredPosition = function(delta) {
@@ -13101,12 +13178,16 @@ Player = (function() {
   };
 
   Player.prototype.handleYMovement = function(aspiredPosition, boundaries) {
-    var obj;
+    var obj, playSound;
+    playSound = false;
     if (aspiredPosition.getY() > boundaries.y.max) {
       aspiredPosition.setY(boundaries.y.max);
     }
     if (aspiredPosition.getY() >= boundaries.y.max) {
       this.jumping = false;
+      if (!this.onGround) {
+        playSound = true;
+      }
       this.onGround = true;
       this.velocity.setY(0);
     } else {
@@ -13115,9 +13196,12 @@ Player = (function() {
     if (this.onGround && boundaries.y.object instanceof BlockActor) {
       this.onGroundObject = boundaries.y.object;
       obj = boundaries.y.object;
-      return obj.steppedOn(aspiredPosition.getX() - obj.getGridPosition().getX() * this.level.GRID_SIZE, this.getWidth());
+      obj.steppedOn(aspiredPosition.getX() - obj.getGridPosition().getX() * this.level.GRID_SIZE, this.getWidth());
     } else if (this.onGround) {
-      return this.onGroundObject = false;
+      this.onGroundObject = false;
+    }
+    if (playSound) {
+      return this.playStepSound();
     }
   };
 
@@ -13604,6 +13688,7 @@ GameOverStage = (function(_super) {
     if (e.keyCode === this.keyboard.Keys.R) {
       return this.app.switchToGameScreen();
     } else if (e.keyCode === this.keyboard.Keys.ESC) {
+      soundManager.stop("earthquake");
       return this.app.switchToSplashScreen();
     } else if (e.keyCode === this.keyboard.Keys.ENTER) {
       return this.app.shareScore(this.game.getScore());

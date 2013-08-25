@@ -47,14 +47,17 @@ var Game,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Game = (function() {
-  function Game(wrapper) {
+  function Game(wrapper, debug) {
     this.wrapper = wrapper;
+    this.debug = debug != null ? debug : false;
     this.tick = __bind(this.tick, this);
     this.canvas = this.wrapper.find("canvas").get(0);
     this.setSize(this.wrapper.width(), this.wrapper.height());
     this.context = this.canvas.getContext("2d");
     this.running = false;
-    this.setupStats();
+    if (this.debug) {
+      this.setupStats();
+    }
   }
 
   Game.prototype.clearScreen = function() {
@@ -148,19 +151,31 @@ Game = (function() {
     var delta, _ref, _ref1;
     delta = (Date.now() - this.lastTick) / 1000;
     this.lastTick = Date.now();
-    this.tickStats.begin();
+    if (this.debug) {
+      this.tickStats.begin();
+    }
     if ((_ref = this.screen) != null) {
       _ref.update(delta);
     }
-    this.tickStats.end();
-    this.fpsStats.begin();
-    this.fpsMsStats.begin();
+    if (this.debug) {
+      this.tickStats.end();
+    }
+    if (this.debug) {
+      this.fpsStats.begin();
+    }
+    if (this.debug) {
+      this.fpsMsStats.begin();
+    }
     this.clearScreen();
     if ((_ref1 = this.screen) != null) {
       _ref1.draw(this.context);
     }
-    this.fpsStats.end();
-    this.fpsMsStats.end();
+    if (this.debug) {
+      this.fpsStats.end();
+    }
+    if (this.debug) {
+      this.fpsMsStats.end();
+    }
     if (this.running) {
       return requestAnimFrame(this.tick);
     }
@@ -1072,7 +1087,8 @@ async = require("../vendor/async.js");
 Preloader = (function(_super) {
   __extends(Preloader, _super);
 
-  function Preloader(itemFilenames) {
+  function Preloader(app, itemFilenames) {
+    this.app = app;
     this.itemFilenames = itemFilenames;
     this.loadJPEG = __bind(this.loadJPEG, this);
     this.loadJPG = __bind(this.loadJPG, this);

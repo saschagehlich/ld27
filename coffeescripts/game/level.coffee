@@ -58,6 +58,8 @@ class Level
     return unless @buildMode
     return unless @isBuildBlockBuildable()
 
+    soundManager.play "build"
+
     @buildBlock.setBuildMode false
     @buildMode = false
 

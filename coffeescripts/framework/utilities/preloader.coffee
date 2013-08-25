@@ -2,7 +2,7 @@
 async = require "../vendor/async.js"
 
 class Preloader extends EventEmitter
-  constructor: (@itemFilenames) ->
+  constructor: (@app, @itemFilenames) ->
     @items = {}
 
   ###

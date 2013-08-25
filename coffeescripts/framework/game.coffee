@@ -1,12 +1,13 @@
 class Game
-  constructor: (@wrapper) ->
+  constructor: (@wrapper, @debug = false) ->
     @canvas  = @wrapper.find("canvas").get(0)
     @setSize @wrapper.width(), @wrapper.height()
 
     @context = @canvas.getContext "2d"
     @running = false
 
-    @setupStats()
+    if @debug
+      @setupStats()
 
   clearScreen: ->
     @context.clearRect 0, 0, @canvas.width, @canvas.height
@@ -81,16 +82,16 @@ class Game
     @lastTick = Date.now()
 
     # If we have a screen, make it tick!
-    @tickStats.begin()
+    @tickStats.begin() if @debug
     @screen?.update delta
-    @tickStats.end()
+    @tickStats.end() if @debug
 
-    @fpsStats.begin()
-    @fpsMsStats.begin()
+    @fpsStats.begin() if @debug
+    @fpsMsStats.begin() if @debug
     @clearScreen()
     @screen?.draw @context
-    @fpsStats.end()
-    @fpsMsStats.end()
+    @fpsStats.end() if @debug
+    @fpsMsStats.end() if @debug
 
     if @running
       requestAnimFrame @tick
