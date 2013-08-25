@@ -12259,12 +12259,12 @@ module.exports=module.exports=[
 ]
 
 },{}],16:[function(require,module,exports){
-module.exports=module.exports={
+module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
 
   "ui_minimap_height": 74,
-  "highscore_host": "//localhost:8080"
+  "highscore_host": "//runtris.api.filshmedia.net"
 }
 
 },{}],17:[function(require,module,exports){
