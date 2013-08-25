@@ -11737,12 +11737,39 @@ MinimapActor = (function(_super) {
   };
 
   MinimapActor.prototype.drawPlayer = function(context, player, scroll, options) {
-    var position;
+    var position, rh, rmy, roy, rw, rx, ry;
     context.save();
     context.fillStyle = "#af2f2f";
     position = player.getPosition().clone().multiply(options.scale);
-    context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX()), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() - options.scaledGridSize * 2), options.scaledGridSize * 3, options.scaledGridSize);
-    context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX() + options.scaledGridSize), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() - options.scaledGridSize * 3), options.scaledGridSize, options.scaledGridSize * 3);
+    roy = options.offset.getY() + options.padding.getY();
+    rmy = options.offset.getY() + options.padding.getY() + options.width;
+    rx = Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX());
+    ry = Math.floor(options.offset.getY() + options.padding.getY() + position.getY() - options.scaledGridSize * 2);
+    rw = options.scaledGridSize * 3;
+    rh = options.scaledGridSize;
+    if (ry < roy) {
+      rh -= roy - ry;
+      ry = roy;
+    }
+    if (ry + rh < roy) {
+      rh = 0;
+    }
+    if (ry + rh > rmy) {
+      rh -= (ry + rh) - rmy;
+    }
+    context.fillRect(rx, ry, rw, rh);
+    rx = Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX() + options.scaledGridSize);
+    ry = Math.floor(options.offset.getY() + options.padding.getY() + position.getY() - options.scaledGridSize * 3);
+    rw = options.scaledGridSize;
+    rh = options.scaledGridSize * 3;
+    if (ry < roy) {
+      rh += ry - roy;
+      ry = roy;
+    }
+    if (ry + rh > rmy) {
+      rh -= (ry + rh) - rmy;
+    }
+    context.fillRect(rx, ry, rw, rh);
     return context.restore();
   };
 
