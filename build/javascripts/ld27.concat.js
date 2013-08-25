@@ -10951,9 +10951,8 @@ HeadlineActor = (function(_super) {
     this.redFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/museo-8-red.fnt"), this.fontsAtlas.findRegion("museo-8-red.png"));
   }
 
-  HeadlineActor.prototype.draw = function(context) {
+  HeadlineActor.prototype.drawPowerupCountdown = function(context) {
     var powerupBounds, powerupText, powerupTextPosition, powerupTimeLeft;
-    this.background.draw(context);
     powerupText = "NEXT POWERUP IN ";
     powerupTextPosition = new LDFW.Vector2(16, 12);
     powerupBounds = this.font.getBounds(powerupText);
@@ -10963,6 +10962,20 @@ HeadlineActor = (function(_super) {
       powerupTimeLeft = "0" + powerupTimeLeft;
     }
     return this.redFont.drawText(context, "0:" + powerupTimeLeft, powerupTextPosition.getX() + powerupBounds.width, powerupTextPosition.getY());
+  };
+
+  HeadlineActor.prototype.drawScore = function(context) {
+    var scoreBounds, scoreOffset, scoreText;
+    scoreOffset = new LDFW.Vector2(16, 12);
+    scoreText = "" + (this.game.getScore()) + "m";
+    scoreBounds = this.font.getBounds(scoreText);
+    return this.font.drawText(context, scoreText, this.app.getWidth() - scoreOffset.getX() - scoreBounds.getWidth(), scoreOffset.getY());
+  };
+
+  HeadlineActor.prototype.draw = function(context) {
+    this.background.draw(context);
+    this.drawPowerupCountdown(context);
+    return this.drawScore(context);
   };
 
   return HeadlineActor;
@@ -11509,6 +11522,9 @@ Game = (function() {
   function Game(app) {
     var firstPlatform;
     this.app = app;
+    this.defaultScrollSpeed = 200;
+    this.scrollSpeed = this.defaultScrollSpeed;
+    this.scroll = new LDFW.Vector2(0, 0);
     this.keyboard = new Keyboard();
     this.mouse = new Mouse(this.app);
     this.level = new Level(this.app, this);
@@ -11520,6 +11536,7 @@ Game = (function() {
   }
 
   Game.prototype.update = function(delta) {
+    this.scroll.setX(Math.round(this.scroll.getX() + this.scrollSpeed * delta));
     this.level.update(delta);
     this.player.update(delta);
     if (+new Date() - this.powerupStart >= this.powerupDuration) {
@@ -11535,12 +11552,36 @@ Game = (function() {
     return Powerups[powerupKey];
   };
 
+  Game.prototype.setScrollSpeed = function(scrollSpeed) {
+    this.scrollSpeed = scrollSpeed;
+  };
+
+  Game.prototype.setDefaultScrollSpeed = function() {
+    return this.scrollSpeed = this.defaultScrollSpeed;
+  };
+
   Game.prototype.getPowerupTimeleft = function() {
     return this.powerupDuration - (+new Date() - this.powerupStart);
   };
 
   Game.prototype.getActivePowerup = function() {
     return this.activePowerup;
+  };
+
+  Game.prototype.getScore = function() {
+    return Math.round(this.scroll.getX() / 50);
+  };
+
+  Game.prototype.getScroll = function() {
+    return this.scroll;
+  };
+
+  Game.prototype.getScrollSpeed = function() {
+    return this.scrollSpeed;
+  };
+
+  Game.prototype.getDefaultScrollSpeed = function() {
+    return this.defaultScrollSpeed;
   };
 
   Game.prototype.getLevel = function() {
@@ -11655,8 +11696,7 @@ Level = (function() {
     this.onClick = __bind(this.onClick, this);
     this.onRightClick = __bind(this.onRightClick, this);
     this.onKeyDown = __bind(this.onKeyDown, this);
-    this.defaultScrollSpeed = 200;
-    this.scrollSpeed = this.defaultScrollSpeed;
+    this.renderOffset = new LDFW.Vector2(0, Config.ui_minimap_height);
     this.buildMode = true;
     this.buildBlock = new Block(this.app, this.game, {
       buildMode: true
@@ -11666,7 +11706,6 @@ Level = (function() {
     this.mouse = this.game.getMouse();
     this.mouse.on("click", this.onClick);
     this.mouse.on("rightclick", this.onRightClick);
-    this.scroll = new LDFW.Vector2(0, Config.ui_minimap_height);
     this.defaultGravity = new LDFW.Vector2(0, 1800);
     this.gravity = this.defaultGravity.clone();
     this.generator = new LevelGenerator(this.app, this.game, this);
@@ -11719,7 +11758,6 @@ Level = (function() {
 
   Level.prototype.update = function(delta) {
     var blockMap, gridPosition, mousePosition, obstacle, _i, _len, _ref, _results;
-    this.scroll.setX(Math.round(this.scroll.getX() + this.scrollSpeed * delta));
     if (this.game.getActivePowerup() === Powerups.BROKEN_BLOCKS && this.buildMode) {
       this.buildBlock.setStyle("broken");
     } else {
@@ -11736,16 +11774,16 @@ Level = (function() {
       LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0);
     }
     if (this.game.getActivePowerup() === Powerups.BOOST) {
-      this.scrollSpeed = this.defaultScrollSpeed * 2;
+      this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 2);
     } else if (this.game.getActivePowerup() === Powerups.SLOW) {
-      this.scrollSpeed = this.defaultScrollSpeed * 0.75;
+      this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 0.75);
     } else {
-      this.scrollSpeed = this.defaultScrollSpeed;
+      this.game.setDefaultScrollSpeed();
     }
     mousePosition = this.mouse.getPosition();
     if (this.buildMode) {
       blockMap = this.buildBlock.getMap();
-      gridPosition = mousePosition.clone().add(this.scroll).substract(blockMap[0].length * this.GRID_SIZE / 2, blockMap.length * this.GRID_SIZE / 2).divideBy(this.GRID_SIZE).round();
+      gridPosition = mousePosition.clone().add(this.getScroll()).substract(blockMap[0].length * this.GRID_SIZE / 2, blockMap.length * this.GRID_SIZE / 2).divideBy(this.GRID_SIZE).round();
       this.buildBlock.setGridPosition(gridPosition);
     }
     _ref = this.obstacles;
@@ -11875,7 +11913,7 @@ Level = (function() {
   };
 
   Level.prototype.getScroll = function() {
-    return this.scroll;
+    return this.game.getScroll().clone().add(this.renderOffset);
   };
 
   Level.prototype.getPlatforms = function() {
@@ -11995,9 +12033,9 @@ Player = (function() {
 
   Player.prototype.handleKeyboard = function() {
     if (this.keyboard.pressed(this.keyboard.Keys.RIGHT) || this.keyboard.pressed(this.keyboard.Keys.D)) {
-      this.velocity.setX(this.level.getScrollSpeed() * 2);
+      this.velocity.setX(this.game.getScrollSpeed() * 2);
     } else if (this.keyboard.pressed(this.keyboard.Keys.LEFT) || this.keyboard.pressed(this.keyboard.Keys.A)) {
-      this.velocity.setX(-this.level.getScrollSpeed() * 2);
+      this.velocity.setX(-this.game.getScrollSpeed() * 2);
     } else {
       this.velocity.setX(0);
     }

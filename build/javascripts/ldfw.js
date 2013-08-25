@@ -146,7 +146,8 @@ Game = (function() {
 
   Game.prototype.tick = function() {
     var delta, _ref, _ref1;
-    delta = (new Date() - this.lastTick) / 1000;
+    delta = (Date.now() - this.lastTick) / 1000;
+    this.lastTick = Date.now();
     this.tickStats.begin();
     if ((_ref = this.screen) != null) {
       _ref.update(delta);
@@ -160,7 +161,6 @@ Game = (function() {
     }
     this.fpsStats.end();
     this.fpsMsStats.end();
-    this.lastTick = new Date();
     if (this.running) {
       return requestAnimFrame(this.tick);
     }

@@ -9,8 +9,7 @@ FuckingPiranhasActor = require "./actors/fuckingpiranhasactor.coffee"
 class Level
   GRID_SIZE: 32
   constructor: (@app, @game) ->
-    @defaultScrollSpeed = 200
-    @scrollSpeed = @defaultScrollSpeed
+    @renderOffset = new LDFW.Vector2(0, Config.ui_minimap_height)
 
     @buildMode = true
     @buildBlock = new Block @app, @game, buildMode: true
@@ -22,7 +21,6 @@ class Level
     @mouse.on "click", @onClick
     @mouse.on "rightclick", @onRightClick
 
-    @scroll = new LDFW.Vector2(0, Config.ui_minimap_height)
     @defaultGravity = new LDFW.Vector2(0, 1800)
     @gravity = @defaultGravity.clone()
 
@@ -66,8 +64,6 @@ class Level
     @buildBlock = new Block @app, @game, buildMode: true
 
   update: (delta) ->
-    @scroll.setX Math.round(@scroll.getX() + @scrollSpeed * delta)
-
     if @game.getActivePowerup() == Powerups.BROKEN_BLOCKS and @buildMode
       @buildBlock.setStyle "broken"
     else
@@ -84,18 +80,18 @@ class Level
       LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0)
 
     if @game.getActivePowerup() == Powerups.BOOST
-      @scrollSpeed = @defaultScrollSpeed * 2
+      @game.setScrollSpeed @game.getDefaultScrollSpeed() * 2
     else if @game.getActivePowerup() == Powerups.SLOW
-      @scrollSpeed = @defaultScrollSpeed * 0.75
+      @game.setScrollSpeed @game.getDefaultScrollSpeed() * 0.75
     else
-      @scrollSpeed = @defaultScrollSpeed
+      @game.setDefaultScrollSpeed()
 
     mousePosition = @mouse.getPosition()
 
     if @buildMode
       blockMap = @buildBlock.getMap()
       gridPosition = mousePosition.clone()
-        .add(@scroll)
+        .add(@getScroll())
         .substract(
           blockMap[0].length * @GRID_SIZE / 2,
           blockMap.length * @GRID_SIZE / 2
@@ -212,7 +208,8 @@ class Level
   addPlatform: (platform) -> @platforms.push platform
   addObstacle: (obstacle) -> @obstacles.push obstacle
 
-  getScroll: -> @scroll
+  getScroll: ->
+    return @game.getScroll().clone().add(@renderOffset)
   getPlatforms: -> @platforms
   getBlocks: -> @blocks
   getObstacles: -> @obstacles

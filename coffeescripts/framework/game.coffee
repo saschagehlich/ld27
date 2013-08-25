@@ -77,7 +77,8 @@ class Game
    * Our main game loop
   ###
   tick: =>
-    delta = (new Date() - @lastTick) / 1000
+    delta = (Date.now() - @lastTick) / 1000
+    @lastTick = Date.now()
 
     # If we have a screen, make it tick!
     @tickStats.begin()
@@ -90,8 +91,6 @@ class Game
     @screen?.draw @context
     @fpsStats.end()
     @fpsMsStats.end()
-
-    @lastTick = new Date()
 
     if @running
       requestAnimFrame @tick

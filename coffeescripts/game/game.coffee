@@ -7,6 +7,11 @@ Powerups = require "./powerups.coffee"
 class Game
   powerupDuration: 10000
   constructor: (@app) ->
+    @defaultScrollSpeed = 200
+    @scrollSpeed = @defaultScrollSpeed
+
+    @scroll   = new LDFW.Vector2(0, 0) # actually, this is the score...
+
     @keyboard = new Keyboard()
     @mouse    = new Mouse @app
 
@@ -23,6 +28,8 @@ class Game
     )
 
   update: (delta) ->
+    @scroll.setX Math.round(@scroll.getX() + @scrollSpeed * delta)
+
     @level.update delta
     @player.update delta
 
@@ -35,9 +42,16 @@ class Game
     powerupKey = powerups[Math.floor(Math.random() * powerups.length)]
     return Powerups[powerupKey]
 
+  setScrollSpeed: (@scrollSpeed) -> return
+  setDefaultScrollSpeed: -> @scrollSpeed = @defaultScrollSpeed
+
   getPowerupTimeleft: -> @powerupDuration - (+new Date() - @powerupStart)
   getActivePowerup: -> @activePowerup
 
+  getScore: -> Math.round(@scroll.getX() / 50)
+  getScroll: -> @scroll
+  getScrollSpeed: -> @scrollSpeed
+  getDefaultScrollSpeed: -> @defaultScrollSpeed
   getLevel: -> @level
   getPlayer: -> @player
   getKeyboard: -> @keyboard

@@ -78,10 +78,10 @@ class Player
   handleKeyboard: ->
     if @keyboard.pressed(@keyboard.Keys.RIGHT) or
       @keyboard.pressed(@keyboard.Keys.D)
-        @velocity.setX @level.getScrollSpeed() * 2
+        @velocity.setX @game.getScrollSpeed() * 2
     else if @keyboard.pressed(@keyboard.Keys.LEFT) or
       @keyboard.pressed(@keyboard.Keys.A)
-        @velocity.setX -@level.getScrollSpeed() * 2
+        @velocity.setX -@game.getScrollSpeed() * 2
     else
       @velocity.setX 0
 
