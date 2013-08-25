@@ -69,11 +69,11 @@ class GameOverStage extends LDFW.Stage
   drawScore: (context) ->
     yourScoreText = "YOUR SCORE:"
     yourScoreBounds = @messageFont.getBounds yourScoreText
-    @messageFont.drawText context, yourScoreText, @app.getWidth() / 2 - yourScoreBounds.width / 2, 240
+    @messageFont.drawText context, yourScoreText, @app.getWidth() / 2 - yourScoreBounds.width / 2, 230
 
     scoreText = "#{@game.getScore()}m"
     scoreBounds = @scoreFont.getBounds scoreText
-    @scoreFont.drawText context, scoreText, @app.getWidth() / 2 - scoreBounds.width / 2, 260
+    @scoreFont.drawText context, scoreText, @app.getWidth() / 2 - scoreBounds.width / 2, 250
 
   drawInstructions: (context) ->
     rText = "PRESS R "
@@ -109,15 +109,19 @@ class GameOverStage extends LDFW.Stage
   drawMessage: (context) ->
     booText = "BOO!"
     booBounds = @booFont.getBounds booText
-    @booFont.drawText context, booText, @app.getWidth() / 2 - booBounds.width / 2, 110
+    @booFont.drawText context, booText, @app.getWidth() / 2 - booBounds.width / 2, 75
 
     lostText = "YOU LOST THE GAME!"
     lostBounds = @messageFont.getBounds lostText
-    @messageFont.drawText context, lostText, @app.getWidth() / 2 - lostBounds.width / 2, 166
+    @messageFont.drawText context, lostText, @app.getWidth() / 2 - lostBounds.width / 2, 131
 
     cantWinText = "ACTUALLY, YOU CAN'T WIN."
     cantWinBounds = @messageFont.getBounds cantWinText
-    @messageFont.drawText context, cantWinText, @app.getWidth() / 2 - cantWinBounds.width / 2, 186
+    @messageFont.drawText context, cantWinText, @app.getWidth() / 2 - cantWinBounds.width / 2, 151
+
+    dontTellText = "PLEASE DON'T TELL ANYONE."
+    dontTellBounds = @messageFont.getBounds dontTellText
+    @messageFont.drawText context, dontTellText, @app.getWidth() / 2 - dontTellBounds.width / 2, 171
 
 
 module.exports = GameOverStage

@@ -12205,7 +12205,7 @@ module.exports=module.exports=[
 ]
 
 },{}],16:[function(require,module,exports){
-module.exports={
+module.exports=module.exports={
   "block_styles": 3,
   "sprites_per_block_style": 3,
 
@@ -13290,10 +13290,10 @@ GameOverStage = (function(_super) {
     var scoreBounds, scoreText, yourScoreBounds, yourScoreText;
     yourScoreText = "YOUR SCORE:";
     yourScoreBounds = this.messageFont.getBounds(yourScoreText);
-    this.messageFont.drawText(context, yourScoreText, this.app.getWidth() / 2 - yourScoreBounds.width / 2, 240);
+    this.messageFont.drawText(context, yourScoreText, this.app.getWidth() / 2 - yourScoreBounds.width / 2, 230);
     scoreText = "" + (this.game.getScore()) + "m";
     scoreBounds = this.scoreFont.getBounds(scoreText);
-    return this.scoreFont.drawText(context, scoreText, this.app.getWidth() / 2 - scoreBounds.width / 2, 260);
+    return this.scoreFont.drawText(context, scoreText, this.app.getWidth() / 2 - scoreBounds.width / 2, 250);
   };
 
   GameOverStage.prototype.drawInstructions = function(context) {
@@ -13322,16 +13322,19 @@ GameOverStage = (function(_super) {
   };
 
   GameOverStage.prototype.drawMessage = function(context) {
-    var booBounds, booText, cantWinBounds, cantWinText, lostBounds, lostText;
+    var booBounds, booText, cantWinBounds, cantWinText, dontTellBounds, dontTellText, lostBounds, lostText;
     booText = "BOO!";
     booBounds = this.booFont.getBounds(booText);
-    this.booFont.drawText(context, booText, this.app.getWidth() / 2 - booBounds.width / 2, 110);
+    this.booFont.drawText(context, booText, this.app.getWidth() / 2 - booBounds.width / 2, 75);
     lostText = "YOU LOST THE GAME!";
     lostBounds = this.messageFont.getBounds(lostText);
-    this.messageFont.drawText(context, lostText, this.app.getWidth() / 2 - lostBounds.width / 2, 166);
+    this.messageFont.drawText(context, lostText, this.app.getWidth() / 2 - lostBounds.width / 2, 131);
     cantWinText = "ACTUALLY, YOU CAN'T WIN.";
     cantWinBounds = this.messageFont.getBounds(cantWinText);
-    return this.messageFont.drawText(context, cantWinText, this.app.getWidth() / 2 - cantWinBounds.width / 2, 186);
+    this.messageFont.drawText(context, cantWinText, this.app.getWidth() / 2 - cantWinBounds.width / 2, 151);
+    dontTellText = "PLEASE DON'T TELL ANYONE.";
+    dontTellBounds = this.messageFont.getBounds(dontTellText);
+    return this.messageFont.drawText(context, dontTellText, this.app.getWidth() / 2 - dontTellBounds.width / 2, 171);
   };
 
   return GameOverStage;
