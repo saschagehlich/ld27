@@ -61,13 +61,12 @@ class BlockActor extends LDFW.Actor
 
   randomize: ->
     index = Math.floor(Math.random() * @availableBlocks.length)
-
     map = []
     originalMap = @availableBlocks[index]
     for row, y in originalMap
       r = []
       for segment, x in row
-        if r is 0
+        if segment is 0
           r.push 0
         else
           r.push new Segment this, @level
@@ -132,7 +131,7 @@ class BlockActor extends LDFW.Actor
 
   update: (delta) ->
     for row, y in @map
-      for segment, x in row
+      for segment, x in row when segment isnt 0
         segment.update delta
 
   draw: (context) ->

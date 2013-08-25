@@ -25,6 +25,15 @@ class Vector2
   clone: -> new Vector2(@x, @y)
 
   ###
+   * Floors the values of this Vector
+  ###
+  floor: ->
+    @x = Math.floor @x
+    @y = Math.floor @y
+
+    return this
+
+  ###
    * Rounds the values of this Vector
   ###
   round: ->

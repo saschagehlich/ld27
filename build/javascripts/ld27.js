@@ -94,7 +94,7 @@ BlockActor = (function(_super) {
       r = [];
       for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
         segment = row[x];
-        if (r === 0) {
+        if (segment === 0) {
           r.push(0);
         } else {
           r.push(new Segment(this, this.level));
@@ -209,7 +209,9 @@ BlockActor = (function(_super) {
         _results1 = [];
         for (x = _j = 0, _len1 = row.length; _j < _len1; x = ++_j) {
           segment = row[x];
-          _results1.push(segment.update(delta));
+          if (segment !== 0) {
+            _results1.push(segment.update(delta));
+          }
         }
         return _results1;
       })());
@@ -521,9 +523,11 @@ module.exports = LevelActor;
 
 
 },{"../config/config.json":10,"../powerups.coffee":17}],5:[function(require,module,exports){
-var MinimapActor,
+var FuckingPiranhasActor, MinimapActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+FuckingPiranhasActor = require("./fuckingpiranhasactor.coffee");
 
 MinimapActor = (function(_super) {
   __extends(MinimapActor, _super);
@@ -532,7 +536,9 @@ MinimapActor = (function(_super) {
     this.app = app;
     this.game = game;
     MinimapActor.__super__.constructor.call(this, this.game);
+    this.level = this.game.getLevel();
     this.spritesAtlas = this.app.getSpritesAtlas();
+    this.piranhasSprite = this.spritesAtlas.createSprite("ui/minimap-fucking-piranhas.png");
     this.background = this.spritesAtlas.createSprite("ui/minimap.png");
     this.background.setPosition(0, this.app.getHeight() - this.background.getHeight());
   }
@@ -540,7 +546,104 @@ MinimapActor = (function(_super) {
   MinimapActor.prototype.update = function(delta) {};
 
   MinimapActor.prototype.draw = function(context) {
-    return this.background.draw(context);
+    this.background.draw(context);
+    return this.drawMinimapContents(context);
+  };
+
+  MinimapActor.prototype.drawMinimapContents = function(context) {
+    var blocks, drawOptions, drawPadding, obstacles, platforms, player, scale, scroll;
+    platforms = this.level.getPlatforms();
+    blocks = this.level.getBlocks();
+    obstacles = this.level.getObstacles();
+    player = this.game.getPlayer();
+    drawPadding = new LDFW.Vector2(8, 8);
+    drawOptions = {
+      offset: this.background.getPosition().clone().floor(),
+      padding: drawPadding,
+      height: this.background.getHeight() - drawPadding.getY() * 2
+    };
+    scale = drawOptions.height / this.app.getHeight();
+    drawOptions.scaledGridSize = this.level.GRID_SIZE * scale;
+    drawOptions.scale = scale;
+    scroll = this.game.getScroll().clone().multiply(scale).substract(this.app.getWidth() / 2, 0);
+    this.drawPlayer(context, player, scroll, drawOptions);
+    this.drawPlatforms(context, platforms, scroll, drawOptions);
+    this.drawObstacles(context, obstacles, scroll, drawOptions);
+    return this.drawBlocks(context, blocks, scroll, drawOptions);
+  };
+
+  MinimapActor.prototype.drawPlayer = function(context, player, scroll, options) {
+    var position;
+    context.save();
+    context.fillStyle = "#af2f2f";
+    position = player.getPosition().clone().multiply(options.scale);
+    context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX()), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() - options.scaledGridSize * 2), options.scaledGridSize * 3, options.scaledGridSize);
+    context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX() + options.scaledGridSize), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() - options.scaledGridSize * 3), options.scaledGridSize, options.scaledGridSize * 3);
+    return context.restore();
+  };
+
+  MinimapActor.prototype.drawBlocks = function(context, blocks, scroll, options) {
+    var block, map, position, row, scaledX, scaledY, segment, x, y, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = blocks.length; _i < _len; _i++) {
+      block = blocks[_i];
+      position = block.getGridPosition().clone().multiply(options.scaledGridSize);
+      map = block.getMap();
+      _results.push((function() {
+        var _j, _len1, _results1;
+        _results1 = [];
+        for (y = _j = 0, _len1 = map.length; _j < _len1; y = ++_j) {
+          row = map[y];
+          _results1.push((function() {
+            var _k, _len2, _results2;
+            _results2 = [];
+            for (x = _k = 0, _len2 = row.length; _k < _len2; x = ++_k) {
+              segment = row[x];
+              if (segment === 0) {
+                continue;
+              }
+              scaledX = x * options.scaledGridSize;
+              scaledY = y * options.scaledGridSize;
+              _results2.push(context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() + scaledX - scroll.getX()), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() + scaledY), options.scaledGridSize, options.scaledGridSize));
+            }
+            return _results2;
+          })());
+        }
+        return _results1;
+      })());
+    }
+    return _results;
+  };
+
+  MinimapActor.prototype.drawObstacles = function(context, obstacles, scroll, options) {
+    var height, obstacle, position, width, _i, _len;
+    context.save();
+    context.fillStyle = "#af2f2f";
+    for (_i = 0, _len = obstacles.length; _i < _len; _i++) {
+      obstacle = obstacles[_i];
+      position = obstacle.getPosition().clone().multiply(options.scaledGridSize);
+      width = obstacle.getWidth() * options.scaledGridSize;
+      height = obstacle.getHeight() * options.scaledGridSize;
+      context.fillRect(Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX()), Math.floor(options.offset.getY() + options.padding.getY() + position.getY()), width, height);
+      if (obstacle instanceof FuckingPiranhasActor) {
+        this.piranhasSprite.draw(context, Math.floor(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX() + +width / 2 - this.piranhasSprite.getWidth() / 2), Math.floor(options.offset.getY() + options.padding.getY() + position.getY() + +height / 2 - this.piranhasSprite.getHeight() / 2));
+      }
+    }
+    return context.restore();
+  };
+
+  MinimapActor.prototype.drawPlatforms = function(context, platforms, scroll, options) {
+    var height, platform, position, width, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = platforms.length; _i < _len; _i++) {
+      platform = platforms[_i];
+      position = platform.getPosition().clone().multiply(options.scaledGridSize);
+      width = platform.getWidth();
+      height = platform.getHeight();
+      context.fillStyle = "white";
+      _results.push(context.fillRect(options.offset.getX() + options.padding.getX() + position.getX() - scroll.getX(), options.offset.getY() + options.padding.getY() + position.getY(), width * options.scaledGridSize, height * options.scaledGridSize));
+    }
+    return _results;
   };
 
   return MinimapActor;
@@ -550,7 +653,7 @@ MinimapActor = (function(_super) {
 module.exports = MinimapActor;
 
 
-},{}],6:[function(require,module,exports){
+},{"./fuckingpiranhasactor.coffee":2}],6:[function(require,module,exports){
 var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -800,7 +903,7 @@ Game = (function() {
     this.mouse = new Mouse(this.app);
     this.level = new Level(this.app, this);
     this.player = new Player(this.app, this);
-    this.activePowerup = Powerups.BROKEN_BLOCKS;
+    this.activePowerup = null;
     this.powerupStart = +new Date();
     firstPlatform = this.level.getPlatforms()[0];
     this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE + firstPlatform.getWidth() * this.level.GRID_SIZE / 2, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);

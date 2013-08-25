@@ -194,7 +194,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-bubble.png":
 {
-	"frame": {"x":780,"y":408,"w":8,"h":8},
+	"frame": {"x":780,"y":418,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -210,7 +210,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-plopp.png":
 {
-	"frame": {"x":780,"y":398,"w":10,"h":8},
+	"frame": {"x":780,"y":408,"w":10,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":10,"h":8},
@@ -272,6 +272,14 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":640,"h":34},
 	"sourceSize": {"w":640,"h":34}
 },
+"ui/minimap-fucking-piranhas.png":
+{
+	"frame": {"x":780,"y":398,"w":10,"h":8},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":10,"h":8},
+	"sourceSize": {"w":10,"h":8}
+},
 "ui/minimap.png":
 {
 	"frame": {"x":644,"y":2,"w":640,"h":74},
@@ -287,6 +295,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1286,"h":484},
 	"scale": "2",
-	"smartupdate": "$TexturePacker:SmartUpdate:490383a93573fd9024ac9a121117781c:1/1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:b09d4aa0140492520c58a3d3364849a4:1/1$"
 }
 }

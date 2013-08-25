@@ -533,6 +533,17 @@ Vector2 = (function() {
   };
 
   /*
+   * Floors the values of this Vector
+  */
+
+
+  Vector2.prototype.floor = function() {
+    this.x = Math.floor(this.x);
+    this.y = Math.floor(this.y);
+    return this;
+  };
+
+  /*
    * Rounds the values of this Vector
   */
 

@@ -21,7 +21,7 @@ class Game
     @level = new Level @app, this
     @player = new Player @app, this
 
-    @activePowerup = Powerups.BROKEN_BLOCKS
+    @activePowerup = null
     @powerupStart  = +new Date()
 
     firstPlatform = @level.getPlatforms()[0]
