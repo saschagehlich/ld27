@@ -10896,17 +10896,52 @@ var BackgroundActor,
 BackgroundActor = (function(_super) {
   __extends(BackgroundActor, _super);
 
-  function BackgroundActor(app) {
+  function BackgroundActor(app, game) {
+    var cloud, i, index, _i;
     this.app = app;
-    BackgroundActor.__super__.constructor.call(this, this.app);
+    this.game = game;
+    BackgroundActor.__super__.constructor.call(this, this.game || this.app);
     this.spritesAtlas = this.app.getSpritesAtlas();
     this.backgroundSprite = this.spritesAtlas.createSprite("background.png");
+    this.goddamnCloudsMan = [];
+    for (i = _i = 0; _i < 10; i = ++_i) {
+      index = Math.floor(Math.random() * 3);
+      cloud = this.spritesAtlas.createSprite("clouds/cloud-" + index + ".png");
+      cloud.setPosition(Math.random() * this.app.getWidth() * 2, Math.random() * this.app.getHeight() / 2);
+      cloud.opacity = 0.05 + Math.random() * 0.03;
+      cloud.speedX = -Math.random() * 10;
+      cloud.parallaxFactor = [0.5, 0.1, 0.3][index];
+      this.goddamnCloudsMan.push(cloud);
+    }
   }
 
-  BackgroundActor.prototype.update = function(delta) {};
+  BackgroundActor.prototype.update = function(delta) {
+    var cloud, _base, _i, _len, _ref, _results;
+    _ref = this.goddamnCloudsMan;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      cloud = _ref[_i];
+      cloud.getPosition().add(cloud.speedX * delta * cloud.parallaxFactor, 0);
+      if (cloud.getPosition().getX() - ((typeof (_base = this.game).getScroll === "function" ? _base.getScroll().getX() : void 0) || 0) * cloud.parallaxFactor + cloud.getWidth() < 0) {
+        _results.push(cloud.setPosition(cloud.getPosition().getX() + this.app.getWidth() + Math.random() * (this.app.getWidth() * 2), Math.random() * this.app.getHeight() / 2));
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
 
   BackgroundActor.prototype.draw = function(context) {
-    return this.backgroundSprite.draw(context);
+    var cloud, _base, _i, _len, _ref, _ref1, _ref2;
+    this.backgroundSprite.draw(context);
+    context.save();
+    _ref = this.goddamnCloudsMan;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      cloud = _ref[_i];
+      context.globalAlpha = cloud.opacity;
+      cloud.draw(context, cloud.getPosition().getX() - ((typeof (_base = this.game).getScroll === "function" ? _base.getScroll().getX() : void 0) || 0) * cloud.parallaxFactor + ((_ref1 = this.game.globalRenderOffset) != null ? _ref1.getX() : void 0) || 0, cloud.getPosition().getY() + ((_ref2 = this.game.globalRenderOffset) != null ? _ref2.getY() : void 0) || 0);
+    }
+    return context.restore();
   };
 
   return BackgroundActor;
@@ -11483,7 +11518,6 @@ LevelActor = (function(_super) {
     this.game = game;
     LevelActor.__super__.constructor.call(this, this.game);
     this.spritesAtlas = this.app.getSpritesAtlas();
-    this.backgroundSprite = this.spritesAtlas.createSprite("background.png");
     this.prepareSprites();
     this.level = this.game.getLevel();
   }
@@ -11525,7 +11559,6 @@ LevelActor = (function(_super) {
 
   LevelActor.prototype.draw = function(context) {
     context.save();
-    this.backgroundSprite.draw(context);
     this.drawPlatforms(context);
     this.drawBlocks(context);
     this.drawObstacles(context);
@@ -13558,9 +13591,11 @@ module.exports = GameOverStage;
 
 
 },{}],30:[function(require,module,exports){
-var GameStage, LevelActor, PlayerActor,
+var BackgroundActor, GameStage, LevelActor, PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BackgroundActor = require("../actors/backgroundactor.coffee");
 
 PlayerActor = require("../actors/playeractor.coffee");
 
@@ -13573,6 +13608,8 @@ GameStage = (function(_super) {
     this.app = app;
     this.game = game;
     GameStage.__super__.constructor.call(this, this.game);
+    this.backgroundActor = new BackgroundActor(this.app, this.game);
+    this.addActor(this.backgroundActor);
     this.levelActor = new LevelActor(this.app, this.game);
     this.addActor(this.levelActor);
     this.playerActor = new PlayerActor(this.app, this.game);
@@ -13586,7 +13623,7 @@ GameStage = (function(_super) {
 module.exports = GameStage;
 
 
-},{"../actors/levelactor.coffee":7,"../actors/playeractor.coffee":11}],31:[function(require,module,exports){
+},{"../actors/backgroundactor.coffee":1,"../actors/levelactor.coffee":7,"../actors/playeractor.coffee":11}],31:[function(require,module,exports){
 var HeadlineActor, MinimapActor, PowerupActor, TimerActor, UIStage,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };

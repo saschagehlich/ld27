@@ -6,7 +6,6 @@ class LevelActor extends LDFW.Actor
     super @game
 
     @spritesAtlas = @app.getSpritesAtlas()
-    @backgroundSprite = @spritesAtlas.createSprite "background.png"
 
     @prepareSprites()
 
@@ -43,8 +42,6 @@ class LevelActor extends LDFW.Actor
 
   draw: (context) ->
     context.save()
-
-    @backgroundSprite.draw context
 
     @drawPlatforms  context
     @drawBlocks     context
