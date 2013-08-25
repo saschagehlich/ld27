@@ -32,7 +32,7 @@ class MinimapActor extends LDFW.Actor
       width:   @background.getWidth() - drawPadding.getX() * 2
 
     scale = drawOptions.height / @app.getHeight()
-    drawOptions.scaledGridSize = @level.GRID_SIZE * scale
+    drawOptions.scaledGridSize = Math.round(@level.GRID_SIZE * scale)
     drawOptions.scale = scale
 
     scroll    = @game.getScroll()
@@ -175,8 +175,13 @@ class MinimapActor extends LDFW.Actor
         rw -= (rx + rw) - rmx
 
       context.fillRect(
-        rx, ry,
-        rw, rh
+        rx + options.scaledGridSize, ry,
+        rw - options.scaledGridSize * 2, options.scaledGridSize
+      )
+
+      context.fillRect(
+        rx, ry + options.scaledGridSize,
+        rw, rh - options.scaledGridSize
       )
 
 

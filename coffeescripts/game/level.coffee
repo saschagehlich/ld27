@@ -90,7 +90,7 @@ class Level
     if @game.getActivePowerup() == Powerups.BOOST
       @game.setScrollSpeed @game.getDefaultScrollSpeed() * 1.5
     else if @game.getActivePowerup() == Powerups.SLOW
-      @game.setScrollSpeed @game.getDefaultScrollSpeed() * 0.75
+      @game.setScrollSpeed @game.getDefaultScrollSpeed() * 0.5
     else
       @game.setDefaultScrollSpeed()
 

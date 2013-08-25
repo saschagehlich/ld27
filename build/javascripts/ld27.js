@@ -819,7 +819,7 @@ MinimapActor = (function(_super) {
       width: this.background.getWidth() - drawPadding.getX() * 2
     };
     scale = drawOptions.height / this.app.getHeight();
-    drawOptions.scaledGridSize = this.level.GRID_SIZE * scale;
+    drawOptions.scaledGridSize = Math.round(this.level.GRID_SIZE * scale);
     drawOptions.scale = scale;
     scroll = this.game.getScroll().clone().multiply(scale).substract(this.app.getWidth() / 2, 0);
     this.drawPlayer(context, player, scroll, drawOptions);
@@ -942,7 +942,8 @@ MinimapActor = (function(_super) {
       if (rx + rw > rmx) {
         rw -= (rx + rw) - rmx;
       }
-      _results.push(context.fillRect(rx, ry, rw, rh));
+      context.fillRect(rx + options.scaledGridSize, ry, rw - options.scaledGridSize * 2, options.scaledGridSize);
+      _results.push(context.fillRect(rx, ry + options.scaledGridSize, rw, rh - options.scaledGridSize));
     }
     return _results;
   };
@@ -1262,7 +1263,7 @@ Game = (function(_super) {
     this.mouse = new Mouse(this.app);
     this.level = new Level(this.app, this);
     this.player = new Player(this.app, this);
-    this.activePowerup = Powerups.EARTHQUAKE;
+    this.activePowerup = null;
     this.powerupStart = +new Date();
     firstPlatform = this.level.getPlatforms()[0];
     this.player.setPosition(firstPlatform.getPosition().x * this.level.GRID_SIZE + firstPlatform.getWidth() * this.level.GRID_SIZE / 2, firstPlatform.getPosition().y * this.level.GRID_SIZE - 100);
@@ -1553,7 +1554,7 @@ Level = (function() {
     if (this.game.getActivePowerup() === Powerups.BOOST) {
       this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 1.5);
     } else if (this.game.getActivePowerup() === Powerups.SLOW) {
-      this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 0.75);
+      this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 0.5);
     } else {
       this.game.setDefaultScrollSpeed();
     }

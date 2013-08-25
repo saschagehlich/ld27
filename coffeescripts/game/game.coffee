@@ -27,7 +27,7 @@ class Game extends EventEmitter
     @level = new Level @app, this
     @player = new Player @app, this
 
-    @activePowerup = Powerups.EARTHQUAKE
+    @activePowerup = null
     @powerupStart  = +new Date()
 
     firstPlatform = @level.getPlatforms()[0]
