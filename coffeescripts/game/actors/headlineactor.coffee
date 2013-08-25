@@ -21,10 +21,13 @@ class HeadlineActor extends LDFW.Actor
 
     powerupText = "NEXT POWERUP IN "
     powerupTextPosition = new LDFW.Vector2 16, 12
-
     powerupBounds = @font.getBounds powerupText
     @font.drawText context, powerupText, powerupTextPosition.getX(), powerupTextPosition.getY()
 
-    @redFont.drawText context, "0:10", powerupTextPosition.getX() + powerupBounds.width, powerupTextPosition.getY()
+    powerupTimeLeft = Math.ceil(@game.getPowerupTimeleft() / 1000).toString()
+    if powerupTimeLeft.length is 1
+      powerupTimeLeft = "0" + powerupTimeLeft
+
+    @redFont.drawText context, "0:#{powerupTimeLeft}", powerupTextPosition.getX() + powerupBounds.width, powerupTextPosition.getY()
 
 module.exports = HeadlineActor

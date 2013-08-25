@@ -412,7 +412,7 @@ TextureRegion = (function() {
 
 
   TextureRegion.prototype.draw = function(context, sx, sy, sw, sh, dx, dy) {
-    return context.drawImage(this.image, this.frame.frame.x + sx, this.frame.frame.y + sy, Math.min(sw, (this.frame.spriteSourceSize.w + this.frame.frame.x) - sx), Math.min(sh, (this.frame.spriteSourceSize.h + this.frame.frame.y) - sy), dx, dy, Math.min(sw, (this.frame.spriteSourceSize.w + this.frame.frame.x) - sx), Math.min(sh, (this.frame.spriteSourceSize.h + this.frame.frame.y) - sy));
+    return context.drawImage(this.image, this.frame.frame.x + sx, this.frame.frame.y + sy, Math.min(sw, (this.frame.spriteSourceSize.w + this.frame.frame.x) - (this.frame.frame.x + sx)), Math.min(sh, (this.frame.spriteSourceSize.h + this.frame.frame.y) - (this.frame.frame.y + sy)), dx, dy, Math.min(sw, (this.frame.spriteSourceSize.w + this.frame.frame.x) - (this.frame.frame.x + sx)), Math.min(sh, (this.frame.spriteSourceSize.h + this.frame.frame.y) - (this.frame.frame.y + sy)));
   };
 
   return TextureRegion;

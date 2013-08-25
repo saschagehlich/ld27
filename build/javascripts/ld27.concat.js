@@ -10952,13 +10952,17 @@ HeadlineActor = (function(_super) {
   }
 
   HeadlineActor.prototype.draw = function(context) {
-    var powerupBounds, powerupText, powerupTextPosition;
+    var powerupBounds, powerupText, powerupTextPosition, powerupTimeLeft;
     this.background.draw(context);
     powerupText = "NEXT POWERUP IN ";
     powerupTextPosition = new LDFW.Vector2(16, 12);
     powerupBounds = this.font.getBounds(powerupText);
     this.font.drawText(context, powerupText, powerupTextPosition.getX(), powerupTextPosition.getY());
-    return this.redFont.drawText(context, "0:10", powerupTextPosition.getX() + powerupBounds.width, powerupTextPosition.getY());
+    powerupTimeLeft = Math.ceil(this.game.getPowerupTimeleft() / 1000).toString();
+    if (powerupTimeLeft.length === 1) {
+      powerupTimeLeft = "0" + powerupTimeLeft;
+    }
+    return this.redFont.drawText(context, "0:" + powerupTimeLeft, powerupTextPosition.getX() + powerupBounds.width, powerupTextPosition.getY());
   };
 
   return HeadlineActor;

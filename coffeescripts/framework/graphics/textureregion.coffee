@@ -18,11 +18,11 @@ class TextureRegion
     context.drawImage(
       @image,
       @frame.frame.x + sx, @frame.frame.y + sy,
-      Math.min(sw, (@frame.spriteSourceSize.w + @frame.frame.x) - sx),
-      Math.min(sh, (@frame.spriteSourceSize.h + @frame.frame.y) - sy),
+      Math.min(sw, (@frame.spriteSourceSize.w + @frame.frame.x) - (@frame.frame.x + sx)),
+      Math.min(sh, (@frame.spriteSourceSize.h + @frame.frame.y) - (@frame.frame.y + sy)),
       dx, dy,
-      Math.min(sw, (@frame.spriteSourceSize.w + @frame.frame.x) - sx),
-      Math.min(sh, (@frame.spriteSourceSize.h + @frame.frame.y) - sy),
+      Math.min(sw, (@frame.spriteSourceSize.w + @frame.frame.x) - (@frame.frame.x + sx)),
+      Math.min(sh, (@frame.spriteSourceSize.h + @frame.frame.y) - (@frame.frame.y + sy)),
     )
 
 module.exports = TextureRegion
