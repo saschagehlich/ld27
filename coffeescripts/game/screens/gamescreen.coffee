@@ -6,6 +6,8 @@ Game          = require "../game.coffee"
 class GameScreen extends LDFW.Screen
   constructor: (@app) ->
     super @app
+    @app.getKeyboard().removeAllListeners "keydown"
+
     @game = new Game @app
 
     @uiStage       = new UIStage @app, @game

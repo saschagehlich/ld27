@@ -1,7 +1,9 @@
-GameScreen   = require "./screens/gamescreen.coffee"
-SplashScreen = require "./screens/splashscreen.coffee"
-Mouse        = require "./utilities/mouse.coffee"
-Keyboard     = require "./utilities/keyboard.coffee"
+GameScreen      = require "./screens/gamescreen.coffee"
+SplashScreen    = require "./screens/splashscreen.coffee"
+HighScoreScreen = require "./screens/highscorescreen.coffee"
+Mouse           = require "./utilities/mouse.coffee"
+Keyboard        = require "./utilities/keyboard.coffee"
+Config          = require "./config/config.json"
 
 class LD27 extends LDFW.Game
   constructor: ->
@@ -9,6 +11,8 @@ class LD27 extends LDFW.Game
 
     @debugDiv = $("<div>").addClass("debug")
     @debugDiv.appendTo @getWrapper()
+
+    @scoreShared = false
 
     @keyboard = new Keyboard()
 
@@ -42,6 +46,30 @@ class LD27 extends LDFW.Game
 
   switchToSplashScreen: ->
     @screen = new SplashScreen this
+
+  switchToHighScoreScreen: ->
+    @screen = new HighScoreScreen this
+    @scoreShared = false
+
+  shareScore: (score) ->
+    if @scoreShared
+      return alert("You already shared this score!")
+
+    name = null
+    askForName = ->
+      name = prompt("Please enter your name:")
+      if name isnt null and name.trim().length is 0
+        alert "You didn't enter anything!"
+        askForName()
+
+    askForName()
+
+    @scoreShared = true
+    name = encodeURIComponent name
+    score = encodeURIComponent score
+
+    $.getJSON Config.highscore_host + "/highscore/add.json?name=" + name + "&score=" + score + "&jsoncallback=?", (result) =>
+      alert("Your score has been posted to the highscore! :)\n\nThanks for playing!")
 
   ###
    * Getters / setters

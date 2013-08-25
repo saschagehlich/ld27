@@ -15,6 +15,7 @@ class SplashScreen extends LDFW.Screen
     @blockInput = false
 
     @keyboard = @app.getKeyboard()
+    @keyboard.removeAllListeners "keydown"
     @keyboard.on "keydown", @onKeyDown
 
   onKeyDown: (e) =>
@@ -24,6 +25,10 @@ class SplashScreen extends LDFW.Screen
       switch @menuActor.getSelectedIndex()
         when 0
           @app.switchToGameScreen()
+          @blockInput = true
+          return
+        when 1
+          @app.switchToHighScoreScreen()
           @blockInput = true
           return
 

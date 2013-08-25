@@ -35,6 +35,8 @@ class GameOverStage extends LDFW.Stage
       @app.switchToGameScreen()
     else if e.keyCode is @keyboard.Keys.ESC
       @app.switchToSplashScreen()
+    else if e.keyCode is @keyboard.Keys.ENTER
+      @app.shareScore @game.getScore()
 
   update: (delta) ->
     @opacity += (@toOpacity - @opacity) / 10
@@ -93,6 +95,16 @@ class GameOverStage extends LDFW.Stage
     fullBounds = @redFont.getBounds fullQuitText
     @redFont.drawText context, escText, @app.getWidth() / 2 - fullBounds.width / 2, 350
     @messageFont.drawText context, quitText, @app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 350
+
+    enterText = "PRESS ENTER "
+    highscoreText = "TO ADD YOUR SCORE TO THE HIGHSCORE TABLE"
+
+    fullHighscoreText = enterText + highscoreText
+
+    rBounds = @messageFont.getBounds enterText
+    fullBounds = @redFont.getBounds fullHighscoreText
+    @redFont.drawText context, enterText, @app.getWidth() / 2 - fullBounds.width / 2, 370
+    @messageFont.drawText context, highscoreText, @app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 370
 
   drawMessage: (context) ->
     booText = "BOO!"
