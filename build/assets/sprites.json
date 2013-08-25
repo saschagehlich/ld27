@@ -392,6 +392,14 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":310,"h":256},
 	"sourceSize": {"w":310,"h":256}
 },
+"ui/caret.png":
+{
+	"frame": {"x":748,"y":462,"w":22,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":22,"h":12},
+	"sourceSize": {"w":22,"h":12}
+},
 "ui/headline.png":
 {
 	"frame": {"x":1148,"y":150,"w":640,"h":34},
@@ -423,6 +431,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1844,"h":484},
 	"scale": "2",
-	"smartupdate": "$TexturePacker:SmartUpdate:bc29e33489938ef62b7d118f55793735:1/1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:5b6555c35e27a0b796e6c7c20c4a5c59:1/1$"
 }
 }

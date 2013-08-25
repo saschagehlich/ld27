@@ -1206,6 +1206,7 @@ PlayerActor = (function(_super) {
     this.player.setSize(this.idleSprite.getWidth(), this.idleSprite.getHeight());
     this.runAnimSprite = this.spritesAtlas.createAnimSprite("player/run.png", 2, 0.05);
     this.offgroundAnimSprite = this.spritesAtlas.createAnimSprite("player/offground.png", 3, 0.1);
+    this.caretSprite = this.spritesAtlas.createSprite("ui/caret.png");
   }
 
   PlayerActor.prototype.update = function(delta) {
@@ -1223,11 +1224,14 @@ PlayerActor = (function(_super) {
     ry += this.game.globalRenderOffset.y;
     mirrored = this.player.getDirection() === -1;
     if (!this.player.isOnGround()) {
-      return this.offgroundAnimSprite.draw(context, rx, ry, mirrored);
+      this.offgroundAnimSprite.draw(context, rx, ry, mirrored);
     } else if (this.player.getVelocity().getX() !== 0) {
-      return this.runAnimSprite.draw(context, rx, ry, mirrored);
+      this.runAnimSprite.draw(context, rx, ry, mirrored);
     } else {
-      return this.idleSprite.draw(context, rx, ry, mirrored);
+      this.idleSprite.draw(context, rx, ry, mirrored);
+    }
+    if (ry + this.idleSprite.getHeight() < 40) {
+      return this.caretSprite.draw(context, rx + this.idleSprite.getWidth() / 2 - this.caretSprite.getWidth() / 2, 40);
     }
   };
 

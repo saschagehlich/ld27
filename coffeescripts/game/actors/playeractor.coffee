@@ -14,6 +14,8 @@ class PlayerActor extends LDFW.Actor
     @runAnimSprite = @spritesAtlas.createAnimSprite "player/run.png", 2, 0.05
     @offgroundAnimSprite = @spritesAtlas.createAnimSprite "player/offground.png", 3, 0.1
 
+    @caretSprite = @spritesAtlas.createSprite "ui/caret.png"
+
   update: (delta) ->
     @runAnimSprite.update delta
     @offgroundAnimSprite.update delta
@@ -36,6 +38,9 @@ class PlayerActor extends LDFW.Actor
       @runAnimSprite.draw context, rx, ry, mirrored
     else
       @idleSprite.draw context, rx, ry, mirrored
+
+    if ry + @idleSprite.getHeight() < 40
+      @caretSprite.draw context, rx + @idleSprite.getWidth() / 2 - @caretSprite.getWidth() / 2, 40
 
 
 module.exports = PlayerActor
