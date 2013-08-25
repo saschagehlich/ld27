@@ -1,22 +1,28 @@
 Vector2 = require "../math/vector2.coffee"
-Node    = require "../node.coffee"
+Sprite  = require "./sprite.coffee"
 
-class Sprite extends Node
-  ###
-   * A Sprite represents a drawable image
-   * @param  [TextureAtlas] @TextureAtlas
-  ###
-  @renderOffset: new Vector2(0, 0)
-  constructor: (@textureAtlas, @frame) ->
+class AnimSprite extends Sprite
+  constructor: (@textureAtlas, @frame, @spriteCount, @animationInterval) ->
     super
 
     @rotation = 0
+    @sumDelta = 0
+    @spriteIndex = 0
 
   getWidth: -> @frame.frame.w * @scale.x
   getHeight: -> @frame.frame.h * @scale.y
 
   getRotation: -> @rotation
   setRotation: (rotation) -> @rotation = rotation
+
+  update: (delta) ->
+    if @sumDelta >= @animationInterval
+      @spriteIndex++
+      if @spriteIndex > @spriteCount - 1
+        @spriteIndex = 0
+
+      @sumDelta -= @animationInterval
+    @sumDelta += delta
 
   ###
    * Draws the sprite on the given context
@@ -25,14 +31,18 @@ class Sprite extends Node
   draw: (context, drawX, drawY, mirrored=false) ->
     image = @textureAtlas.getAtlasImage()
 
+    widthPerSprite = Math.floor(@frame.frame.w / @spriteCount)
+
     # Source rectangle
     sx = @frame.frame.x
     sy = @frame.frame.y
-    sw = @frame.frame.w
+    sw = widthPerSprite
     sh = @frame.frame.h
 
+    sx += widthPerSprite * @spriteIndex
+
     # Destination rectangle
-    dw = @frame.frame.w * @scale.x
+    dw = widthPerSprite * @scale.x
     dh = @frame.frame.h * @scale.y
 
     context.save()
@@ -52,4 +62,4 @@ class Sprite extends Node
 
     context.restore()
 
-module.exports = Sprite
+module.exports = AnimSprite

@@ -10,7 +10,21 @@ class Player
     @position = new LDFW.Vector2()
     @level = @game.getLevel()
 
+    @width = 0
+    @height = 0
+
     @onGround = false
+
+    @direction = 1
+
+  setWidth: (@width) -> return
+  setHeight: (@height) -> return
+  setSize: (@width, @height) -> return
+  getWidth: -> @width
+  getHeight: -> @height
+  getDirection: -> @direction
+  isOnGround: -> @onGround
+  getVelocity: -> @velocity
 
   update: (delta) ->
     @handleKeyboard()
@@ -29,6 +43,11 @@ class Player
 
     @velocity.add gravityStep
     velocityStep = @velocity.clone().multiply(delta)
+
+    if @velocity.getX() > 0
+      @direction = 1
+    else if @velocity.getX() < 0
+      @direction = -1
 
     return @position.clone().add velocityStep
 
@@ -97,9 +116,6 @@ class Player
 
     if @keyboard.upPressed() and @onGround
       @velocity.setY JUMP_FORCE
-
-  getWidth: -> 32
-  getHeight: -> 64
 
   getPosition: -> @position
   setPosition: ->

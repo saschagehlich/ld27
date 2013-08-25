@@ -11144,8 +11144,7 @@ BlockActor = (function(_super) {
         }
       }
     }
-    context.restore();
-    return stats;
+    return context.restore();
   };
 
   return BlockActor;
@@ -11595,13 +11594,9 @@ module.exports = MinimapActor;
 
 
 },{"./fuckingpiranhasactor.coffee":2}],6:[function(require,module,exports){
-var PLAYER_HEIGHT, PLAYER_WIDTH, PlayerActor,
+var PlayerActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-PLAYER_WIDTH = 32;
-
-PLAYER_HEIGHT = 64;
 
 PlayerActor = (function(_super) {
   __extends(PlayerActor, _super);
@@ -11611,19 +11606,33 @@ PlayerActor = (function(_super) {
     PlayerActor.__super__.constructor.call(this, this.game);
     this.game = game;
     this.level = this.game.getLevel();
+    this.spritesAtlas = this.app.getSpritesAtlas();
+    this.idleSprite = this.spritesAtlas.createSprite("player/idle.png");
     this.player = this.game.getPlayer();
+    this.player.setSize(this.idleSprite.getWidth(), this.idleSprite.getHeight());
+    this.runAnimSprite = this.spritesAtlas.createAnimSprite("player/run.png", 2, 0.05);
+    this.offgroundAnimSprite = this.spritesAtlas.createAnimSprite("player/offground.png", 3, 0.1);
   }
 
-  PlayerActor.prototype.update = function(delta) {};
+  PlayerActor.prototype.update = function(delta) {
+    this.runAnimSprite.update(delta);
+    return this.offgroundAnimSprite.update(delta);
+  };
 
   PlayerActor.prototype.draw = function(context) {
-    var playerPosition, scroll;
+    var mirrored, playerPosition, rx, ry, scroll;
     playerPosition = this.player.getPosition();
     scroll = this.level.getScroll();
-    context.save();
-    context.fillStyle = "green";
-    context.fillRect(playerPosition.x - scroll.getX(), playerPosition.y - PLAYER_HEIGHT - scroll.getY(), PLAYER_WIDTH, PLAYER_HEIGHT);
-    return context.restore();
+    rx = playerPosition.x - scroll.getX();
+    ry = playerPosition.y - this.idleSprite.getHeight() - scroll.getY();
+    mirrored = this.player.getDirection() === -1;
+    if (!this.player.isOnGround()) {
+      return this.offgroundAnimSprite.draw(context, rx, ry, mirrored);
+    } else if (this.player.getVelocity().getX() !== 0) {
+      return this.runAnimSprite.draw(context, rx, ry, mirrored);
+    } else {
+      return this.idleSprite.draw(context, rx, ry, mirrored);
+    }
   };
 
   return PlayerActor;
@@ -12101,7 +12110,7 @@ Level = (function() {
       LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0);
     }
     if (this.game.getActivePowerup() === Powerups.BOOST) {
-      this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 2);
+      this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 1.5);
     } else if (this.game.getActivePowerup() === Powerups.SLOW) {
       this.game.setScrollSpeed(this.game.getDefaultScrollSpeed() * 0.75);
     } else {
@@ -12161,14 +12170,12 @@ Level = (function() {
   };
 
   Level.prototype.getBoundariesForPlayer = function(player) {
-    var block, boundaries, map, platform, playerHeight, playerWidth, position, row, segment, x, y, yOffset, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
-    playerWidth = 32;
-    playerHeight = 64;
+    var block, boundaries, map, platform, position, row, segment, x, y, yOffset, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
     player = {
-      top: player.getPosition().getY() - playerHeight,
+      top: player.getPosition().getY() - player.getWidth(),
       bottom: player.getPosition().getY(),
       left: player.getPosition().getX(),
-      right: player.getPosition().getX() + playerWidth
+      right: player.getPosition().getX() + player.getHeight()
     };
     boundaries = {
       x: {
@@ -12303,8 +12310,44 @@ Player = (function() {
     this.velocity = new LDFW.Vector2();
     this.position = new LDFW.Vector2();
     this.level = this.game.getLevel();
+    this.width = 0;
+    this.height = 0;
     this.onGround = false;
+    this.direction = 1;
   }
+
+  Player.prototype.setWidth = function(width) {
+    this.width = width;
+  };
+
+  Player.prototype.setHeight = function(height) {
+    this.height = height;
+  };
+
+  Player.prototype.setSize = function(width, height) {
+    this.width = width;
+    this.height = height;
+  };
+
+  Player.prototype.getWidth = function() {
+    return this.width;
+  };
+
+  Player.prototype.getHeight = function() {
+    return this.height;
+  };
+
+  Player.prototype.getDirection = function() {
+    return this.direction;
+  };
+
+  Player.prototype.isOnGround = function() {
+    return this.onGround;
+  };
+
+  Player.prototype.getVelocity = function() {
+    return this.velocity;
+  };
 
   Player.prototype.update = function(delta) {
     var aspiredPosition, boundaries;
@@ -12322,6 +12365,11 @@ Player = (function() {
     gravityStep = gravity.multiply(delta);
     this.velocity.add(gravityStep);
     velocityStep = this.velocity.clone().multiply(delta);
+    if (this.velocity.getX() > 0) {
+      this.direction = 1;
+    } else if (this.velocity.getX() < 0) {
+      this.direction = -1;
+    }
     return this.position.clone().add(velocityStep);
   };
 
@@ -12386,14 +12434,6 @@ Player = (function() {
     if (this.keyboard.upPressed() && this.onGround) {
       return this.velocity.setY(JUMP_FORCE);
     }
-  };
-
-  Player.prototype.getWidth = function() {
-    return 32;
-  };
-
-  Player.prototype.getHeight = function() {
-    return 64;
   };
 
   Player.prototype.getPosition = function() {

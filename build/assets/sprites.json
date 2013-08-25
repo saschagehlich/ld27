@@ -138,7 +138,7 @@
 },
 "grass/grass-0.png":
 {
-	"frame": {"x":780,"y":384,"w":32,"h":12},
+	"frame": {"x":780,"y":448,"w":32,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":12},
@@ -146,7 +146,7 @@
 },
 "grass/grass-1.png":
 {
-	"frame": {"x":780,"y":370,"w":32,"h":12},
+	"frame": {"x":780,"y":434,"w":32,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":12},
@@ -154,7 +154,7 @@
 },
 "grass/grass-2.png":
 {
-	"frame": {"x":780,"y":356,"w":32,"h":12},
+	"frame": {"x":780,"y":420,"w":32,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":12},
@@ -162,7 +162,7 @@
 },
 "grass/grass-end.png":
 {
-	"frame": {"x":814,"y":322,"w":34,"h":12},
+	"frame": {"x":812,"y":388,"w":34,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":12},
@@ -170,7 +170,7 @@
 },
 "grass/grass-single.png":
 {
-	"frame": {"x":780,"y":342,"w":36,"h":12},
+	"frame": {"x":780,"y":406,"w":36,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":36,"h":12},
@@ -178,7 +178,7 @@
 },
 "grass/grass-start.png":
 {
-	"frame": {"x":814,"y":308,"w":34,"h":12},
+	"frame": {"x":812,"y":374,"w":34,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":12},
@@ -194,7 +194,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-bubble.png":
 {
-	"frame": {"x":780,"y":418,"w":8,"h":8},
+	"frame": {"x":792,"y":462,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -210,7 +210,7 @@
 },
 "obstacles/fucking-piranhas/fucking-piranhas-plopp.png":
 {
-	"frame": {"x":780,"y":408,"w":10,"h":8},
+	"frame": {"x":780,"y":472,"w":10,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":10,"h":8},
@@ -264,6 +264,30 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
 	"sourceSize": {"w":32,"h":32}
 },
+"player/idle.png":
+{
+	"frame": {"x":780,"y":374,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":30},
+	"sourceSize": {"w":30,"h":30}
+},
+"player/offground.png":
+{
+	"frame": {"x":780,"y":342,"w":90,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":90,"h":30},
+	"sourceSize": {"w":90,"h":30}
+},
+"player/run.png":
+{
+	"frame": {"x":814,"y":308,"w":60,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":30},
+	"sourceSize": {"w":60,"h":30}
+},
 "ui/headline.png":
 {
 	"frame": {"x":644,"y":78,"w":640,"h":34},
@@ -274,7 +298,7 @@
 },
 "ui/minimap-fucking-piranhas.png":
 {
-	"frame": {"x":780,"y":398,"w":10,"h":8},
+	"frame": {"x":780,"y":462,"w":10,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":10,"h":8},
@@ -295,6 +319,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1286,"h":484},
 	"scale": "2",
-	"smartupdate": "$TexturePacker:SmartUpdate:b09d4aa0140492520c58a3d3364849a4:1/1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:03f41020330f01aff96c92b9ea3d9a9b:1/1$"
 }
 }

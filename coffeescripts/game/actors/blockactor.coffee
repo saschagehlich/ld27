@@ -175,6 +175,5 @@ class BlockActor extends LDFW.Actor
             position.y + y * @level.GRID_SIZE + segment.getOffset().getY()
 
     context.restore()
-    return stats
 
 module.exports = BlockActor

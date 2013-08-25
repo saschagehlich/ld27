@@ -86,7 +86,7 @@ class Level
       LDFW.Sprite.renderOffset = new LDFW.Vector2(0, 0)
 
     if @game.getActivePowerup() == Powerups.BOOST
-      @game.setScrollSpeed @game.getDefaultScrollSpeed() * 2
+      @game.setScrollSpeed @game.getDefaultScrollSpeed() * 1.5
     else if @game.getActivePowerup() == Powerups.SLOW
       @game.setScrollSpeed @game.getDefaultScrollSpeed() * 0.75
     else
@@ -139,13 +139,11 @@ class Level
     return buildable
 
   getBoundariesForPlayer: (player) ->
-    playerWidth = 32
-    playerHeight = 64
     player =
-      top: player.getPosition().getY() - playerHeight
+      top: player.getPosition().getY() - player.getWidth()
       bottom: player.getPosition().getY()
       left: player.getPosition().getX()
-      right: player.getPosition().getX() + playerWidth
+      right: player.getPosition().getX() + player.getHeight()
 
     boundaries =
       x:

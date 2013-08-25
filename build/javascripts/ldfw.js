@@ -42,7 +42,7 @@ Actor = (function(_super) {
 module.exports = Actor;
 
 
-},{"./node.coffee":10}],2:[function(require,module,exports){
+},{"./node.coffee":11}],2:[function(require,module,exports){
 var Game,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -174,6 +174,97 @@ module.exports = Game;
 
 
 },{}],3:[function(require,module,exports){
+var AnimSprite, Sprite, Vector2,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Vector2 = require("../math/vector2.coffee");
+
+Sprite = require("./sprite.coffee");
+
+AnimSprite = (function(_super) {
+  __extends(AnimSprite, _super);
+
+  function AnimSprite(textureAtlas, frame, spriteCount, animationInterval) {
+    this.textureAtlas = textureAtlas;
+    this.frame = frame;
+    this.spriteCount = spriteCount;
+    this.animationInterval = animationInterval;
+    AnimSprite.__super__.constructor.apply(this, arguments);
+    this.rotation = 0;
+    this.sumDelta = 0;
+    this.spriteIndex = 0;
+  }
+
+  AnimSprite.prototype.getWidth = function() {
+    return this.frame.frame.w * this.scale.x;
+  };
+
+  AnimSprite.prototype.getHeight = function() {
+    return this.frame.frame.h * this.scale.y;
+  };
+
+  AnimSprite.prototype.getRotation = function() {
+    return this.rotation;
+  };
+
+  AnimSprite.prototype.setRotation = function(rotation) {
+    return this.rotation = rotation;
+  };
+
+  AnimSprite.prototype.update = function(delta) {
+    if (this.sumDelta >= this.animationInterval) {
+      this.spriteIndex++;
+      if (this.spriteIndex > this.spriteCount - 1) {
+        this.spriteIndex = 0;
+      }
+      this.sumDelta -= this.animationInterval;
+    }
+    return this.sumDelta += delta;
+  };
+
+  /*
+   * Draws the sprite on the given context
+   * @param  [CanvasRenderingContext2D] context
+  */
+
+
+  AnimSprite.prototype.draw = function(context, drawX, drawY, mirrored) {
+    var dh, dw, image, sh, sw, sx, sy, tx, ty, widthPerSprite;
+    if (mirrored == null) {
+      mirrored = false;
+    }
+    image = this.textureAtlas.getAtlasImage();
+    widthPerSprite = Math.floor(this.frame.frame.w / this.spriteCount);
+    sx = this.frame.frame.x;
+    sy = this.frame.frame.y;
+    sw = widthPerSprite;
+    sh = this.frame.frame.h;
+    sx += widthPerSprite * this.spriteIndex;
+    dw = widthPerSprite * this.scale.x;
+    dh = this.frame.frame.h * this.scale.y;
+    context.save();
+    tx = (drawX | this.position.x) + this.origin.x + Sprite.renderOffset.x;
+    ty = (drawY | this.position.y) + this.origin.y + Sprite.renderOffset.y;
+    if (mirrored) {
+      context.translate(tx + dw, ty);
+      context.scale(-1, 1);
+    } else {
+      context.translate(tx, ty);
+    }
+    context.rotate(Math.PI / 180 * this.rotation);
+    context.drawImage(image, sx, sy, sw, sh, -this.origin.x, -this.origin.y, dw, dh);
+    return context.restore();
+  };
+
+  return AnimSprite;
+
+})(Sprite);
+
+module.exports = AnimSprite;
+
+
+},{"../math/vector2.coffee":10,"./sprite.coffee":5}],4:[function(require,module,exports){
 var BitmapFont, Rectangle;
 
 Rectangle = require("../math/rectangle.coffee");
@@ -265,7 +356,7 @@ BitmapFont = (function() {
 module.exports = BitmapFont;
 
 
-},{"../math/rectangle.coffee":8}],4:[function(require,module,exports){
+},{"../math/rectangle.coffee":9}],5:[function(require,module,exports){
 var Node, Sprite, Vector2,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -314,8 +405,11 @@ Sprite = (function(_super) {
   */
 
 
-  Sprite.prototype.draw = function(context, drawX, drawY) {
-    var dh, dw, image, sh, sw, sx, sy;
+  Sprite.prototype.draw = function(context, drawX, drawY, mirrored) {
+    var dh, dw, image, sh, sw, sx, sy, tx, ty;
+    if (mirrored == null) {
+      mirrored = false;
+    }
     image = this.textureAtlas.getAtlasImage();
     sx = this.frame.frame.x;
     sy = this.frame.frame.y;
@@ -324,7 +418,14 @@ Sprite = (function(_super) {
     dw = this.frame.frame.w * this.scale.x;
     dh = this.frame.frame.h * this.scale.y;
     context.save();
-    context.translate((drawX | this.position.x) + this.origin.x + Sprite.renderOffset.x, (drawY | this.position.y) + this.origin.y + Sprite.renderOffset.y);
+    tx = (drawX | this.position.x) + this.origin.x + Sprite.renderOffset.x;
+    ty = (drawY | this.position.y) + this.origin.y + Sprite.renderOffset.y;
+    if (mirrored) {
+      context.translate(tx + dw, ty);
+      context.scale(-1, 1);
+    } else {
+      context.translate(tx, ty);
+    }
     context.rotate(Math.PI / 180 * this.rotation);
     context.drawImage(image, sx, sy, sw, sh, -this.origin.x, -this.origin.y, dw, dh);
     return context.restore();
@@ -337,10 +438,12 @@ Sprite = (function(_super) {
 module.exports = Sprite;
 
 
-},{"../math/vector2.coffee":9,"../node.coffee":10}],5:[function(require,module,exports){
-var Sprite, TextureAtlas, TextureRegion;
+},{"../math/vector2.coffee":10,"../node.coffee":11}],6:[function(require,module,exports){
+var AnimSprite, Sprite, TextureAtlas, TextureRegion;
 
 Sprite = require("./sprite.coffee");
+
+AnimSprite = require("./animsprite.coffee");
 
 TextureRegion = require("./textureregion.coffee");
 
@@ -367,6 +470,30 @@ TextureAtlas = (function() {
     return sprite;
   };
 
+  /*
+   * Creates a new AnimSprite object from the given filename
+   * @param  [String] filename
+   * @param  [Number] spriteCount
+   * @return [AnimSprite]
+  */
+
+
+  TextureAtlas.prototype.createAnimSprite = function(filename, spriteCount, animationInterval) {
+    var sprite;
+    if (this.frames[filename] == null) {
+      throw new Error("The sprite " + filename + " could not be found.");
+    }
+    sprite = new AnimSprite(this, this.frames[filename], spriteCount, animationInterval);
+    return sprite;
+  };
+
+  /*
+   * Creates a new TextureRegion object from the given filename
+   * @param  [String] filename
+   * @return [TextureRegion]
+  */
+
+
   TextureAtlas.prototype.findRegion = function(filename) {
     var region;
     if (this.frames[filename] == null) {
@@ -387,7 +514,7 @@ TextureAtlas = (function() {
 module.exports = TextureAtlas;
 
 
-},{"./sprite.coffee":4,"./textureregion.coffee":6}],6:[function(require,module,exports){
+},{"./animsprite.coffee":3,"./sprite.coffee":5,"./textureregion.coffee":7}],7:[function(require,module,exports){
 var TextureRegion, Vector2;
 
 Vector2 = require("../math/vector2.coffee");
@@ -422,7 +549,7 @@ TextureRegion = (function() {
 module.exports = TextureRegion;
 
 
-},{"../math/vector2.coffee":9}],7:[function(require,module,exports){
+},{"../math/vector2.coffee":10}],8:[function(require,module,exports){
 window.LDFW = {
   Game: require("./game.coffee"),
   Screen: require("./screen.coffee"),
@@ -438,7 +565,7 @@ window.LDFW = {
 };
 
 
-},{"./actor.coffee":1,"./game.coffee":2,"./graphics/bitmapfont.coffee":3,"./graphics/sprite.coffee":4,"./graphics/textureatlas.coffee":5,"./graphics/textureregion.coffee":6,"./math/vector2.coffee":9,"./node.coffee":10,"./screen.coffee":11,"./stage.coffee":12,"./utilities/preloader.coffee":13}],8:[function(require,module,exports){
+},{"./actor.coffee":1,"./game.coffee":2,"./graphics/bitmapfont.coffee":4,"./graphics/sprite.coffee":5,"./graphics/textureatlas.coffee":6,"./graphics/textureregion.coffee":7,"./math/vector2.coffee":10,"./node.coffee":11,"./screen.coffee":12,"./stage.coffee":13,"./utilities/preloader.coffee":14}],9:[function(require,module,exports){
 var Rectangle, Vector2;
 
 Vector2 = require("./vector2.coffee");
@@ -492,7 +619,7 @@ Rectangle = (function() {
 module.exports = Rectangle;
 
 
-},{"./vector2.coffee":9}],9:[function(require,module,exports){
+},{"./vector2.coffee":10}],10:[function(require,module,exports){
 var Vector2;
 
 Vector2 = (function() {
@@ -685,7 +812,7 @@ Vector2 = (function() {
 module.exports = Vector2;
 
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var Node, Rectangle, Vector2;
 
 Vector2 = require("./math/vector2.coffee");
@@ -816,7 +943,7 @@ Node = (function() {
 module.exports = Node;
 
 
-},{"./math/rectangle.coffee":8,"./math/vector2.coffee":9}],11:[function(require,module,exports){
+},{"./math/rectangle.coffee":9,"./math/vector2.coffee":10}],12:[function(require,module,exports){
 var Screen;
 
 Screen = (function() {
@@ -853,7 +980,7 @@ Screen = (function() {
 module.exports = Screen;
 
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var Stage;
 
 Stage = (function() {
@@ -932,7 +1059,7 @@ Stage = (function() {
 module.exports = Stage;
 
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var EventEmitter, Preloader, async,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -1073,7 +1200,7 @@ Preloader = (function(_super) {
 module.exports = Preloader;
 
 
-},{"../vendor/async.js":14,"events":15}],14:[function(require,module,exports){
+},{"../vendor/async.js":15,"events":16}],15:[function(require,module,exports){
 var process=require("__browserify_process");/*global setImmediate: false, setTimeout: false, console: false */
 (function () {
 
@@ -2030,7 +2157,7 @@ var process=require("__browserify_process");/*global setImmediate: false, setTim
 
 }());
 
-},{"__browserify_process":16}],15:[function(require,module,exports){
+},{"__browserify_process":17}],16:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -2226,7 +2353,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":16}],16:[function(require,module,exports){
+},{"__browserify_process":17}],17:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2280,5 +2407,5 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[7])
+},{}]},{},[8])
 ;
