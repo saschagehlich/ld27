@@ -9,7 +9,11 @@ class Mouse extends EventEmitter
     @app.getWrapper().contextmenu (e) -> e.preventDefault()
 
   onMouseMove: (e) =>
-    @position.set e.offsetX, e.offsetY
+    wrapperOffset = @app.getWrapper().position()
+    @position.set(
+      e.pageX - wrapperOffset.left + @app.getWidth() / 2,
+      e.pageY - wrapperOffset.top + @app.getHeight() / 2
+    )
 
   onClick: (e) =>
     @emit "click", @position

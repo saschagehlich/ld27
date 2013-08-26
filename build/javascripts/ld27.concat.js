@@ -14020,7 +14020,9 @@ Mouse = (function(_super) {
   }
 
   Mouse.prototype.onMouseMove = function(e) {
-    return this.position.set(e.offsetX, e.offsetY);
+    var wrapperOffset;
+    wrapperOffset = this.app.getWrapper().position();
+    return this.position.set(e.pageX - wrapperOffset.left + this.app.getWidth() / 2, e.pageY - wrapperOffset.top + this.app.getHeight() / 2);
   };
 
   Mouse.prototype.onClick = function(e) {

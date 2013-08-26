@@ -15,14 +15,20 @@ class TextureRegion
    * @param  {Number} dy
   ###
   draw: (context, sx, sy, sw, sh, dx, dy) ->
+    finalsx = @frame.frame.x + sx
+    finalsy = @frame.frame.y + sy
+    sw = Math.min(sw, (@frame.spriteSourceSize.w + @frame.frame.x) - (@frame.frame.x + sx))
+    sh = Math.min(sh, (@frame.spriteSourceSize.h + @frame.frame.y) - (@frame.frame.y + sy))
+    dw = sw
+    dh = sh
+
+    return if sw is 0 or sh is 0
     context.drawImage(
       @image,
-      @frame.frame.x + sx, @frame.frame.y + sy,
-      Math.min(sw, (@frame.spriteSourceSize.w + @frame.frame.x) - (@frame.frame.x + sx)),
-      Math.min(sh, (@frame.spriteSourceSize.h + @frame.frame.y) - (@frame.frame.y + sy)),
+      finalsx, finalsy,
+      sw, sh,
       dx, dy,
-      Math.min(sw, (@frame.spriteSourceSize.w + @frame.frame.x) - (@frame.frame.x + sx)),
-      Math.min(sh, (@frame.spriteSourceSize.h + @frame.frame.y) - (@frame.frame.y + sy)),
+      dw, dh
     )
 
 module.exports = TextureRegion
