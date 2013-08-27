@@ -12388,7 +12388,7 @@ Game = (function(_super) {
     var firstPlatform;
     this.app = app;
     this.gameover = false;
-    this.defaultScrollSpeed = 200;
+    this.defaultScrollSpeed = 150;
     this.scrollSpeed = this.defaultScrollSpeed;
     this.globalRenderingOffset = new LDFW.Vector2(0, 0);
     this.increaseScrollSpeedAfter = 100;
@@ -12717,7 +12717,7 @@ FuckingPiranhasActor = require("./actors/fuckingpiranhasactor.coffee");
 Level = (function() {
   Level.prototype.GRID_SIZE = 32;
 
-  Level.prototype.BUILDMODE_COOLDOWN = 300;
+  Level.prototype.BUILDMODE_COOLDOWN = 500;
 
   function Level(app, game) {
     var appTileHeight;
@@ -12787,6 +12787,7 @@ Level = (function() {
     this.buildBlock.setBuildMode(false);
     this.blocks.push(this.buildBlock);
     this.buildBlock = null;
+    this.buildMode = false;
     this.resetBuildBlock();
     return this.buildModeCooldownStart = Date.now();
   };
@@ -12802,7 +12803,7 @@ Level = (function() {
     xOffset = this.generator.xOffset;
     tilesXPerScreen = this.app.getWidth() / this.GRID_SIZE;
     if (this.game.getScroll().getX() / this.GRID_SIZE > xOffset - 5 * tilesXPerScreen) {
-      this.generator.generate(this.pregeneratedScreensAmount);
+      this.generator.generate(this.pregeneratedScreensAmount(true));
     }
     if (Date.now() - this.buildModeCooldownStart > this.BUILDMODE_COOLDOWN) {
       this.buildMode = true;

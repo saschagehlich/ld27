@@ -9,7 +9,7 @@ FuckingPiranhasActor = require "./actors/fuckingpiranhasactor.coffee"
 
 class Level
   GRID_SIZE: 32
-  BUILDMODE_COOLDOWN: 300
+  BUILDMODE_COOLDOWN: 500
   constructor: (@app, @game) ->
     @renderOffset = new LDFW.Vector2(0, Config.ui_minimap_height)
 
@@ -65,6 +65,8 @@ class Level
     @blocks.push @buildBlock
     @buildBlock = null
 
+    @buildMode = false
+
     @resetBuildBlock()
     @buildModeCooldownStart = Date.now()
 
@@ -75,7 +77,7 @@ class Level
     xOffset = @generator.xOffset
     tilesXPerScreen = @app.getWidth() / @GRID_SIZE
     if @game.getScroll().getX() / @GRID_SIZE > xOffset - 5 * tilesXPerScreen
-      @generator.generate @pregeneratedScreensAmount
+      @generator.generate @pregeneratedScreensAmount true
 
     if Date.now() - @buildModeCooldownStart > @BUILDMODE_COOLDOWN
       @buildMode = true
