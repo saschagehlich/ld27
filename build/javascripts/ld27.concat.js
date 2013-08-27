@@ -12803,7 +12803,7 @@ Level = (function() {
     xOffset = this.generator.xOffset;
     tilesXPerScreen = this.app.getWidth() / this.GRID_SIZE;
     if (this.game.getScroll().getX() / this.GRID_SIZE > xOffset - 5 * tilesXPerScreen) {
-      this.generator.generate(this.pregeneratedScreensAmount(true));
+      this.generator.generate(this.pregeneratedScreensAmount);
     }
     if (Date.now() - this.buildModeCooldownStart > this.BUILDMODE_COOLDOWN) {
       this.buildMode = true;

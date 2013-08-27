@@ -77,7 +77,7 @@ class Level
     xOffset = @generator.xOffset
     tilesXPerScreen = @app.getWidth() / @GRID_SIZE
     if @game.getScroll().getX() / @GRID_SIZE > xOffset - 5 * tilesXPerScreen
-      @generator.generate @pregeneratedScreensAmount true
+      @generator.generate @pregeneratedScreensAmount
 
     if Date.now() - @buildModeCooldownStart > @BUILDMODE_COOLDOWN
       @buildMode = true
