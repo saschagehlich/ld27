@@ -11,13 +11,13 @@ class Game extends EventEmitter
   constructor: (@app) ->
     @gameover = false
 
-    @defaultScrollSpeed = 150
+    @defaultScrollSpeed = 200
     @scrollSpeed = @defaultScrollSpeed
 
     @globalRenderingOffset = new LDFW.Vector2(0, 0)
 
     @increaseScrollSpeedAfter  = 100
-    @scrollSpeedIncreaseFactor = 100
+    @scrollSpeedIncreaseFactor = 50
 
     @scroll   = new LDFW.Vector2(0, 0) # actually, this is the score...
 

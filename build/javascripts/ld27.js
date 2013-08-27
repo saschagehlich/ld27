@@ -1498,11 +1498,11 @@ Game = (function(_super) {
     var firstPlatform;
     this.app = app;
     this.gameover = false;
-    this.defaultScrollSpeed = 150;
+    this.defaultScrollSpeed = 200;
     this.scrollSpeed = this.defaultScrollSpeed;
     this.globalRenderingOffset = new LDFW.Vector2(0, 0);
     this.increaseScrollSpeedAfter = 100;
-    this.scrollSpeedIncreaseFactor = 100;
+    this.scrollSpeedIncreaseFactor = 50;
     this.scroll = new LDFW.Vector2(0, 0);
     this.keyboard = new Keyboard();
     this.mouse = new Mouse(this.app);
