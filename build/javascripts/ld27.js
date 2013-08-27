@@ -3003,7 +3003,10 @@ Keyboard = (function(_super) {
   }
 
   Keyboard.prototype.onKeyDown = function(e) {
-    var keyCode;
+    var keyCode, _ref;
+    if ((_ref = e.keyCode) === this.Keys.UP || _ref === this.Keys.RIGHT || _ref === this.Keys.DOWN || _ref === this.Keys.LEFT || _ref === this.Keys.SPACE) {
+      e.preventDefault();
+    }
     this.emit("keydown", e);
     keyCode = e.keyCode;
     if (this.keyStates[keyCode] != null) {

@@ -28,6 +28,9 @@ class Keyboard extends EventEmitter
     $(window).keyup   @onKeyUp
 
   onKeyDown: (e) =>
+    if e.keyCode in [@Keys.UP, @Keys.RIGHT, @Keys.DOWN, @Keys.LEFT, @Keys.SPACE]
+      e.preventDefault()
+
     @emit "keydown", e
 
     keyCode = e.keyCode
