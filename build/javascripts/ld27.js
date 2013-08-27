@@ -1674,13 +1674,19 @@ LD27 = (function(_super) {
   LD27.prototype.setupSoundControl = function() {
     this.soundControlDiv = $("<div class=\"sound-control\">").appendTo(this.getWrapper());
     this.soundControlDiv.addClass("on");
+    if (localStorage.getItem("sound") === "off") {
+      this.soundControlDiv.removeClass("on").addClass("off");
+      soundManager.muteAll();
+    }
     return this.soundControlDiv.click(function() {
       if ($(this).hasClass("on")) {
         soundManager.muteAll();
-        return $(this).removeClass("on").addClass("off");
+        $(this).removeClass("on").addClass("off");
+        return localStorage.setItem("sound", "off");
       } else {
         soundManager.unmuteAll();
-        return $(this).removeClass("off").addClass("on");
+        $(this).removeClass("off").addClass("on");
+        return localStorage.setItem("sound", "on");
       }
     });
   };

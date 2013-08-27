@@ -55,13 +55,19 @@ class LD27 extends LDFW.Game
     @soundControlDiv = $("<div class=\"sound-control\">").appendTo @getWrapper()
     @soundControlDiv.addClass "on"
 
+    if localStorage.getItem("sound") is "off"
+      @soundControlDiv.removeClass("on").addClass("off")
+      soundManager.muteAll()
+
     @soundControlDiv.click ->
       if $(this).hasClass "on"
         soundManager.muteAll()
         $(this).removeClass("on").addClass "off"
+        localStorage.setItem "sound", "off"
       else
         soundManager.unmuteAll()
         $(this).removeClass("off").addClass "on"
+        localStorage.setItem "sound", "on"
 
   playBackground: ->
     soundManager.play "background",
