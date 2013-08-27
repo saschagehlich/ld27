@@ -2807,6 +2807,7 @@ GameOverStage = (function(_super) {
     this.keyboard = this.app.getKeyboard();
     this.keyboard.on("keydown", this.onKeyDown);
     this.visible = false;
+    this.newHighscore = false;
   }
 
   GameOverStage.prototype.onKeyDown = function(e) {
@@ -2826,8 +2827,14 @@ GameOverStage = (function(_super) {
   };
 
   GameOverStage.prototype.show = function() {
+    var score;
     this.toOpacity = 1;
-    return this.visible = true;
+    this.visible = true;
+    score = this.game.getScore();
+    if (!localStorage.getItem("highscore") || score > localStorage.getItem("highscore")) {
+      this.newHighscore = true;
+      return localStorage.setItem("highscore", score);
+    }
   };
 
   GameOverStage.prototype.hide = function() {
@@ -2850,13 +2857,27 @@ GameOverStage = (function(_super) {
   };
 
   GameOverStage.prototype.drawScore = function(context) {
-    var scoreBounds, scoreText, yourScoreBounds, yourScoreText;
+    var fullWidth, highscoreBounds, highscoreText, highscoreValueBounds, highscoreValueText, score, scoreBounds, scoreText, yourScoreBounds, yourScoreText;
+    score = this.game.getScore();
     yourScoreText = "YOUR SCORE:";
     yourScoreBounds = this.messageFont.getBounds(yourScoreText);
     this.messageFont.drawText(context, yourScoreText, this.app.getWidth() / 2 - yourScoreBounds.width / 2, 230);
-    scoreText = "" + (this.game.getScore()) + "m";
+    scoreText = "" + score + "m";
     scoreBounds = this.scoreFont.getBounds(scoreText);
-    return this.scoreFont.drawText(context, scoreText, this.app.getWidth() / 2 - scoreBounds.width / 2, 250);
+    this.scoreFont.drawText(context, scoreText, this.app.getWidth() / 2 - scoreBounds.width / 2, 250);
+    if (!this.newHighscore) {
+      highscoreText = "YOUR HIGHSCORE: ";
+      highscoreBounds = this.messageFont.getBounds(highscoreText);
+      highscoreValueText = "" + (localStorage.getItem('highscore')) + "m";
+      highscoreValueBounds = this.messageFont.getBounds(highscoreValueText);
+      fullWidth = highscoreBounds.width + highscoreValueBounds.width;
+      this.redFont.drawText(context, highscoreText, this.app.getWidth() / 2 - fullWidth / 2, 285);
+      return this.messageFont.drawText(context, highscoreValueText, this.app.getWidth() / 2 - fullWidth / 2 + highscoreBounds.width, 285);
+    } else {
+      highscoreText = "THAT'S YOUR NEW HIGHSCORE!";
+      highscoreBounds = this.redFont.getBounds(highscoreText);
+      return this.redFont.drawText(context, highscoreText, this.app.getWidth() / 2 - highscoreBounds.width / 2, 285);
+    }
   };
 
   GameOverStage.prototype.drawInstructions = function(context) {

@@ -28,6 +28,7 @@ class GameOverStage extends LDFW.Stage
     @keyboard.on "keydown", @onKeyDown
 
     @visible = false
+    @newHighscore = false
 
   onKeyDown: (e) =>
     return unless @visible
@@ -47,6 +48,11 @@ class GameOverStage extends LDFW.Stage
   show: ->
     @toOpacity = 1
     @visible = true
+
+    score = @game.getScore()
+    if not localStorage.getItem("highscore") or score > localStorage.getItem("highscore")
+      @newHighscore = true
+      localStorage.setItem("highscore", score)
 
   hide: ->
     @toOpacity = 0
@@ -70,13 +76,31 @@ class GameOverStage extends LDFW.Stage
     context.restore()
 
   drawScore: (context) ->
+    score = @game.getScore()
+
     yourScoreText = "YOUR SCORE:"
     yourScoreBounds = @messageFont.getBounds yourScoreText
     @messageFont.drawText context, yourScoreText, @app.getWidth() / 2 - yourScoreBounds.width / 2, 230
 
-    scoreText = "#{@game.getScore()}m"
+    scoreText = "#{score}m"
     scoreBounds = @scoreFont.getBounds scoreText
     @scoreFont.drawText context, scoreText, @app.getWidth() / 2 - scoreBounds.width / 2, 250
+
+    unless @newHighscore
+      highscoreText = "YOUR HIGHSCORE: "
+      highscoreBounds = @messageFont.getBounds highscoreText
+
+      highscoreValueText = "#{localStorage.getItem('highscore')}m"
+      highscoreValueBounds = @messageFont.getBounds highscoreValueText
+
+      fullWidth = highscoreBounds.width + highscoreValueBounds.width
+      @redFont.drawText context, highscoreText, @app.getWidth() / 2 - fullWidth / 2, 285
+      @messageFont.drawText context, highscoreValueText, @app.getWidth() / 2 - fullWidth / 2 + highscoreBounds.width, 285
+    else
+      highscoreText = "THAT'S YOUR NEW HIGHSCORE!"
+      highscoreBounds = @redFont.getBounds highscoreText
+
+      @redFont.drawText context, highscoreText, @app.getWidth() / 2 - highscoreBounds.width / 2, 285
 
   drawInstructions: (context) ->
     rText = "PRESS R "
