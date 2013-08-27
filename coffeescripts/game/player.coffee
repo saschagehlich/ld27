@@ -50,8 +50,9 @@ class Player
       @playStepSound()
       @lastAudioPlay = Date.now()
 
-    if @position.getY() > @app.getHeight() + @height
-      @game.endGame()
+    if @position.getY() > @app.getHeight() + @height or
+      @position.getX() + @width < @game.getScroll().getX()
+        @game.endGame()
 
   playStepSound: ->
     audioStyle = "grass"

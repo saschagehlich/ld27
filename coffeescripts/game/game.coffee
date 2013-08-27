@@ -64,6 +64,8 @@ class Game extends EventEmitter
     if +new Date() - @powerupStart >= @powerupDuration and not @gameover
       @activePowerup = @getRandomPowerup()
 
+      @level.resetBuildBlock()
+
       soundManager.play "powerup"
       if @activePowerup is Powerups.EARTHQUAKE
         soundManager.play "earthquake", volume: 50

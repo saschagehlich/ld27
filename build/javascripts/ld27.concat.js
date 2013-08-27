@@ -10952,13 +10952,15 @@ module.exports = BackgroundActor;
 
 
 },{}],2:[function(require,module,exports){
-var BlockActor, Config, Segment,
+var BlockActor, Config, Powerups, Segment,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 Config = require("../config/config.json");
 
 Segment = require("../entities/segment.coffee");
+
+Powerups = require("../powerups.coffee");
 
 BlockActor = (function(_super) {
   __extends(BlockActor, _super);
@@ -11045,6 +11047,9 @@ BlockActor = (function(_super) {
   BlockActor.prototype.randomize = function() {
     var index, map, originalMap, r, row, segment, x, y, _i, _j, _len, _len1;
     index = Math.floor(Math.random() * this.availableBlocks.length);
+    if (this.game.getActivePowerup() === Powerups.EASY) {
+      index = 0;
+    }
     map = [];
     originalMap = this.availableBlocks[index];
     for (y = _i = 0, _len = originalMap.length; _i < _len; y = ++_i) {
@@ -11234,7 +11239,7 @@ BlockActor = (function(_super) {
 module.exports = BlockActor;
 
 
-},{"../config/available_blocks.json":15,"../config/config.json":16,"../entities/segment.coffee":18}],3:[function(require,module,exports){
+},{"../config/available_blocks.json":15,"../config/config.json":16,"../entities/segment.coffee":18,"../powerups.coffee":23}],3:[function(require,module,exports){
 var BackgroundActor,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11797,7 +11802,7 @@ MenuActor = (function(_super) {
     this.opacity = 0;
     this.menuFont = new LDFW.BitmapFont(this.app.getPreloader().get("assets/fonts/pixel-16-white.fnt"), this.fontsAtlas.findRegion("pixel-16-white.png"));
     this.selectedIndex = 0;
-    this.options = ["START", "HIGHSCORE", "ABOUT"];
+    this.options = ["START", "ABOUT"];
   }
 
   MenuActor.prototype.onKeyDown = function(e) {
@@ -12423,6 +12428,7 @@ Game = (function(_super) {
     this.player.update(delta);
     if (+new Date() - this.powerupStart >= this.powerupDuration && !this.gameover) {
       this.activePowerup = this.getRandomPowerup();
+      this.level.resetBuildBlock();
       soundManager.play("powerup");
       if (this.activePowerup === Powerups.EARTHQUAKE) {
         soundManager.play("earthquake", {
@@ -12758,14 +12764,16 @@ Level = (function() {
     }
     soundManager.play("build");
     this.buildBlock.setBuildMode(false);
-    this.buildMode = false;
     this.blocks.push(this.buildBlock);
     this.buildBlock = null;
-    this.buildMode = false;
-    this.buildBlock = new BlockActor(this.app, this.game, this, {
+    this.resetBuildBlock();
+    return this.buildModeCooldownStart = Date.now();
+  };
+
+  Level.prototype.resetBuildBlock = function() {
+    return this.buildBlock = new BlockActor(this.app, this.game, this, {
       buildMode: true
     });
-    return this.buildModeCooldownStart = Date.now();
   };
 
   Level.prototype.update = function(delta) {
@@ -12974,9 +12982,6 @@ Level = (function() {
           if (segment === 0) {
             continue;
           }
-          if (map[y - 1] && map[y - 1][x] !== 0) {
-            continue;
-          }
           yOffset = segment.getOffset().getY();
           segment = {
             left: position.getX() + x * this.GRID_SIZE,
@@ -12991,10 +12996,12 @@ Level = (function() {
               boundaries.x.min = Math.max(segment.right, boundaries.x.min);
             }
           }
-          if (!(player.left >= segment.right || player.right <= segment.left || player.bottom > segment.top)) {
-            boundaries.y.max = Math.min(segment.top, boundaries.y.max);
-            if (boundaries.y.max === segment.top) {
-              boundaries.y.object = block;
+          if (!(map[y - 1] && map[y - 1][x] !== 0)) {
+            if (!(player.left > segment.right || player.right < segment.left || player.bottom > segment.top)) {
+              boundaries.y.max = Math.min(segment.top, boundaries.y.max);
+              if (boundaries.y.max === segment.top) {
+                boundaries.y.object = block;
+              }
             }
           }
         }
@@ -13132,7 +13139,7 @@ Player = (function() {
       this.playStepSound();
       this.lastAudioPlay = Date.now();
     }
-    if (this.position.getY() > this.app.getHeight() + this.height) {
+    if (this.position.getY() > this.app.getHeight() + this.height || this.position.getX() + this.width < this.game.getScroll().getX()) {
       return this.game.endGame();
     }
   };
@@ -13261,28 +13268,27 @@ var Powerups;
 Powerups = {
   BOOST: {
     id: 0,
-    name: "RUN FOREST!",
     sub: "SPEED BOOST"
   },
   SLOW: {
     id: 1,
-    name: "BLUE OR RED PILL?",
     sub: "SLOWMO"
   },
   BROKEN_BLOCKS: {
     id: 2,
-    name: "DON'T BREAK IT!",
     sub: "BROKEN BLOCKS"
   },
   EARTHQUAKE: {
     id: 3,
-    name: "WAAAAH!",
     sub: "EARTHQUAKE"
   },
   LOW_GRAVITY: {
     id: 4,
-    name: "SMALL STEP FOR A MAN",
     sub: "LOW GRAVITY"
+  },
+  EASY: {
+    id: 5,
+    sub: "EASY"
   }
 };
 
@@ -13524,10 +13530,6 @@ SplashScreen = (function(_super) {
           this.blockInput = true;
           return;
         case 1:
-          this.app.switchToHighScoreScreen();
-          this.blockInput = true;
-          return;
-        case 2:
           this.app.switchToAboutScreen();
           this.blockInput = true;
           return;
@@ -13691,8 +13693,6 @@ GameOverStage = (function(_super) {
     } else if (e.keyCode === this.keyboard.Keys.ESC) {
       soundManager.stop("earthquake");
       return this.app.switchToSplashScreen();
-    } else if (e.keyCode === this.keyboard.Keys.ENTER) {
-      return this.app.shareScore(this.game.getScore());
     }
   };
 
@@ -13735,7 +13735,7 @@ GameOverStage = (function(_super) {
   };
 
   GameOverStage.prototype.drawInstructions = function(context) {
-    var enterText, escText, fullBounds, fullHighscoreText, fullQuitText, fullRetryText, highscoreText, quitText, rBounds, rText, retryText;
+    var escText, fullBounds, fullQuitText, fullRetryText, quitText, rBounds, rText, retryText;
     rText = "PRESS R ";
     retryText = "TO TRY AGAIN";
     fullRetryText = rText + retryText;
@@ -13749,14 +13749,7 @@ GameOverStage = (function(_super) {
     rBounds = this.messageFont.getBounds(escText);
     fullBounds = this.redFont.getBounds(fullQuitText);
     this.redFont.drawText(context, escText, this.app.getWidth() / 2 - fullBounds.width / 2, 350);
-    this.messageFont.drawText(context, quitText, this.app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 350);
-    enterText = "PRESS ENTER ";
-    highscoreText = "TO ADD YOUR SCORE TO THE HIGHSCORE TABLE";
-    fullHighscoreText = enterText + highscoreText;
-    rBounds = this.messageFont.getBounds(enterText);
-    fullBounds = this.redFont.getBounds(fullHighscoreText);
-    this.redFont.drawText(context, enterText, this.app.getWidth() / 2 - fullBounds.width / 2, 370);
-    return this.messageFont.drawText(context, highscoreText, this.app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 370);
+    return this.messageFont.drawText(context, quitText, this.app.getWidth() / 2 - fullBounds.width / 2 + rBounds.width, 350);
   };
 
   GameOverStage.prototype.drawMessage = function(context) {

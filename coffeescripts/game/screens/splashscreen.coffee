@@ -30,11 +30,11 @@ class SplashScreen extends LDFW.Screen
             @app.switchToGameScreen()
           @blockInput = true
           return
+        # when 1
+        #   @app.switchToHighScoreScreen()
+        #   @blockInput = true
+        #   return
         when 1
-          @app.switchToHighScoreScreen()
-          @blockInput = true
-          return
-        when 2
           @app.switchToAboutScreen()
           @blockInput = true
           return

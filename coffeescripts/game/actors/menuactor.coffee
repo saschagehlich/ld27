@@ -15,7 +15,6 @@ class MenuActor extends LDFW.Actor
     @selectedIndex = 0
     @options = [
       "START",
-      "HIGHSCORE",
       "ABOUT"
     ]
 

@@ -1,5 +1,6 @@
 Config = require "../config/config.json"
 Segment = require "../entities/segment.coffee"
+Powerups = require "../powerups.coffee"
 
 class BlockActor extends LDFW.Actor
   availableBlocks: require "../config/available_blocks.json"
@@ -67,6 +68,10 @@ class BlockActor extends LDFW.Actor
 
   randomize: ->
     index = Math.floor(Math.random() * @availableBlocks.length)
+
+    if @game.getActivePowerup() is Powerups.EASY
+      index = 0
+
     map = []
     originalMap = @availableBlocks[index]
     for row, y in originalMap

@@ -61,15 +61,15 @@ class Level
     soundManager.play "build"
 
     @buildBlock.setBuildMode false
-    @buildMode = false
 
     @blocks.push @buildBlock
     @buildBlock = null
 
-    @buildMode = false
-    @buildBlock = new BlockActor @app, @game, this, buildMode: true
-
+    @resetBuildBlock()
     @buildModeCooldownStart = Date.now()
+
+  resetBuildBlock: ->
+    @buildBlock = new BlockActor @app, @game, this, buildMode: true
 
   update: (delta) ->
     xOffset = @generator.xOffset
@@ -257,7 +257,6 @@ class Level
       for row, y in map
         for segment, x in row
           continue if segment is 0
-          continue if map[y - 1] and map[y - 1][x] isnt 0
 
           yOffset = segment.getOffset().getY()
           segment =
@@ -274,13 +273,14 @@ class Level
               boundaries.x.min = Math.max(segment.right, boundaries.x.min)
 
           # Vertical collision check
-          unless player.left >= segment.right or
-            player.right <= segment.left or
-            player.bottom > segment.top
-              boundaries.y.max = Math.min(segment.top, boundaries.y.max)
+          unless map[y - 1] and map[y - 1][x] isnt 0
+            unless player.left > segment.right or
+              player.right < segment.left or
+              player.bottom > segment.top
+                boundaries.y.max = Math.min(segment.top, boundaries.y.max)
 
-              if boundaries.y.max is segment.top
-                boundaries.y.object = block
+                if boundaries.y.max is segment.top
+                  boundaries.y.object = block
 
     return boundaries
 
