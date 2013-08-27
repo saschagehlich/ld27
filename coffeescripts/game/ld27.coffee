@@ -18,6 +18,7 @@ class LD27 extends LDFW.Game
     @scoreShared = false
 
     @keyboard = new Keyboard()
+    @setupSoundControl()
     soundManager.setup {
       url: "swf",
       preferFlash: false,
@@ -49,6 +50,18 @@ class LD27 extends LDFW.Game
           @run()
         @preloader.load()
     }
+
+  setupSoundControl: ->
+    @soundControlDiv = $("<div class=\"sound-control\">").appendTo @getWrapper()
+    @soundControlDiv.addClass "on"
+
+    @soundControlDiv.click ->
+      if $(this).hasClass "on"
+        soundManager.muteAll()
+        $(this).removeClass("on").addClass "off"
+      else
+        soundManager.unmuteAll()
+        $(this).removeClass("off").addClass "on"
 
   playBackground: ->
     soundManager.play "background",

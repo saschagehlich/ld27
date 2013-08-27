@@ -1648,6 +1648,7 @@ LD27 = (function(_super) {
     }
     this.scoreShared = false;
     this.keyboard = new Keyboard();
+    this.setupSoundControl();
     soundManager.setup({
       url: "swf",
       preferFlash: false,
@@ -1669,6 +1670,20 @@ LD27 = (function(_super) {
       }
     });
   }
+
+  LD27.prototype.setupSoundControl = function() {
+    this.soundControlDiv = $("<div class=\"sound-control\">").appendTo(this.getWrapper());
+    this.soundControlDiv.addClass("on");
+    return this.soundControlDiv.click(function() {
+      if ($(this).hasClass("on")) {
+        soundManager.muteAll();
+        return $(this).removeClass("on").addClass("off");
+      } else {
+        soundManager.unmuteAll();
+        return $(this).removeClass("off").addClass("on");
+      }
+    });
+  };
 
   LD27.prototype.playBackground = function() {
     var _this = this;

@@ -149,6 +149,26 @@ body {
 }
 
 /* line 24, ../../sass/application.sass */
+.sound-control {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  background-position: top left;
+  background-repeat: no-repeat;
+}
+/* line 37, ../../sass/application.sass */
+.sound-control.on {
+  background-image: url("../assets/sound-on.png");
+}
+/* line 39, ../../sass/application.sass */
+.sound-control.off {
+  background-image: url("../assets/sound-off.png");
+}
+
+/* line 42, ../../sass/application.sass */
 .notice {
   font: normal 11px Verdana;
   text-align: center;
@@ -161,7 +181,7 @@ body {
   margin-top: 270px;
 }
 
-/* line 38, ../../sass/application.sass */
+/* line 56, ../../sass/application.sass */
 .social-media {
   position: absolute;
   width: 640px;
@@ -170,12 +190,12 @@ body {
   margin-left: -320px;
   margin-top: -270px;
 }
-/* line 48, ../../sass/application.sass */
+/* line 66, ../../sass/application.sass */
 .social-media > * {
   margin-right: 20px;
 }
 
-/* line 51, ../../sass/application.sass */
+/* line 69, ../../sass/application.sass */
 .canvas-wrapper {
   position: absolute;
   top: 50%;
@@ -189,7 +209,7 @@ body {
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(0, 0, 0, 0.4);
 }
-/* line 66, ../../sass/application.sass */
+/* line 84, ../../sass/application.sass */
 .canvas-wrapper canvas {
   position: absolute;
   top: 0;
@@ -198,7 +218,7 @@ body {
   height: 100%;
   background: black;
 }
-/* line 77, ../../sass/application.sass */
+/* line 95, ../../sass/application.sass */
 .canvas-wrapper .debug {
   position: absolute;
   top: 0;

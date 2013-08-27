@@ -112,8 +112,6 @@
         </struct>
         <key>dataFileName</key>
         <filename>../build/assets/sprites.json</filename>
-        <key>multiPack</key>
-        <false/>
         <key>mainExtension</key>
         <string></string>
         <key>forceIdenticalLayout</key>

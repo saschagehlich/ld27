@@ -21,6 +21,24 @@ html, body
 body
   background: #51a3e4 url("../assets/background.png") repeat-x bottom
 
+.sound-control
+  position: absolute
+  top: 5px
+  right: 5px
+
+  cursor: pointer
+
+  width: 22px
+  height: 22px
+
+  background-position: top left
+  background-repeat: no-repeat
+
+  &.on
+    background-image: url("../assets/sound-on.png")
+  &.off
+    background-image: url("../assets/sound-off.png")
+
 .notice
   font: normal 11px Verdana
   text-align: center
